@@ -4,6 +4,7 @@ Funciones registradas: NumerarParcelas
 Tipee help(funcion) en la consola para mas informacion.
 """
 from qgis.core import *
+from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
 
