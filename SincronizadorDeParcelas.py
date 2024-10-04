@@ -1,3 +1,12 @@
+"""
+Modulo: Sincronizador de Parcelas
+04 Oct 2024
+
+Las funciones utilizables de este modulo son CompletarPartidas y CompletarTabla. 
+
+Para obtener informacion sobre las mismas, tipee help(funcion) en la consola de comandos.
+"""
+
 import pandas as pd
 from PyQt5.QtCore import QVariant
 from qgis.utils import *

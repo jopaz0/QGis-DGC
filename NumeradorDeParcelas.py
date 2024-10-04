@@ -1,11 +1,10 @@
 """
-Modulo Numerador de Parcelas
+Modulo: Numerador de Parcelas
 04 Oct 2024
 
 La funcion utilizable de este modulo es NumerarParcelas. 
 
-Para obtener informacion sobre la misma, tipee help(funcion) en la
-consola de comandos.
+Para obtener informacion sobre la misma, tipee help(funcion) en la consola de comandos.
 """
 from qgis.core import *
 from qgis.gui import *
@@ -260,6 +259,3 @@ def ImprimirDistanciaInterseccion(line_geom):
             min_distance = min(distances)
     return min_distance
 
-# NumerarParcelas(1,'NOMENCLA','Parcelas',True)
-# line_geom = iface.activeLayer().selectedFeatures()[0].geometry()
-# ImprimirDistanciaInterseccion(line_geom)
