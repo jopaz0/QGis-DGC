@@ -1,3 +1,12 @@
+"""
+Modulo Numerador de Parcelas
+04 Oct 2024
+
+La funcion utilizable de este modulo es NumerarParcelas. 
+
+Para obtener informacion sobre la misma, tipee help(funcion) en la
+consola de comandos.
+"""
 from qgis.core import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
@@ -149,37 +158,86 @@ class LineParcelNumberingTool(QgsMapToolEmitPoint):
         QgsMapTool.deactivate(self)
         print("Numeracion completada.")
 
-def NumerarParcelas(starting_number=1, target_field='NOMENCLA', layer=False, concat=False):
+def CheckLayerInMap(layer):
+    """
+    Checks that the provided layer is loaded on the map canvas.
+
+    PARAMETERS
+    layer: layer feature or string representing a layer name
+
+    COMMENTS
+    No errors found yet
+
+    RETURNS
+    QgsVectorLayer if layer is loaded on map canvas
+    False if not
+    """
+    if type(layer) == str:
+        layers = QgsProject.instance().mapLayersByName(layer)
+        if not layers:
+            print(f"Error, layer '{layer}' was not loaded in the map canvas.")
+            return False
+        if len(layers) > 1:
+            print(f"Alert, there is more than one layer called {layer} on the map canvas.")
+        return layers[0]
+    if type(layer) == QgsVectorLayer:
+        return layer
+    print(f"Layer was not typed as a string or QgsVectorLayer.")
+    return False
+
+def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, concatenar=False):
+    """
+    Permite numerar poligonos mediante una linea dibujada dinamicamente
+    por el usuario.
+
+    PARAMETROS
+    numeroInicial: numero entero
+        Numero desde el cual iniciara la numeracion.
+    campoObjetivo: cadena de caracteres
+        Nombre del campo/columna de la tabla donde se va a numerar.
+    capa: QgsVectorLayer o cadena de caracteres
+        Capa, o nombre de capa, donde se quiere numerar. Por defecto
+        toma la capa activa actual
+    concatenar: bool
+        True o False. Por defecto en Falso, reemplaza el valor previo
+        del campo al guardar la numeracion. Si se invoca la funcion con
+        conatenar=True, el numero se va a agregar al final del valor
+        anterior del campo.
+
+    COMENTARIOS
+    Hola, soy un comentario! A veces, cuando ocurre un error, la linea
+    dibujada permanece en pantalla. Para quitarla, seleccionar alguna
+    otra herramienta de QGis, como Seleccionar Entidades o Editar.
+
+    RETORNO
+    Nada
+    """
+
+
     global numeracion_tool  # Usar la variable global para almacenar la herramienta
     
-    if starting_number < 0:
-        print(f"! - El número no debe ser negativo.")
+    if numeroInicial < 0:
+        print(f"El número no debe ser negativo.")
         return
     
     # Verificar si se especificó una capa, si no, usar la capa activa
-    if not layer:
-        layer = iface.activeLayer()
-        print(f"! - No se especificó una capa, operando sobre {layer.name()}.")
-    elif isinstance(layer, str):  # Si la capa se pasa como nombre, buscarla por nombre
-        layer_name = layer
-        layer = QgsProject.instance().mapLayersByName(layer)
-        if layer:
-            layer = layer[0]
-        else:
-            print(f"! - No se encontró ninguna capa '{layer_name}'.")
-            return
+    if not capa:
+        capa = iface.activeLayer()
+        print(f"No se especificó una capa, operando sobre {capa.name()}.")
+    else:
+        capa = CheckLayerInMap(capa)
     
     # Verificar si la capa es válida y está en modo edición
-    if not layer.isEditable():
-        layer.startEditing()
+    if not capa.isEditable():
+        capa.startEditing()
     
     # Comprobar si el campo existe en la capa
-    if not target_field in [field.name() for field in layer.fields()]:
-        print(f"! - El campo {target_field} no existe en la capa.")
+    if not campoObjetivo in [field.name() for field in capa.fields()]:
+        print(f"! - El campo {campoObjetivo} no existe en la capa.")
         return
     
     # Crear la herramienta de trazado de línea y numeración
-    numeracion_tool = LineParcelNumberingTool(iface.mapCanvas(), layer, starting_number, target_field, concat)
+    numeracion_tool = LineParcelNumberingTool(iface.mapCanvas(), capa, numeroInicial, campoObjetivo, concatenar)
     
     # Cambiar la herramienta activa a la de trazado de línea y numeración
     iface.mapCanvas().setMapTool(numeracion_tool)
