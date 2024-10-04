@@ -1,6 +1,6 @@
 """
 Modulo: Numerador de Parcelas (04 Oct 2024)
-Funciones registradas: NumerarParcelas
+Funciones registradas: NumerarParcelas, AsignarValorACampo
 Tipee help(funcion) en la consola para mas informacion.
 """
 from qgis.core import *
@@ -182,7 +182,65 @@ def CheckLayerInMap(layer):
     print(f"Layer was not typed as a string or QgsVectorLayer.")
     return False
 
-def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, concatenar=False):
+def ImprimirDistanciaInterseccion(line_geom):
+    feature = iface.activeLayer().selectedFeatures()[0]
+    distances = []
+    perimeter_line = feature.geometry().convertToType(QgsWkbTypes.LineGeometry, False)
+    intersection_points = perimeter_line.intersection(line_geom)
+    if not intersection_points.isMultipart():
+        min_distance = line_geom.lineLocatePoint(intersection_points)
+    else:
+        for point in intersection_points.asMultiPoint():
+            # Obtener la distancia a lo largo de la línea
+            distance = line_geom.lineLocatePoint(QgsGeometry.fromPointXY(point))
+            distances.append(distance)
+            min_distance = min(distances)
+    return min_distance
+
+def IsCompatible(value, fieldType):
+    #ESTO ESTA COPIADO Y PEGADO DESDE SINCRONIZADORDEPARCELAS. VER COMO IMPORTAR Y Q FUNQUE EN QGIS
+    """
+    Verifica si el valor es compatible con el tipo de dato esperado por el campo de la capa.
+    
+    PARAMETROS
+    value: Valor a verificar.
+    field_type: Tipo de dato esperado por el campo (QVariant.Int, QVariant.Double, etc.).
+    
+    RETURN
+    True si el valor es compatible con el tipo de dato
+    False en caso contrario.
+    """
+    # Comprobaciones de tipo
+    if fieldType == QVariant.Int:
+        return isinstance(value, int)
+    elif fieldType == QVariant.Double:
+        return isinstance(value, (int, float))  # Los valores enteros son aceptables en campos de tipo Double
+    elif fieldType == QVariant.String:
+        return isinstance(value, str)
+    elif fieldType == QVariant.Bool:
+        return isinstance(value, bool)
+    elif fieldType == QVariant.Date:
+        # En QGIS, las fechas deben ser objetos de tipo `QDate` o `datetime.date`
+        from datetime import date
+        return isinstance(value, date)
+    elif fieldType == QVariant.DateTime:
+        # En QGIS, las fechas y horas deben ser objetos `QDateTime` o `datetime.datetime`
+        from datetime import datetime
+        return isinstance(value, datetime)
+    elif fieldType == QVariant.Time:
+        # En QGIS, las horas deben ser objetos `QTime` o `datetime.time`
+        from datetime import time
+        return isinstance(value, time)
+    elif fieldType == QVariant.LongLong:
+        return isinstance(value, int)  # `LongLong` es un tipo entero grande
+    # Otros tipos de datos específicos pueden agregarse aquí
+    else:
+        # Para otros tipos, permitir cualquier valor no nulo
+        return value is not None
+
+### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
+#Funciones destinadas a uso interno en DGC. O sea, estan en castellano, al menos los parametros y el docstring
+def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, concatenar=True):
     """
     Permite numerar poligonos mediante una linea dibujada dinamicamente
     por el usuario.
@@ -239,21 +297,43 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, conca
     # Cambiar la herramienta activa a la de trazado de línea y numeración
     iface.mapCanvas().setMapTool(numeracion_tool)
 
-#Gracias por tanto, ChatGPT
+def AsignarValorACampo(campoObjetivo, valor):
+    """
+    Permite asignar rapidamente un valor en un campo a las parcelas
+    seleccionadas.
 
+    PARAMETROS
+    campoObjetivo: cadena de caracteres
+        Nombre del campo/columna de la tabla donde se va a modificar
+    valor: numero o cadena de caracteres
+        Valor que se va a aplicar.
 
-def ImprimirDistanciaInterseccion(line_geom):
-    feature = iface.activeLayer().selectedFeatures()[0]
-    distances = []
-    perimeter_line = feature.geometry().convertToType(QgsWkbTypes.LineGeometry, False)
-    intersection_points = perimeter_line.intersection(line_geom)
-    if not intersection_points.isMultipart():
-        min_distance = line_geom.lineLocatePoint(intersection_points)
-    else:
-        for point in intersection_points.asMultiPoint():
-            # Obtener la distancia a lo largo de la línea
-            distance = line_geom.lineLocatePoint(QgsGeometry.fromPointXY(point))
-            distances.append(distance)
-            min_distance = min(distances)
-    return min_distance
+    COMENTARIOS
+    Hola, soy un comentario! Me resulta un poco mas rapido que usar la
+    calculadora de campos, pero es basicamente lo mismo. Es potente si 
+    combina con NumerarParcelas. Aplica SOLO a entidades seleccionadas
+    
+    RETORNO
+    Nada
+    """
+    layer = iface.activeLayer()
+    features = layer.selectedFeatures()
+    if not features:
+        print(f'No habia nada seleccionado en {layer.name()}')
+        return False
+    if not campoObjetivo in [x.name() for x in layer.fields()]:
+        print(f'El campo {campoObjetivo} no existe en {layer.name()}')
+        return False
+    fieldType = layer.fields().field(campoObjetivo).type()
+    if IsCompatible(valor, fieldType):
+        with edit(layer):
+            for feature in features:
+                feature[campoObjetivo] = valor
+                if not layer.updateFeature(feature):
+                        print(f"Error al actualizar la entidad. Esto no deberia ocurrir...")
+                        layer.rollBack()
+        return True
+    else: 
+        print(f'El tipo de valor ({fieldType}) proporcionado no era compatible con {campoObjetivo}.')
+        return False
 
