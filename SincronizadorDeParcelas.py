@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 from PyQt5.QtCore import QVariant
 from qgis.utils import *
@@ -116,12 +115,7 @@ def CheckSelection(layer, onlySelected):
     return features
 
 # 'TEST'
-# csvPath = r'C:\MaxlocV11\Manzana25.xls'
-# fnt = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
-# ff = ['PORCEN','V2','V3','V4']
-# dfa = ['EXPTE','ANIO']
-# csvdict = CsvToDictList(csvPath, floatFields=ff, dropFields_aprox=dfa, fieldNameTranslations=fnt)
-# print(csvdict[0])
+# csvdict = CsvToDictList(r'C:\MaxlocV11\Manzana25.xls', floatFields=['PORCEN','V2','V3','V4'], dropFields_aprox=['EXPTE','ANIO'], fieldNameTranslations={'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'})
 def CsvToDictList(csvPath, 
                   floatFields=[], 
                   dropFields_aprox=[], 
@@ -204,6 +198,7 @@ def Dict_Errors():
         errores[error]['CODE'] = 2**error
     return errores
 
+# 'TEST'
 def IsCompatible(value, fieldType):
     """
     Verifica si el valor es compatible con el tipo de dato esperado por el campo de la capa.
@@ -244,12 +239,53 @@ def IsCompatible(value, fieldType):
         # Para otros tipos, permitir cualquier valor no nulo
         return value is not None
 
+# 'TEST'
 def RemoveStartingChars(string,char):
+    """
+    Removes all leading characters from the input string that match the specified character.
+
+    PARAMETERS
+    string: str
+        The input string from which to remove leading characters.
+    char: str
+        The character to remove from the beginning of the input string.
+
+    COMMENTS
+    This function iteratively removes the specified character from the start of the string until 
+    it encounters a different character or the string becomes empty. It is useful for cleaning up 
+    strings that might have unwanted leading characters such as spaces, zeroes, or special symbols.
+
+    RETURNS
+    str
+        The modified string without leading characters that match the specified character.
+        If the input string is entirely composed of the specified character, an empty string 
+        is returned.
+    """
     while len(string)>0 and string[0] == char:
         string = string[1:]
     return string
 
-def RemoveEndingChars(string,char):
+def RemoveEndingChars(string, char):
+    """
+    Removes all trailing characters from the input string that match the specified character.
+
+    PARAMETERS
+    string: str
+        The input string from which to remove trailing characters.
+    char: str
+        The character to remove from the end of the input string.
+
+    COMMENTS
+    This function iteratively removes the specified character from the end of the string until 
+    it encounters a different character or the string becomes empty. It is useful for cleaning up 
+    strings that might have unwanted trailing characters such as spaces, zeroes, or special symbols.
+
+    RETURNS
+    str
+        The modified string without trailing characters that match the specified character.
+        If the input string is entirely composed of the specified character, an empty string 
+        is returned.
+    """
     while len(string)>0 and string[-1] == char:
         string = string[:-1]
     return string
@@ -262,9 +298,12 @@ def SelectDictsFromList(dictList, matchFilters={}, unmatchFilters={}):
     unmatching fields on the dicts.
 
     PARAMETERS
-    dictList: list of dictionaries like [{..},{..},..]
-    matchFilters: dictionary of desired values in fields
-    unmatchFilters: dictionary of undesired values in fields
+    dictList: list 
+        List made of dictionaries like [{..},{..},..]
+    matchFilters: dictionary 
+        Desired values in fields
+    unmatchFilters: dictionary 
+        Undesired values in fields
 
     COMMENTS
 
@@ -288,12 +327,7 @@ def SelectDictsFromList(dictList, matchFilters={}, unmatchFilters={}):
     return result
 
 # 'TEST'
-# dictList = csvdict
-# key = 'NOMENCLA'
-# parcdict = SetDictListKey(dictList, key)
-# for x in parcdict.items():
-#     print(x)
-#     break
+# parcdict = SetDictListKey(csvdict, 'NOMENCLA')
 def SetDictListKey(dictList, keyField):
     """
     Takes al list of dictionaries and parses it do a dictionary of
@@ -324,9 +358,7 @@ def SetDictListKey(dictList, keyField):
     return result
 
 # 'TEST'
-# layer = iface.activeLayer()
-# features = layer.selectedFeatures()
-# SyncFieldsFromDict(layer, features, parcdict, 'NOMENCLA', ['PARTIDA'])
+# SyncFieldsFromDict(iface.activeLayer(), layer.selectedFeatures(), SetDictListKey(csvdict, key), 'NOMENCLA', ['PARTIDA'])
 def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMultiples=False):
     #
     layerFields = [f.name() for f in layer.fields()]
@@ -373,9 +405,6 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                         layer.rollBack()
 
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
-
-
-
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
 def CompletarPartidas(ejido, capa = False, poseedores=False, soloSeleccionados=True):
     """
@@ -504,4 +533,3 @@ def CompletarTabla(ejido, capa = False, soloSeleccionados=True):
                 capa.rollBack()
     # Si no se encuentra la partida en el diccionario, es xq no existen
     SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
-    
