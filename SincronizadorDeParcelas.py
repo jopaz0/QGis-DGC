@@ -6,9 +6,7 @@ from qgis.gui import *
 from qgis.core import *
 
 # 'TEST'
-# layer = iface.activeLayer()
-# feature = layer.selectedFeatures()
-# AppendSyncErrorToFeature(layer, features, 1)
+# AppendSyncErrorToFeature(iface.activeLayer(), layer.selectedFeatures(), 1)
 def AppendSyncErrorToFeature(layer, features, errorCode, errorField='COD'):
     """
     Adds an error code to an entity.
@@ -59,8 +57,7 @@ def AppendSyncErrorToFeature(layer, features, errorCode, errorField='COD'):
     return False
 
 # 'TEST'
-# layer = 'Propietarios-PHs'
-# CheckLayerInMap(layer)
+# CheckLayerInMap('Propietarios-PHs')
 def CheckLayerInMap(layer):
     """
     Checks that the provided layer is loaded on the map canvas.
@@ -87,6 +84,36 @@ def CheckLayerInMap(layer):
         return layer
     print(f"Layer was not typed as a string or QgsVectorLayer.")
     return False
+
+# 'TEST'
+# CheckSelection(iface.activeLayer(), True)
+def CheckSelection(layer, onlySelected):
+    """
+    Checks for features selected in the layer, or any features at all.
+
+    PARAMETERS
+    layer: layer feature or string representing a layer name
+    onlySelected: boolean
+
+    COMMENTS
+    If onlySelected is True, this will return any selected features, or
+    False if none selected. If set to false 
+
+    RETURNS
+    List of QgsFeatures if features were found
+    False if not
+    """
+    if onlySelected:
+        features = layer.selectedFeatures()
+        if not features:
+            print(f'No selected features in {layer.name()}')
+            return False
+    else:
+        features = [x for x in layer.getFeatures()]
+        if not features:
+            print(f'Layer {layer.name()} was empty')
+            return False
+    return features
 
 # 'TEST'
 # csvPath = r'C:\MaxlocV11\Manzana25.xls'
@@ -177,6 +204,89 @@ def Dict_Errors():
         errores[error]['CODE'] = 2**error
     return errores
 
+def IsCompatible(value, fieldType):
+    """
+    Verifica si el valor es compatible con el tipo de dato esperado por el campo de la capa.
+    
+    PARAMETROS
+    value: Valor a verificar.
+    field_type: Tipo de dato esperado por el campo (QVariant.Int, QVariant.Double, etc.).
+    
+    RETURN
+    True si el valor es compatible con el tipo de dato
+    False en caso contrario.
+    """
+    # Comprobaciones de tipo
+    if fieldType == QVariant.Int:
+        return isinstance(value, int)
+    elif fieldType == QVariant.Double:
+        return isinstance(value, (int, float))  # Los valores enteros son aceptables en campos de tipo Double
+    elif fieldType == QVariant.String:
+        return isinstance(value, str)
+    elif fieldType == QVariant.Bool:
+        return isinstance(value, bool)
+    elif fieldType == QVariant.Date:
+        # En QGIS, las fechas deben ser objetos de tipo `QDate` o `datetime.date`
+        from datetime import date
+        return isinstance(value, date)
+    elif fieldType == QVariant.DateTime:
+        # En QGIS, las fechas y horas deben ser objetos `QDateTime` o `datetime.datetime`
+        from datetime import datetime
+        return isinstance(value, datetime)
+    elif fieldType == QVariant.Time:
+        # En QGIS, las horas deben ser objetos `QTime` o `datetime.time`
+        from datetime import time
+        return isinstance(value, time)
+    elif fieldType == QVariant.LongLong:
+        return isinstance(value, int)  # `LongLong` es un tipo entero grande
+    # Otros tipos de datos específicos pueden agregarse aquí
+    else:
+        # Para otros tipos, permitir cualquier valor no nulo
+        return value is not None
+
+def RemoveStartingChars(string,char):
+    while len(string)>0 and string[0] == char:
+        string = string[1:]
+    return string
+
+def RemoveEndingChars(string,char):
+    while len(string)>0 and string[-1] == char:
+        string = string[:-1]
+    return string
+
+# 'TEST'
+# len(SelectDictsFromList(csvdict, {'TEN':'S'}))
+def SelectDictsFromList(dictList, matchFilters={}, unmatchFilters={}):
+    """
+    Filters the list of dictionaries using filter dicts for matching or
+    unmatching fields on the dicts.
+
+    PARAMETERS
+    dictList: list of dictionaries like [{..},{..},..]
+    matchFilters: dictionary of desired values in fields
+    unmatchFilters: dictionary of undesired values in fields
+
+    COMMENTS
+
+    RETURNS
+    List of dictionaries
+    Empty list if no match was found
+    """
+    result = []
+    for element in dictList:
+        flag = True
+        for key, value in matchFilters.items():
+            if not value == element[key]:
+                flag = False
+                break
+        for key, value in unmatchFilters.items():
+            if value == element[key]:
+                flag = False
+                break
+        if flag:
+            result += [element]
+    return result
+
 # 'TEST'
 # dictList = csvdict
 # key = 'NOMENCLA'
@@ -215,34 +325,28 @@ def SetDictListKey(dictList, keyField):
 
 # 'TEST'
 # layer = iface.activeLayer()
-# dict = parcdict
-# keyField = 'NOMENCLA'
-# fields = ['PARTIDA']
-# SyncFieldsFromDict(layer, dict, keyField, fields)
-def SyncFieldsFromDict(layer, data, keyField, fields=False, selectedOnly=True, ignoreMultiples=False):
+# features = layer.selectedFeatures()
+# SyncFieldsFromDict(layer, features, parcdict, 'NOMENCLA', ['PARTIDA'])
+def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMultiples=False):
     #
     layerFields = [f.name() for f in layer.fields()]
     dictFields = [k for k in next(iter(data.values()))[0].keys()]
     if not fields:
-        fields = layerFields
+        fields = [f.name() for f in layer.fields()]
         fields.remove(keyField)
     if not keyField in layerFields or not keyField in dictFields:
         print(f'Key field {keyField} was not found on either {layer.name()} or the data source')
         return False
     notFound = []
     for field in fields:
-        if not field in layerFields or not field in dictFields:
-            print(f'Field {keyField} was not found on either {layer.name()} or the data source and will be ignored')
-            notfound += [field]
+        if not field in layerFields:
+            print(f'Field {field} was not found on {layer.name()} and will be ignored')
+            notFound += [field]
+        if not field in dictFields:
+            print(f'Field {field} was not found on data and will be ignored')
+            notFound += [field]
     for field in notFound:
         fields.remove(field)
-    if selectedOnly:
-        features = layer.selectedFeatures()
-        if not features:
-            print(f'No features selected on {layer.name()}')
-            return False
-    else:
-        features = layer.getFeatures()
     for feature in features:
         key = feature[keyField]
         if key in data:
@@ -252,48 +356,152 @@ def SyncFieldsFromDict(layer, data, keyField, fields=False, selectedOnly=True, i
                 if ignoreMultiples:
                     continue
             entry = entries[0]
-            with edit(layer):
-                for field in fields:
-                    if field in entry:
-                        feature[field] = int(entry[field])
+            for field in fields:
+                with edit(layer):
+                    if field in entry: 
+                        value = entry[field]
+                        fieldType = layer.fields().field(field).type()
+                        if IsCompatible(value, fieldType):
+                            try:
+                                feature[field] = value
+                            except Exception as e:
+                                print(f"Fallo al copiar {value} a {field}({fieldType}). Errormsg: {e}")
                     else:
                         print(f'Field {field} was not found in')
-                layer.updateFeature(feature)
+                    if not layer.updateFeature(feature):
+                        print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
+                        layer.rollBack()
 
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
 
+
+
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
-def CompletarCampos(capa, ejido, targetFields=False):
+def CompletarPartidas(ejido, capa = False, poseedores=False, soloSeleccionados=True):
     """
-    Completa los campos especificados de la capa objetivo con
-    los datos leidos desde el diccionario.
+    Completa los campos especificados de la capa URBANA objetivo con
+    los datos leidos desde el csv descargado desde progress. Requiere
+    los campos NOMENCLA, CC y TEN para identificar correctamente la 
+    parcela. Y PARTIDA, obviamente.
 
-    layer <= QgsVectorLayer o similar
-    sourceDict <= diccionario de entidades. Debe tener un formato 
-        especifico similar a {key :[{}{}...], ...}
-        Se entiende que en algunos casos, una coleccion de entidades
-        puede tener mas de una entidad con el mismo identificador,
-        por lo que cada key esta vinculado a una lista de dicciona-
-        rios en vez de uno singular
-        Cada diccionario dentro de esta lista debe poseer pares clave-
-        valor representando los campos de la tabla.
-    layerIdField <= Identificador en la tabla de la capa
-    dictIdField <= Identificador en el diccionario
-    targetFields <= Campos a completar. Si no se especifica, toma los
-        campos de la capa, exceptuando al identificador.
+    PARAMETROS
+    ejido: numero de ejido de la capa
+    capa: QgsVectorLayer o cadena con el nombre de la capa. La misma
+        debe estar cargada en el mapa. Por defecto toma la capa activa
+        actual.
+    poseedores: si se apica poseedores=True, va a filtrar los csv para
+        que solo incluyan poseedores. Por defecto, los filtra pero para
+        EXCLUIR los poseedores.
+    soloSeleccionados: Por defecto actualiza las parcelas seleccionadas
+        solamente. Si se aplica soloSeleccionados=False, actualiza toda
+        la capa. Puede tomarse su tiempo...
+
+    COMENTARIOS
+    Hola, soy un comentario!
+
+    DEVUELVE
+    Nada
     """
-    capa = CheckLayerInMap(capa)
-    for cc in [1,2,3]:
-        if cc == 3:
-            csvPath = f'C:\\MaxlocV11\\Manzana{ejido}.xls'
-        elif cc == 2:
-            csvPath = f'C:\\MaxlocV11\\Manzana{ejido}.xls'
-        else:
-            csvPath = f'C:\\MaxlocV11\\Manzana{ejido}.xls'
+    #controlo el input de la capa y seleccion
+    if capa:
+        capa = CheckLayerInMap(capa)
+    else:
+        capa = iface.activeLayer()
 
-    if not capa:
-        print('No se pudo validar la capa de entrada')
+    entidades = CheckSelection(capa, soloSeleccionados)
+    if not entidades:
         return
+
+    #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
+    for campo in ['NOMENCLA','PARTIDA', 'CC','TEN']:
+        if not campo in [x.name() for x in capa.fields()]:
+            print(f'La capa {capa.name()} no tenia el campo {campo}' )
+            return False
+
+    #obtengo los diccionarios desde disco
+    diccionarios = {1:False,2:False,3:False}
+    nombrecc = {1:'Chacra',2:'Quinta',3:'Manzana'}
+    camposDecimales = ['PORCEN','V2','V3','V4']
+    camposBorrarAprox = ['EXPTE','ANIO']
+    conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
+    for cc in [1,2,3]:
+        csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
+        diccionarios[cc] = CsvToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+        if poseedores:
+            diccionarios[cc] = SelectDictsFromList(diccionarios[cc], matchFilters={'TEN':'S'})
+        else:
+            diccionarios[cc] = SelectDictsFromList(diccionarios[cc], unmatchFilters={'TEN':'S'})
+        diccionarios[cc] = SetDictListKey(diccionarios[cc], 'NOMENCLA')
+
+    #separo las parcelas por cc y matcheo por nomenclatura con el diccionario que le corresponda
+    #de momento, esto no tiene en cuenta PHS
+    for cc in [1,2,3]: 
+        subconjunto = [x for x in entidades if x['CC']==cc]
+        SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
+
+def CompletarTabla(ejido, capa = False, soloSeleccionados=True):
+    """
+    Completa la tabla completa de la capa URBANA objetivo con los datos
+    leidos desde el csv descargado desde progress. Por defecto solo lo
+    hace a las parcelas seleccionadas.
+
+    PARAMETROS
+    ejido: numero del ejido
+    capa: cadena o QgsVectorLayer de la capa que se va a completar. Por
+        defecto toma la capa actual.
+    soloSeleccionados: Por defecto actualiza las parcelas seleccionadas
+        solamente. Si se aplica soloSeleccionados=False, actualiza toda
+        la capa. Puede tomarse su bueeeen tiempo...
+
+    COMENTARIOS
+    Hola, soy un comentario!
+
+    DEVOLUCION
+    Nada
+    """
+    #controlo el input de la capa y seleccion
+    if capa:
+        capa = CheckLayerInMap(capa)
+    else:
+        capa = iface.activeLayer()
+
+    seleccion = CheckSelection(capa, soloSeleccionados)
+    if not seleccion:
+        return
+
+    #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
+    for campo in ['PARTIDA', 'CC']:
+        if not campo in [x.name() for x in capa.fields()]:
+            print(f'La capa {capa.name()} no tenia el campo {campo}' )
+            return False
+
+    #obtengo las listas de diccionarios desde disco y los unifico
+    diccionario = []
+    nombrecc = {1:'Chacra',2:'Quinta',3:'Manzana'}
+    camposDecimales = ['PORCEN','V2','V3','V4']
+    camposBorrarAprox = ['EXPTE','ANIO']
+    conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
+    for cc in [1,2,3]:
+        csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
+        diccionario += CsvToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+
+    #aplico algunas conversiones a los datos.. parece que solo necesite una
+    for entidad in diccionario:
+        entidad['MZNA'] = RemoveEndingChars(RemoveStartingChars(entidad['MZNA'], '0'), 'X')
+
+    diccionario = SetDictListKey(diccionario, 'PARTIDA')
+
+    # Blanqueo los valores de COD, DOCUMENTO, APELLIDO y REGISTRO de las entidades
+    with edit(capa):
+        for entidad in seleccion:
+            for campo in ['COD','DOCUMENTO','APELLIDO','REGISTRO']:
+                if not campo in [x.name() for x in capa.fields()]:
+                    print(f'La capa {capa.name()} no tenia el campo {campo}' )
+                else:
+                    entidad[campo] = None
+            if not capa.updateFeature(entidad):
+                print(f"Error al blanquear la capa. Revertiendo cambios.")
+                capa.rollBack()
+    # Si no se encuentra la partida en el diccionario, es xq no existen
+    SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
     
-    data = 
-    SyncFieldsFromDict(capa, data, keyField, fields=False, selectedOnly=True, ignoreMultiples=False)
