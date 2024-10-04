@@ -2,7 +2,6 @@
 Modulo: Numerador de Parcelas (04 Oct 2024)
 Funciones registradas: NumerarParcelas
 Tipee help(funcion) en la consola para mas informacion.
-
 """
 from qgis.core import *
 from qgis.gui import *

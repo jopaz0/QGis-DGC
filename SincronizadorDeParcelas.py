@@ -2,7 +2,6 @@
 Modulo: Sincronizador de Parcelas (04 Oct 2024)
 Funciones registradas: CompletarPartidas, CompletarTabla
 Tipee help(funcion) en la consola para mas informacion.
-
 """
 
 import pandas as pd
