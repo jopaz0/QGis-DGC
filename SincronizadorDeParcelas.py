@@ -1,10 +1,8 @@
 """
-Modulo: Sincronizador de Parcelas
-04 Oct 2024
+Modulo: Sincronizador de Parcelas (04 Oct 2024)
+Funciones registradas: CompletarPartidas, CompletarTabla
+Tipee help(funcion) en la consola para mas informacion.
 
-Las funciones utilizables de este modulo son CompletarPartidas y CompletarTabla. 
-
-Para obtener informacion sobre las mismas, tipee help(funcion) en la consola de comandos.
 """
 
 import pandas as pd
