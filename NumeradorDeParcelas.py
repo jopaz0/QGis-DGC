@@ -7,6 +7,7 @@ from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
+from PyQt5.QtCore import QVariant
 
 # Variables para configurar
 starting_number = 1  # Número inicial, modificar según sea necesario
