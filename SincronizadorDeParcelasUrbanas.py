@@ -53,8 +53,8 @@ def SincronizarEjidoConTablasProgress(ejido):
         #Columnas a blanquear. Si la partida no existe en la tabla, es xq se dio de baja, y quedan en blanco
         camposEnBlanco = ['COD','DOCUMENTO','APELLIDO']
 
-        with edit(capa):
-            for feature in capa.getFeatures():
+        with edit(union):
+            for feature in union.getFeatures():
                 if not feature[f'{prefijo}PARTIDA']:
                     for campo in camposEnBlanco:
                         feature[campo] = None  # Establecer el valor en nulo
@@ -63,21 +63,7 @@ def SincronizarEjidoConTablasProgress(ejido):
                         try:
                             feature[campo] = feature[f'{prefijo}{campo}']
                         except Exception as e:
-                            print(e)
-                capa.updateFeature(feature)
-
-
-    # propietarios = AddLayerFromPath(capas['PROPIETARIOS'], 'PROPIETARIOS')
-    # poseedores = AddLayerFromPath(capas['POSEEDORES'], 'POSEEDORES')
-
-    
-
-def SincronizarTabla(id):
-    if type(id) is int:
-        SincronizacionUrbana(id)
-    elif type(id) is str:
-        print('Esto es solo para ejidos! Ingrese un numero de ejido, no una Seccion o lo que sea.')
-        return False
-        SincronizacionRural(id)
-                            
-
+                            #añadir mensaje de error?
+                            continue
+                union.updateFeature(feature)
+        CANVAS_AddLayer(union, f'{ejido}-{ten}')
