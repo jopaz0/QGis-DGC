@@ -1,6 +1,6 @@
 """
 Common Python Functions (09 Oct 2024)
-Created for use at DGC and PyQGis, but general enough to implement in other projects.
+Created for use at DGC with PyQGis, but general enough to implement in other projects.
 """
 
 from qgis.core import QgsProject, QgsVectorLayer

@@ -15,140 +15,140 @@ target_field = "PARCELA"  # Campo de la entidad donde se almacenará el número
 numeracion_tool = None
 class LineParcelNumberingTool(QgsMapToolEmitPoint):
     """
-    Tool for numbering parcels along a user-defined line in a QGIS map canvas.
+    Herramienta para numerar parcelas a lo largo de una línea definida por el usuario en un lienzo de mapa de QGIS.
 
-    This tool allows the user to draw a line on the map and assign sequential numbers to intersecting parcels 
-    based on their position along that line. The numbering can either replace the existing attribute values 
-    or be concatenated to them.
+    Esta herramienta permite al usuario dibujar una línea en el mapa y asignar números secuenciales a las parcelas que 
+    intersectan en función de su posición a lo largo de esa línea. La numeración puede reemplazar los valores de atributos 
+    existentes o concatenarse a ellos.
 
-    PARAMETERS
-    canvas: Reference to the QGIS map canvas.
-    layer: The QgsVectorLayer object representing the layer to be modified.
-    starting_number: Integer indicating the starting number for the parcel numbering.
-    target_field: String representing the field name where the numbers will be stored.
-    concat: Boolean indicating whether to concatenate the numbering with existing values in the target field.
+    PARAMETROS
+    canvas: Referencia al lienzo del mapa de QGIS.
+    layer: El objeto QgsVectorLayer que representa la capa que se va a modificar.
+    startingNumber: Entero que indica el número de inicio para la numeración de parcelas.
+    targetField: Cadena que representa el nombre del campo donde se almacenarán los números.
+    concat: Booleano que indica si se debe concatenar la numeración con los valores existentes en el campo objetivo.
     """
 
-    def __init__(self, canvas, layer, starting_number, target_field, concat):
+    def __init__(self, canvas, layer, startingNumber, targetField, concat):
         """
-        Initializes the numbering tool with the provided map canvas, layer, and numbering parameters.
+        Inicializa la herramienta de numeración con el lienzo del mapa, la capa y los parámetros de numeración proporcionados.
 
-        PARAMETERS
-        canvas: Reference to the QGIS map canvas.
-        layer: The QgsVectorLayer object representing the layer to be modified.
-        starting_number: Integer indicating the starting number for the parcel numbering.
-        target_field: String representing the field name where the numbers will be stored.
-        concat: Boolean indicating whether to concatenate the numbering with existing values in the target field.
+        PARAMETROS
+        canvas: Referencia al lienzo del mapa de QGIS.
+        layer: El objeto QgsVectorLayer que representa la capa que se va a modificar.
+        startingNumber: Entero que indica el número de inicio para la numeración de parcelas.
+        targetField: Cadena que representa el nombre del campo donde se almacenarán los números.
+        concat: Booleano que indica si se debe concatenar la numeración con los valores existentes en el campo objetivo.
         """
         super().__init__(canvas)
         self.canvas = canvas
         self.layer = layer
-        self.current_number = starting_number
-        self.target_field = target_field
+        self.currentNumber = startingNumber
+        self.targetField = targetField
         self.concat = concat
-        self.points = []  # Stores points to create the line
-        self.setCursor(Qt.CrossCursor)  # Change cursor to crosshair when tool is activated
+        self.points = []  # Almacena puntos para crear la línea
+        self.setCursor(Qt.CrossCursor)  # Cambia el cursor a una cruz cuando se activa la herramienta
         self.rubberBand = None
-        print(f"""Numbering tool activated:
- Layer = '{layer.name()}'
- Field = '{target_field}'
- Starting number = {starting_number},
- Concatenate with previous data = {concat}
+        print(f"""Herramienta de numeración activada:
+ Capa = '{layer.name()}'
+ Campo = '{targetField}'
+ Número de inicio = {startingNumber},
+ Concatenar con datos anteriores = {concat}
 """)
 
     def canvasPressEvent(self, event):
         """
-        Handles the mouse press event on the map canvas.
+        Maneja el evento de pulsación del mouse en el lienzo del mapa.
 
-        Captures the coordinates where the user clicks and adds the point to the line being drawn. 
-        Updates the rubber band (visual line) on the canvas to reflect the added points.
+        Captura las coordenadas donde el usuario hace clic y agrega el punto a la línea que se está dibujando. 
+        Actualiza el rubber band (línea visual) en el lienzo para reflejar los puntos agregados.
 
-        PARAMETERS
-        event: QMouseEvent object representing the mouse event.
+        PARAMETROS
+        event: Objeto QMouseEvent que representa el evento del mouse.
         """
         point = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos())
         self.points.append(point)
         
         if len(self.points) >= 1:
-            self.rubberBand.addPoint(point, True)  # Add points to the rubber band to display the line
+            self.rubberBand.addPoint(point, True)  # Agrega puntos al rubber band para mostrar la línea
 
     def canvasReleaseEvent(self, event):
         """
-        Handles the mouse release event on the map canvas.
+        Maneja el evento de liberación del mouse en el lienzo del mapa.
 
-        This method is not used in this tool but is required to be defined as part of the QgsMapToolEmitPoint class.
+        Este método no se utiliza en esta herramienta pero debe definirse como parte de la clase QgsMapToolEmitPoint.
 
-        PARAMETERS
-        event: QMouseEvent object representing the mouse event.
+        PARAMETROS
+        event: Objeto QMouseEvent que representa el evento del mouse.
         """
         pass
 
     def keyPressEvent(self, event):
         """
-        Handles key press events when the tool is active.
+        Maneja los eventos de pulsación de teclas cuando la herramienta está activa.
 
-        If the Enter key is pressed, a line geometry is created from the selected points, and intersecting parcels 
-        are identified and numbered sequentially along the line.
+        Si se presiona la tecla Enter, se crea una geometría de línea a partir de los puntos seleccionados, y se identifican 
+        las parcelas que intersectan y se numeran secuencialmente a lo largo de la línea.
 
-        PARAMETERS
-        event: QKeyEvent object representing the key event.
+        PARAMETROS
+        event: Objeto QKeyEvent que representa el evento de la tecla.
         """
         if event.key() == Qt.Key_Return:
             if len(self.points) < 2:
-                print("At least two points are needed to draw a line.")
+                print("Se necesitan al menos dos puntos para dibujar una línea.")
                 return
 
-            line_geom = QgsGeometry.fromPolylineXY(self.points)
+            lineGeom = QgsGeometry.fromPolylineXY(self.points)
 
             if self.layer.crs() != self.canvas.mapSettings().destinationCrs():
-                line_geom.transform(QgsCoordinateTransform(self.canvas.mapSettings().destinationCrs(), self.layer.crs(), QgsProject.instance()))
+                lineGeom.transform(QgsCoordinateTransform(self.canvas.mapSettings().destinationCrs(), self.layer.crs(), QgsProject.instance()))
 
-            spatial_index = QgsSpatialIndex(self.layer.getFeatures())
-            intersecting_ids = spatial_index.intersects(line_geom.boundingBox())
+            spatialIndex = QgsSpatialIndex(self.layer.getFeatures())
+            intersectingIds = spatialIndex.intersects(lineGeom.boundingBox())
 
-            if not intersecting_ids:
-                print("No nearby features were found for the drawn line.")
+            if not intersectingIds:
+                print("No se encontraron características cercanas para la línea dibujada.")
                 return
 
-            intersecting_features = [f for f in self.layer.getFeatures(QgsFeatureRequest().setFilterFids(intersecting_ids)) if f.geometry().intersects(line_geom)]
+            intersectingFeatures = [f for f in self.layer.getFeatures(QgsFeatureRequest().setFilterFids(intersectingIds)) if f.geometry().intersects(lineGeom)]
 
-            if intersecting_features:
-                # Sort the parcels by their position along the line
-                parcels_with_distances = []
-                for feature in intersecting_features:
+            if intersectingFeatures:
+                # Ordena las parcelas por su posición a lo largo de la línea
+                parcelsWithDistances = []
+                for feature in intersectingFeatures:
                     distances = []
-                    perimeter_line = feature.geometry().convertToType(QgsWkbTypes.LineGeometry, False)
-                    intersection_points = perimeter_line.intersection(line_geom)
-                    if not intersection_points.isMultipart():
-                        min_distance = line_geom.lineLocatePoint(intersection_points)
+                    perimeterLine = feature.geometry().convertToType(QgsWkbTypes.LineGeometry, False)
+                    intersectionPoints = perimeterLine.intersection(lineGeom)
+                    if not intersectionPoints.isMultipart():
+                        minDistance = lineGeom.lineLocatePoint(intersectionPoints)
                     else:
-                        for point in intersection_points.asMultiPoint():
-                            distance = line_geom.lineLocatePoint(QgsGeometry.fromPointXY(point))
+                        for point in intersectionPoints.asMultiPoint():
+                            distance = lineGeom.lineLocatePoint(QgsGeometry.fromPointXY(point))
                             distances.append(distance)
-                        min_distance = min(distances)
-                    parcels_with_distances.append((feature, min_distance))
+                        minDistance = min(distances)
+                    parcelsWithDistances.append((feature, minDistance))
                 
-                parcels_with_distances.sort(key=lambda x: x[1])
+                parcelsWithDistances.sort(key=lambda x: x[1])
 
-                # Start editing and apply numbering
+                # Comienza a editar y aplicar la numeración
                 self.layer.startEditing()
-                for feature, _ in parcels_with_distances:
-                    field_index = self.layer.fields().indexOf(self.target_field)
-                    current_value = feature.attribute(field_index) or ''
+                for feature, _ in parcelsWithDistances:
+                    fieldIndex = self.layer.fields().indexOf(self.targetField)
+                    currentValue = feature.attribute(fieldIndex) or ''
 
                     if self.concat:
-                        new_value = f"{current_value}{self.current_number}"
+                        newValue = f"{currentValue}{self.currentNumber}"
                     else:
-                        new_value = f"{self.current_number}"
+                        newValue = f"{self.currentNumber}"
 
-                    feature.setAttribute(field_index, new_value)
+                    feature.setAttribute(fieldIndex, newValue)
                     self.layer.updateFeature(feature)
-                    self.current_number += 1
+                    self.currentNumber += 1
                 
                 self.layer.commitChanges()
                 self.layer.removeSelection()
             else:
-                print("No parcels were selected that intersect with the line.")
+                print("No se seleccionaron parcelas que intersecten con la línea.")
             
             self.points = []
             self.rubberBand.reset(QgsWkbTypes.LineGeometry)
@@ -156,31 +156,30 @@ class LineParcelNumberingTool(QgsMapToolEmitPoint):
     
     def activate(self):
         """
-        Activates the numbering tool and initializes variables.
+        Activa la herramienta de numeración e inicializa las variables.
 
-        Displays a red rubber band on the map canvas to help visualize the line as it is being drawn.
+        Muestra un rubber band rojo en el lienzo del mapa para ayudar a visualizar la línea mientras se está dibujando.
         """
         self.points = []
         self.rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
         self.rubberBand.setColor(Qt.red)
         self.rubberBand.setWidth(2)
         self.rubberBand.show()
-        print("Please draw a line and press Enter to apply the numbering. Start the line outside a polygon; otherwise, it may cause numbering errors for the first two parcels.")
+        print("Por favor dibuje una línea y presione Enter para aplicar la numeración. Comience la línea fuera de un polígono; de lo contrario, puede causar errores de numeración para las dos primeras parcelas.")
         
     def deactivate(self):
         """
-        Deactivates the numbering tool, clearing the rubber band and resetting variables.
+        Desactiva la herramienta de numeración, limpiando el rubber band y restableciendo variables.
 
-        This method also completes the numbering process and resets the tool state.
+        Este método también completa el proceso de numeración y restablece el estado de la herramienta.
         """
         self.points = []
         if self.rubberBand:
             self.rubberBand.reset(QgsWkbTypes.LineGeometry)
         QgsMapTool.deactivate(self)
-        print("Numbering completed.")
+        print("Numeración completada.")
 
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
-#Funciones destinadas a uso interno en DGC. O sea, estan en castellano, al menos los parametros y el docstring
 def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, concatenar=True):
     """
     Permite numerar poligonos mediante una linea dibujada dinamicamente
