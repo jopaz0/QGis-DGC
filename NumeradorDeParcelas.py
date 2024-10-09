@@ -8,7 +8,7 @@ from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
 from PyQt5.QtCore import QVariant
-from DGCRelatedFunctions import *
+from GeneralFunctions import CheckLayerInMap, IsCompatible
 
 # Variables para configurar
 starting_number = 1  # Número inicial, modificar según sea necesario
