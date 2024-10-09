@@ -7,7 +7,6 @@ from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
-from PyQt5.QtCore import QVariant
 from CommonFunctions import CheckLayerInMap, IsCompatible
 
 # Variables para configurar
