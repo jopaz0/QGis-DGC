@@ -36,7 +36,7 @@ def CANVAS_AddLayer(layer, name=False, delimiter=False):
     except Exception as e:
         print(f'Exception while loading layer {str(layer)} to map canvas @ CANVAS_AddLayer. ErrorMSG: {e}')
         return False
-    
+
 def CANVAS_CheckForLayer(layer):
     """
     Checks that the provided layer is loaded on the map canvas.
