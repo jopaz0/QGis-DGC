@@ -213,6 +213,10 @@ def CSV_MergeFiles(
     except Exception as e:
         print(f'Exception while merging csv files, @ CSV_MergeFiles. ErrorMSG: {e}')
         return False
+    finally:
+        # Asegurar que se elimine cualquier archivo temporal o se liberen recursos si es necesario
+        if 'data' in locals():
+            del data  # Liberar DataFrame de la memoria
 
 def STR_FillWithChars(string, width, char, insertAtStart=True):
     """
