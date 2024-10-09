@@ -27,10 +27,12 @@ def CANVAS_AddLayer(layer, name=False, delimiter=False):
     QgsVectorLayer if the layer is successfully added to the map canvas.
     False if there is an error during the loading process.
     """
-
     try:
         if type(layer) is str:
             layer = PathToLayer(layer, name, delimiter)
+        else:
+            if name:
+                layer.setName(name)
         QgsProject.instance().addMapLayer(layer)
         return layer
     except Exception as e:
