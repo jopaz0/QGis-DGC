@@ -3,8 +3,9 @@ Common Python Functions (09 Oct 2024)
 Created for use at DGC with PyQGis, but general enough to implement in other projects.
 """
 
-from qgis.core import QgsProject, QgsVectorLayer
-from PyQt5.QtCore import QVariant
+import os
+import pandas as pd
+from qgis.core import QgsVectorLayer, QgsProject
 
 def CANVAS_AddCsvFromPath(csv_path, name, delimiter):
     """
@@ -109,7 +110,7 @@ def CANVAS_RemoveLayersContaining(layerName):
         if layerName in layer.name():
             QgsProject.instance().removeMapLayer(layer)
 
-def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', sep=';'):
+def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
     """
     Splits a CSV file into two separate files based on a specified field value.
 
@@ -138,10 +139,10 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', sep=';'):
         dataOthers = data[data[field] != value]
         os.remove(csvPath)
         baseName = os.path.splitext(csvPath)[0]
-        matchFile = f'{baseName} - {field} {value}.csv'
-        dataMatch.to_csv(matchFile, index=False)
-        dataOthers.to_csv(csvPath, index=False)
-        return {'MATCH': ,'OTHERS': csvPath}
+        matchFilePath = f'{baseName} - {field} {value}.csv'
+        dataMatch.to_csv(matchFilePath, index=False, encoding=enc, sep=separator)
+        dataOthers.to_csv(csvPath, index=False, encoding=enc, sep=separator)
+        return {'MATCH': matchFilePath,'OTHERS': csvPath}
     except Exception as e:
         print(f'Exception while splitting csv file, @ CSV_Split. ErrorMSG: {e}')
         return False

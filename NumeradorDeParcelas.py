@@ -10,9 +10,8 @@ from qgis.PyQt.QtCore import Qt
 from PyQt5.QtCore import QVariant
 from CommonFunctions import CANVAS_CheckForLayer, IsValueCompatible
 
-# Variables para configurar
-startingNumber = 1  # Número inicial, modificar según sea necesario
-targetField = "PARCELA"  # Campo de la entidad donde se almacenará el número
+startingNumber = 1
+targetField = "PARCELA"
 numberingTool = None
 class LineParcelNumberingTool(QgsMapToolEmitPoint):
     """
@@ -184,7 +183,7 @@ class LineParcelNumberingTool(QgsMapToolEmitPoint):
         QgsMapTool.deactivate(self)
         print("Numeración completada.")
 
-### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
+### BARRA SEPARADORA DE BAJO PRESUPUESTO / LOW BUDGET SEPARATOR BAR ###
 def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, concatenar=True):
     """
     Permite numerar poligonos mediante una linea dibujada dinamicamente

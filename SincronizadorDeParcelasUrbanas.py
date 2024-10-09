@@ -23,21 +23,28 @@ from DGCFunctions import *
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
 
 def SincronizacionUrbana(ejido):
-    #Leo, unifico y modifico los XLS/CSV urbanos descargados
-    root = r'C:\MaxlocV11'
-    csvFiles = [f'Manzana{ejido}.xls',f'Quinta{ejido}.xls',f'Chacra{ejido}.xls']
-    enc = 'latin-1'
-    separator=';'
-    floatFields=['PORCEN','V2','V3','V4']
-    fieldNameTranslations={'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
-    fieldsToUppercase=True
-    dropFields_aprox=['EXPTE','ANIO']
-    dropFields_exact=[]
-    outputName = 'MergedCSVs'
-    csvPath = CSV_MergeFiles(root, csvFiles, enc, separator, floatFields, fieldNameTranslations, fieldsToUppercase, dropFields_aprox, dropFields_exact, outputName)
-    # csv = AddCsvAs(csvPath, outputName)
+    #Todos estos son los parametros de entrada para CSV_MergeFiles
+    directoriosCSVs = r'C:\MaxlocV11'
+    listaCsvs = [f'Manzana{ejido}.xls',f'Quinta{ejido}.xls',f'Chacra{ejido}.xls']
+    codificacionCsv = 'latin-1'
+    separador=';'
+    camposNumericosDecimales=['PORCEN','V2','V3','V4']
+    sustitucionesDeEncabezados={'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
+    encabezadosAMayusculas=True
+    eliminarColumnasParecidas=['EXPTE','ANIO']
+    eliminarColumnas=[]
+    nombreCsvUnido = 'MergedCSVs'
+    csvUnido = CSV_MergeFiles(directoriosCSVs, listaCsvs, codificacionCsv, separador, camposNumericosDecimales, sustitucionesDeEncabezados, encabezadosAMayusculas, eliminarColumnasParecidas, eliminarColumnas, nombreCsvUnido)
+    
+    csvs = CSV_DivideByFieldValue(csvUnido, 'TEN', 'S', enc='latin-1', separator=';')
+    csvs = {'PROPIETARIOS': csvs['OTHERS'], 'POSEEDORES': csvs['OTHERS']}
     
     capas = BuscarCapasUrbanas(ejido)
+    for ten in ['PROPIETARIOS','POSEEDORES']:
+        capa = capas[ten]
+        csv = csvs[ten]
+
+        
     # propietarios = AddLayerFromPath(capas['PROPIETARIOS'], 'PROPIETARIOS')
     # poseedores = AddLayerFromPath(capas['POSEEDORES'], 'POSEEDORES')
 
