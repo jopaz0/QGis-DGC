@@ -37,7 +37,7 @@ def SincronizarEjidoConTablasProgress(ejido):
         for ten in ['PROPIETARIOS','POSEEDORES']:
             try:
                 capa = PathToLayer(capas[ten])
-                csv = PathToLayer(csvs[ten], delimiter=';')
+                csv = CANVAS_AddLayer(PathToLayer(csvs[ten], delimiter=';'))
                 prefijo = 'CSV_'
                 parametros = { 'DISCARD_NONMATCHING' : False, 
                             'FIELD' : 'PARTIDA', 
@@ -74,27 +74,11 @@ def SincronizarEjidoConTablasProgress(ejido):
                                     continue
                         union.updateFeature(feature)
                 CANVAS_AddLayer(union, f'{ejido}-{ten}')
-            
             except Exception as e:
-                print(f"Error en la sincronización de la capa {ten}: {e}")
-                # Remover cualquier capa que pueda estar bloqueando el CSV
-                CANVAS_RemoveLayerByPath(csvs[ten])
-                CANVAS_RemoveLayerByPath(capas[ten])
+                print(f"Error en la sincronización de la capa {ten}. ErrorMSG: {e}")
                 continue
+            finally:
+                CANVAS_RemoveLayer(csv)
 
     except Exception as e:
-        print(f"Error general en la sincronización del ejido {ejido}: {e}")
-    
-    finally:
-        # Remover cualquier capa temporal y liberar recursos
-        for ten in ['PROPIETARIOS', 'POSEEDORES']:
-            CANVAS_RemoveLayerByPath(csvs.get(ten, ''))
-            CANVAS_RemoveLayerByPath(capas.get(ten, ''))
-
-        # Intentar eliminar los archivos CSV si no se están usando
-        try:
-            for path in csvs.values():
-                if os.path.exists(path):
-                    os.remove(path)
-        except Exception as e:
-            print(f"Error al eliminar archivos CSV: {e}")
+        print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")

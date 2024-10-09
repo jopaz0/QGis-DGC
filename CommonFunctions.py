@@ -71,7 +71,27 @@ def CANVAS_CheckForLayer(layer):
     print(f"Unexpected error while checking for layer {str(layer)} in map canvas, @ CANVAS_CheckForLayer. Unexpected layer format?")
     return False
 
-def CANVAS_RemoveLayer(layerName):
+def CANVAS_RemoveLayer(layer):
+    """
+    Removes a layer from the QGIS map canvas.
+
+    PARAMETERS
+    layerName: QgsVectorLayer.
+
+    COMMENTS
+
+    RETURNS
+    - True if layer was found and deleted
+    - False if layer was not found
+    """
+    try:
+        QgsProject.instance().removeMapLayer(layer)
+        return True
+    except Exception as e:
+        print(f'Exception while removing layer, @ CANVAS_RemoveLayer. ErrorMSG: {e}')
+        return False
+
+def CANVAS_RemoveLayerByName(layerName):
     """
     Removes a layer from the QGIS map canvas that matches the specified name string.
 
@@ -84,12 +104,17 @@ def CANVAS_RemoveLayer(layerName):
     - Removes all matching layers
 
     RETURNS
-    None
+    - True if layer was found and deleted
+    - False if layer was not found
     """
-    layers = QgsProject.instance().mapLayers().values()
-    for layer in layers:
-        if layerName == layer.name():
-            QgsProject.instance().removeMapLayer(layer)
+    try:
+        layers = QgsProject.instance().mapLayers().values()
+        for layer in layers:
+            if layerName == layer.name():
+                QgsProject.instance().removeMapLayer(layer)
+    except Exception as e:
+        print(f'Exception while removing layer {layerName}, @ CANVAS_RemoveLayerByName. ErrorMSG: {e}')
+        return False
 
 def CANVAS_RemoveLayerByPath(path):
     """
@@ -99,13 +124,17 @@ def CANVAS_RemoveLayerByPath(path):
     path: String representing the full path of the file used as a layer in QGIS.
 
     RETURNS
-    None
+    - True if layer was found and deleted
+    - False if layer was not found
     """
-    layers = QgsProject.instance().mapLayers().values()
-    for layer in layers:
-        if layer.source() == path:
-            QgsProject.instance().removeMapLayer(layer)
-            break
+    try:
+        layers = QgsProject.instance().mapLayers().values()
+        for layer in layers:
+            if layer.source() == path:
+                QgsProject.instance().removeMapLayer(layer)
+    except Exception as e:
+        print(f'Exception while removing layer at {path}, @ CANVAS_RemoveLayerByPath. ErrorMSG: {e}')
+        return False
 
 def CANVAS_RemoveLayersContaining(layerName):
     """
