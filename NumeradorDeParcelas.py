@@ -7,12 +7,13 @@ from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
-from CommonFunctions import CheckLayerInMap, IsCompatible
+from PyQt5.QtCore import QVariant
+from CommonFunctions import CANVAS_CheckForLayer, IsValueCompatible
 
 # Variables para configurar
-starting_number = 1  # Número inicial, modificar según sea necesario
-target_field = "PARCELA"  # Campo de la entidad donde se almacenará el número
-numeracion_tool = None
+startingNumber = 1  # Número inicial, modificar según sea necesario
+targetField = "PARCELA"  # Campo de la entidad donde se almacenará el número
+numberingTool = None
 class LineParcelNumberingTool(QgsMapToolEmitPoint):
     """
     Herramienta para numerar parcelas a lo largo de una línea definida por el usuario en un lienzo de mapa de QGIS.
@@ -38,7 +39,7 @@ class LineParcelNumberingTool(QgsMapToolEmitPoint):
         layer: El objeto QgsVectorLayer que representa la capa que se va a modificar.
         startingNumber: Entero que indica el número de inicio para la numeración de parcelas.
         targetField: Cadena que representa el nombre del campo donde se almacenarán los números.
-        concat: Booleano que indica si se debe concatenar la numeración con los valores existentes en el campo objetivo.
+        concat: Booleano que indica si se debe concatenar la numeración con los valores existentes en el campo objetivo. Si el campo proporcionado es numerico, se reemplaza el valor directamente.
         """
         super().__init__(canvas)
         self.canvas = canvas
@@ -134,13 +135,17 @@ class LineParcelNumberingTool(QgsMapToolEmitPoint):
                 self.layer.startEditing()
                 for feature, _ in parcelsWithDistances:
                     fieldIndex = self.layer.fields().indexOf(self.targetField)
+                    fieldType = self.layer.fields()[fieldIndex].type()
                     currentValue = feature.attribute(fieldIndex) or ''
-
-                    if self.concat:
-                        newValue = f"{currentValue}{self.currentNumber}"
+                    if fieldType == QVariant.Int:
+                        # Si el tipo de campo es entero, solo asignar el número actual
+                        newValue = self.currentNumber
                     else:
-                        newValue = f"{self.currentNumber}"
-
+                        # Para otros tipos (por ejemplo, texto), asignar el valor concatenado
+                        if self.concat:
+                            newValue = f"{currentValue}{self.currentNumber}"
+                        else:
+                            newValue = f"{self.currentNumber}"
                     feature.setAttribute(fieldIndex, newValue)
                     self.layer.updateFeature(feature)
                     self.currentNumber += 1
@@ -209,7 +214,7 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, conca
     """
 
 
-    global numeracion_tool  # Usar la variable global para almacenar la herramienta
+    global numberingTool  # Usar la variable global para almacenar la herramienta
     
     if numeroInicial < 0:
         print(f"El número no debe ser negativo.")
@@ -220,7 +225,7 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, conca
         capa = iface.activeLayer()
         print(f"No se especificó una capa, operando sobre {capa.name()}.")
     else:
-        capa = CheckLayerInMap(capa)
+        capa = CANVAS_CheckForLayer(capa)
     
     # Verificar si la capa es válida y está en modo edición
     if not capa.isEditable():
@@ -232,10 +237,10 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, conca
         return
     
     # Crear la herramienta de trazado de línea y numeración
-    numeracion_tool = LineParcelNumberingTool(iface.mapCanvas(), capa, numeroInicial, campoObjetivo, concatenar)
+    numberingTool = LineParcelNumberingTool(iface.mapCanvas(), capa, numeroInicial, campoObjetivo, concatenar)
     
     # Cambiar la herramienta activa a la de trazado de línea y numeración
-    iface.mapCanvas().setMapTool(numeracion_tool)
+    iface.mapCanvas().setMapTool(numberingTool)
 
 def AsignarValorACampo(campoObjetivo, valor):
     """
@@ -265,7 +270,7 @@ def AsignarValorACampo(campoObjetivo, valor):
         print(f'El campo {campoObjetivo} no existe en {layer.name()}')
         return False
     fieldType = layer.fields().field(campoObjetivo).type()
-    if IsCompatible(valor, fieldType):
+    if IsValueCompatible(valor, fieldType):
         with edit(layer):
             for feature in features:
                 feature[campoObjetivo] = valor
