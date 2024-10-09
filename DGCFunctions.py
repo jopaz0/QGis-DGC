@@ -21,7 +21,7 @@ def BuscarCapasUrbanas(numeroDeEjido):
     Un diccionario con las rutas de las capas urbanas, donde las claves son 'PROPIETARIOS' y 'POSEEDORES'.
     """
 
-    directorioPueblosCADGIS = r'C:\Users\Usuario\Documents\Borrar'
+    directorioPueblosCADGIS = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
     numeroDeEjido = STR_FillWithChars(numeroDeEjido, 3, '0')
     capas = {}
     carpetaEjido = [os.path.join(directorioPueblosCADGIS, d) for d in os.listdir(directorioPueblosCADGIS) if os.path.isdir(os.path.join(directorioPueblosCADGIS, d)) and d.startswith(numeroDeEjido)][0]

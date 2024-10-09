@@ -68,12 +68,14 @@ def SincronizarEjidoConTablasProgress(ejido):
                         else:
                             for campo in campos:
                                 try:
-                                    feature[campo] = feature[f'{prefijo}{campo}-Sincronizado']
+                                    feature[campo] = feature[f'{prefijo}{campo}']
                                 except Exception as e:
                                     #añadir mensaje de error?
                                     continue
                         union.updateFeature(feature)
-                CANVAS_AddLayer(union, f'{ejido}-{ten}')
+                nombreCapa = f'{ejido}-{ten}-Sincronizado'
+                CANVAS_RemoveLayerByName(nombreCapa)
+                CANVAS_AddLayer(union, nombreCapa)
             except Exception as e:
                 print(f"Error en la sincronización de la capa {ten}. ErrorMSG: {e}")
                 continue
