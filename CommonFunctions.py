@@ -1,3 +1,6 @@
+from qgis.core import QgsProject, QgsVectorLayer
+from PyQt5.QtCore import QVariant
+
 def CheckLayerInMap(layer):
     """
     Checks that the provided layer is loaded on the map canvas.
