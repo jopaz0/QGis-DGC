@@ -7,57 +7,34 @@ import os
 import pandas as pd
 from qgis.core import QgsVectorLayer, QgsProject
 
-def CANVAS_AddCsvFromPath(csv_path, name, delimiter):
+def CANVAS_AddLayer(layer, name=False, delimiter=False):
     """
-    Loads a CSV file from the specified path into the QGIS map canvas as a vector layer.
+    Adds a specified layer to the map canvas in QGIS.
 
     PARAMETERS
-    csv_path: String representing the full path to the CSV file.
-    name: String representing the name to assign to the layer in the map canvas.
-    delimiter: String representing the delimiter used in the CSV file (e.g., ',', ';').
+    layer: Can be a QgsVectorLayer object or a string representing the path to the file.
+           If a string is provided, it will be converted to a QgsVectorLayer using the function PathToLayer.
+    name: Optional string to specify the layer's name when loading it from a file path.
+    delimiter: Optional delimiter string for delimited text files (e.g., CSV). This parameter is only used
+               when loading layers from file paths that require a delimiter.
 
     COMMENTS
-    - The function constructs a URI for the CSV file and attempts to create a QgsVectorLayer.
-    - If the layer is successfully created, it is added to the current QGIS project.
+    - If a file path is provided as 'layer', the function attempts to load it as a QgsVectorLayer.
+    - If a QgsVectorLayer is provided, it will be added directly to the map canvas.
+    - Any errors encountered during the loading process will be caught and printed.
 
     RETURNS
-    QgsVectorLayer if the CSV is loaded successfully.
-    False if there was an exception during loading.
+    QgsVectorLayer if the layer is successfully added to the map canvas.
+    False if there is an error during the loading process.
     """
+
     try:
-        uri = 'file:///'+ csv_path.replace('//','/') +'?delimiter=' + delimiter
-        layer = QgsVectorLayer(uri, name, 'delimitedtext')
+        if type(layer) is str:
+            layer = PathToLayer(layer, name, delimiter)
         QgsProject.instance().addMapLayer(layer)
         return layer
     except Exception as e:
-        print(f'Exception while loading csv to map canvas @ CANVAS_AddCsvFromPath. ErrorMSG: {e}')
-        return False
-
-def CANVAS_AddLayerFromPath(layerPath, name=False):
-    """
-    Loads a vector layer from the specified path into the QGIS map canvas.
-
-    PARAMETERS
-    layerPath: String representing the full path to the layer file (supports various formats).
-    name: Optional; String representing the name to assign to the layer in the map canvas. 
-          If not provided, the name is derived from the file name.
-
-    COMMENTS
-    - The function attempts to create a QgsVectorLayer from the provided path.
-    - If the layer is successfully created, it is added to the current QGIS project.
-
-    RETURNS
-    QgsVectorLayer if the layer is loaded successfully.
-    False if there was an exception during loading.
-    """
-    try:
-        layerName = name if name else layerPath.split('\\')[-1].split('.')[0]
-        layer = QgsVectorLayer(layerPath, layerName, "ogr")
-        layer.setName(layerName)
-        QgsProject.instance().addMapLayer(layer)
-        return layer
-    except Exception as e:
-        print(f'Exception while loading layer to map canvas, @ CANVAS_AddLayerFromPath. ErrorMSG: {e}')
+        print(f'Exception while loading layer {str(layer)} to map canvas @ CANVAS_AddLayer. ErrorMSG: {e}')
         return False
     
 def CANVAS_CheckForLayer(layer):
@@ -91,6 +68,26 @@ def CANVAS_CheckForLayer(layer):
     print(f"Unexpected error while checking for layer {str(layer)} in map canvas, @ CANVAS_CheckForLayer. Unexpected layer format?")
     return False
 
+def CANVAS_RemoveLayer(layerName):
+    """
+    Removes a layer from the QGIS map canvas that matches the specified name string.
+
+    PARAMETERS
+    layerName: String representing the layer name to search.
+
+    COMMENTS
+    - The function iterates through all layers in the current QGIS project.
+    - If a layer's name matches the specified string, it is removed from the map canvas.
+    - Removes all matching layers
+
+    RETURNS
+    None
+    """
+    layers = QgsProject.instance().mapLayers().values()
+    for layer in layers:
+        if layerName == layer.name():
+            QgsProject.instance().removeMapLayer(layer)
+
 def CANVAS_RemoveLayersContaining(layerName):
     """
     Removes layers from the QGIS map canvas that contain the specified name substring.
@@ -101,6 +98,7 @@ def CANVAS_RemoveLayersContaining(layerName):
     COMMENTS
     - The function iterates through all layers in the current QGIS project.
     - If a layer's name contains the specified substring, it is removed from the map canvas.
+    - Removes all matching layers
 
     RETURNS
     None
@@ -242,6 +240,39 @@ def STR_FillWithChars(string, width, char, insertAtStart=True):
             string = string + char
     return string
 
+def PathToLayer(path, name=False, delimiter=';'):
+    """
+    Converts a file path to a QgsVectorLayer based on its extension.
+
+    PARAMETERS
+    path: String representing the path to the file (e.g., 'C:/path/to/file.shp').
+    name: Optional string representing the name of the layer in QGIS. If not provided, the file name (without extension) will be used.
+    delimiter: Optional delimiter character for CSV or delimited text files (e.g., ',' for CSV). This parameter is only required for .csv and .xls files. Defaults to ';'
+
+    COMMENTS
+    - Supports shapefiles (.shp), CSV files (.csv), and Excel files (.xls).
+    - The function assumes that the specified path is valid and accessible.
+    - If the file extension is not supported or an error occurs, it will print an error message and return False.
+
+    RETURNS
+    QgsVectorLayer if the file is successfully converted and added to QGIS.
+    False if an error occurs or the file format is not supported.
+    """
+    try:
+        layerName = name if name else path.split('\\')[-1].split('.')[0]
+        ext = os.path.splitext(path)[1]
+        if ext in ['.csv', '.xls']:
+            uri = 'file:///'+ path.replace('//','/') +'?delimiter=' + delimiter
+            layer = QgsVectorLayer(uri, layerName, 'delimitedtext')
+        elif ext in ['.shp']:
+            layer = QgsVectorLayer(path, layerName, 'ogr')
+        else:
+            print(f"Unexpected file extension while converting {str(layer)} to QgsLayer, @ PathToLayer. Unexpected layer format?")
+            return False
+        return layer
+    except Exception as e:
+        print(f'Exception while converting {str(path)} to QgsLayer, @ PathToLayer. ErrorMSG: {e}')
+        return False
 
 def IsValueCompatible(value, fieldType):
     """

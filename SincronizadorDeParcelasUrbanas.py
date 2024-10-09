@@ -14,7 +14,7 @@ from DGCFunctions import *
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
 
-def SincronizacionUrbana(ejido):
+def SincronizarEjidoConTablasProgress(ejido):
     #Todos estos son los parametros de entrada para CSV_MergeFiles
     directoriosCSVs = r'C:\MaxlocV11'
     listaCsvs = [f'Manzana{ejido}.xls',f'Quinta{ejido}.xls',f'Chacra{ejido}.xls']
@@ -33,8 +33,38 @@ def SincronizacionUrbana(ejido):
     
     capas = BuscarCapasUrbanas(ejido)
     for ten in ['PROPIETARIOS','POSEEDORES']:
-        capa = capas[ten]
-        csv = csvs[ten]
+        capa = PathToLayer(capas[ten])
+        csv = PathToLayer(csvs[ten], delimiter=';')
+        prefijo = 'CSV_'
+        parametros = { 'DISCARD_NONMATCHING' : False, 
+                      'FIELD' : 'PARTIDA', 
+                      'FIELDS_TO_COPY' : [], 
+                      'FIELD_2' : 'PARTIDA', 
+                      'INPUT' : capa, 
+                      'INPUT_2' : csv, 
+                      'METHOD' : 0, 
+                      'OUTPUT' : 'TEMPORARY_OUTPUT', 
+                      'PREFIX' : prefijo }
+        union = processing.run("native:joinattributestable", parametros)
+
+        #obtengo todos los campos del shape, excepto el de PARTIDA que uso como ID
+        campos = [f.name() for f in capa.fields() if f.name() != 'PARTIDA']
+
+        #Columnas a blanquear. Si la partida no existe en la tabla, es xq se dio de baja, y quedan en blanco
+        camposEnBlanco = ['COD','DOCUMENTO','APELLIDO']
+
+        with edit(capa):
+            for feature in capa.getFeatures():
+                if not feature[f'{prefijo}PARTIDA']:
+                    for campo in camposEnBlanco:
+                        feature[campo] = None  # Establecer el valor en nulo
+                else:
+                    for campo in campos:
+                        try:
+                            feature[campo] = feature[f'{prefijo}{campo}']
+                        except Exception as e:
+                            print(e)
+                capa.updateFeature(feature)
 
 
     # propietarios = AddLayerFromPath(capas['PROPIETARIOS'], 'PROPIETARIOS')
