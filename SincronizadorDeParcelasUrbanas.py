@@ -28,6 +28,7 @@ def SincronizarEjidoConTablasProgress(ejido):
     nombreCsvUnido = 'MergedCSVs'
     csvUnido = CSV_MergeFiles(directoriosCSVs, listaCsvs, codificacionCsv, separador, camposNumericosDecimales, sustitucionesDeEncabezados, encabezadosAMayusculas, eliminarColumnasParecidas, eliminarColumnas, nombreCsvUnido)
     
+    ejido = STR_FillWithChars(ejido, 3, '0')
     csvs = CSV_DivideByFieldValue(csvUnido, 'TEN', 'S', enc='latin-1', separator=';')
     csvs = {'PROPIETARIOS': csvs['OTHERS'], 'POSEEDORES': csvs['OTHERS']}
     
@@ -61,7 +62,7 @@ def SincronizarEjidoConTablasProgress(ejido):
                 else:
                     for campo in campos:
                         try:
-                            feature[campo] = feature[f'{prefijo}{campo}']
+                            feature[campo] = feature[f'{prefijo}{campo}-Sincronizado']
                         except Exception as e:
                             #añadir mensaje de error?
                             continue
