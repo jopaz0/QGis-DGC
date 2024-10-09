@@ -144,6 +144,13 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
     except Exception as e:
         print(f'Exception while splitting csv file, @ CSV_DivideByFieldValue. ErrorMSG: {e}')
         return False
+    finally:
+        if 'data' in locals():
+            del data
+        if 'dataMatch' in locals():
+            del dataMatch
+        if 'dataOthers' in locals():
+            del dataOthers
 
 def CSV_MergeFiles(
         root,
@@ -214,9 +221,8 @@ def CSV_MergeFiles(
         print(f'Exception while merging csv files, @ CSV_MergeFiles. ErrorMSG: {e}')
         return False
     finally:
-        # Asegurar que se elimine cualquier archivo temporal o se liberen recursos si es necesario
         if 'data' in locals():
-            del data  # Liberar DataFrame de la memoria
+            del data
 
 def STR_FillWithChars(string, width, char, insertAtStart=True):
     """
