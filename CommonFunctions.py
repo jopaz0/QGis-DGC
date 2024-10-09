@@ -134,7 +134,7 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
     False if there was an exception during processing.
     """
     try:
-        data = pd.read_csv(csvPath, encoding=enc, sep=sep, skipinitialspace=True)
+        data = pd.read_csv(csvPath, encoding=enc, sep=separator, skipinitialspace=True)
         dataMatch = data[data[field] == value]
         dataOthers = data[data[field] != value]
         os.remove(csvPath)
@@ -144,7 +144,7 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
         dataOthers.to_csv(csvPath, index=False, encoding=enc, sep=separator)
         return {'MATCH': matchFilePath,'OTHERS': csvPath}
     except Exception as e:
-        print(f'Exception while splitting csv file, @ CSV_Split. ErrorMSG: {e}')
+        print(f'Exception while splitting csv file, @ CSV_DivideByFieldValue. ErrorMSG: {e}')
         return False
 
 def CSV_MergeFiles(

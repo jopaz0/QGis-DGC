@@ -8,14 +8,6 @@ reverenda poronga. No deberia trabarse tanto si hay demasiadas
 entradas en los CSVs de Progress. Pero no informa de los errores
 tan detalladamente como el anterior.
 """
-
-import pandas as pd
-import os
-import processing
-from PyQt5.QtCore import QVariant
-from qgis.utils import *
-from qgis.gui import *
-from qgis.core import *
 from CommonFunctions import *
 from DGCFunctions import *
 
@@ -44,7 +36,7 @@ def SincronizacionUrbana(ejido):
         capa = capas[ten]
         csv = csvs[ten]
 
-        
+
     # propietarios = AddLayerFromPath(capas['PROPIETARIOS'], 'PROPIETARIOS')
     # poseedores = AddLayerFromPath(capas['POSEEDORES'], 'POSEEDORES')
 
