@@ -5,6 +5,7 @@ Created for use at DGC with PyQGis, but general enough to implement in other pro
 
 import os
 import pandas as pd
+import gc
 from qgis.core import QgsVectorLayer, QgsProject
 
 def CANVAS_AddLayer(layer, name=False, delimiter=False):
@@ -90,6 +91,22 @@ def CANVAS_RemoveLayer(layerName):
         if layerName == layer.name():
             QgsProject.instance().removeMapLayer(layer)
 
+def CANVAS_RemoveLayerByPath(path):
+    """
+    Removes any loaded layer in QGIS that is based on the given file path.
+    
+    PARAMETERS
+    path: String representing the full path of the file used as a layer in QGIS.
+
+    RETURNS
+    None
+    """
+    layers = QgsProject.instance().mapLayers().values()
+    for layer in layers:
+        if layer.source() == path:
+            QgsProject.instance().removeMapLayer(layer)
+            break
+
 def CANVAS_RemoveLayersContaining(layerName):
     """
     Removes layers from the QGIS map canvas that contain the specified name substring.
@@ -133,6 +150,7 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
     - 'OTHERS': path to the file containing non-matching rows.
     False if there was an exception during processing.
     """
+    CANVAS_RemoveLayerByPath(csvPath)
     try:
         data = pd.read_csv(csvPath, encoding=enc, sep=separator, skipinitialspace=True)
         dataMatch = data[data[field] == value]
@@ -140,6 +158,7 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
         os.remove(csvPath)
         baseName = os.path.splitext(csvPath)[0]
         matchFilePath = f'{baseName} - {field} {value}.csv'
+        CANVAS_RemoveLayerByPath(matchFilePath)
         dataMatch.to_csv(matchFilePath, index=False, encoding=enc, sep=separator)
         dataOthers.to_csv(csvPath, index=False, encoding=enc, sep=separator)
         return {'MATCH': matchFilePath,'OTHERS': csvPath}
@@ -153,6 +172,7 @@ def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
             del dataMatch
         if 'dataOthers' in locals():
             del dataOthers
+        gc.collect()
 
 def CSV_MergeFiles(
         root,
@@ -225,6 +245,7 @@ def CSV_MergeFiles(
     finally:
         if 'data' in locals():
             del data
+        gc.collect()
 
 def STR_FillWithChars(string, width, char, insertAtStart=True):
     """
