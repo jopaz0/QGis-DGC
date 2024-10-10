@@ -228,7 +228,9 @@ def GenerarEjidoSincronizado(ejido):
                                     continue
                         union.updateFeature(feature)
                     camposCSV = [f.name() for f in union.fields() if f.name().startswith(prefijo)]
-                    union.removeFields(camposCSV)
+                    indices = [union.fields().indexOf(field) for field in camposCSV if union.fields().indexOf(field) != -1]
+                    union.dataProvider().deleteAttributes(indices)
+                    union.updateFields()
                 nombreCapa = f'{ejido}-{ten}-Sincronizado'
                 CANVAS_RemoveLayerByName(nombreCapa)
                 CANVAS_AddLayer(union, nombreCapa)
