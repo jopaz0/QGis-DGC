@@ -72,6 +72,8 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
     for cc in [1,2,3]:
         subconjunto = [x for x in entidades if x['CC']==cc]
         SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
+completarpartidas = CompletarPartidas
+COMPLETARPARTIDAS = CompletarPartidas
 
 def CompletarTabla(ejido, capa = False):
     """
@@ -142,6 +144,8 @@ def CompletarTabla(ejido, capa = False):
                 capa.rollBack()
     # Si no se encuentra la partida en el diccionario, es xq no existen
     SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
+completartabla = CompletarTabla
+COMPLETARTABLA = CompletarTabla
 
 def GenerarEjidoSincronizado(ejido):
     """
@@ -241,3 +245,7 @@ def GenerarEjidoSincronizado(ejido):
 
     except Exception as e:
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
+generarejidosincronizado = GenerarEjidoSincronizado
+GENERAREJIDOSINCRONIZADO = GenerarEjidoSincronizado
+
+

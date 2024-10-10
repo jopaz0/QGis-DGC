@@ -240,6 +240,8 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', capa=False, conca
     
     # Cambiar la herramienta activa a la de trazado de línea y numeración
     iface.mapCanvas().setMapTool(numberingTool)
+numerarparcelas = NumerarParcelas
+NUMERARPARCELAS = NumerarParcelas
 
 def AsignarValorACampo(campoObjetivo, valor):
     """
@@ -280,4 +282,6 @@ def AsignarValorACampo(campoObjetivo, valor):
     else: 
         print(f'El tipo de valor ({fieldType}) proporcionado no era compatible con {campoObjetivo}.')
         return False
+asignarvaloracampo = AsignarValorACampo
+ASIGNARVALORACAMPO = AsignarValorACampo
 
