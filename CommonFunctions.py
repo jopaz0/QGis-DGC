@@ -228,37 +228,41 @@ def CSV_ToDictList(csvPath,
 
     RETURNS
     List of dictionaries where each dictionary corresponds to a row in the CSV, with the appropriate transformations applied.
+    False if cant find the csv or any exception is raised
 
     EXCEPTIONS
     - Raises FileNotFoundError if `csvPath` does not exist.
     - Raises ValueError if there are issues during the float conversion or if the CSV is malformed.
 
     """
-
-    data = pd.read_csv(csvPath, encoding=enc, sep=separator, skipinitialspace=True)
-    if fieldsToUppercase:
-        data.columns = map(str.upper, data.columns)
-    translationDict = {col: fieldNameTranslations.get(col, col) for col in data.columns}
-    data = data.rename(columns=translationDict)
-    for field in dropFields_aprox:
-        columns_to_drop = [col for col in data.columns if field in col]
-        data = data.drop(columns=columns_to_drop)
-    for field in dropFields_exact:
-        columns_to_drop = [col for col in data.columns if field == col]
-        data = data.drop(columns=columns_to_drop)
-    for field in floatFields:
-        if field.upper() in data.columns:
-            data[field.upper()] = (
-                data[field.upper()]
-                .astype(str)
-                .str.replace('.', '')
-                .str.replace(',', '.')
-                .str.strip()
-                .astype(float)
-                .round(2)
-            )
-    csvList = data.to_dict(orient='records')
-    return csvList
+    try:
+        data = pd.read_csv(csvPath, encoding=enc, sep=separator, skipinitialspace=True)
+        if fieldsToUppercase:
+            data.columns = map(str.upper, data.columns)
+        translationDict = {col: fieldNameTranslations.get(col, col) for col in data.columns}
+        data = data.rename(columns=translationDict)
+        for field in dropFields_aprox:
+            columns_to_drop = [col for col in data.columns if field in col]
+            data = data.drop(columns=columns_to_drop)
+        for field in dropFields_exact:
+            columns_to_drop = [col for col in data.columns if field == col]
+            data = data.drop(columns=columns_to_drop)
+        for field in floatFields:
+            if field.upper() in data.columns:
+                data[field.upper()] = (
+                    data[field.upper()]
+                    .astype(str)
+                    .str.replace('.', '')
+                    .str.replace(',', '.')
+                    .str.strip()
+                    .astype(float)
+                    .round(2)
+                )
+        csvList = data.to_dict(orient='records')
+        return csvList
+    except Exception as e:
+        print(f'Error al leer el CSV (no existe {csvPath}?). ErrorMSG: {e}')
+        return False
 
 def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
     """
@@ -345,7 +349,6 @@ def CSV_MergeFiles(
     try:
         data = pd.concat([pd.read_csv(os.path.join(root, file), encoding=enc, sep=separator, skipinitialspace=True) for file in csvFiles], ignore_index=True)
         if fieldsToUppercase:
-            
             data.columns = map(str.upper, data.columns)
         translationDict = {col: fieldNameTranslations.get(col, col) for col in data.columns}
         data = data.rename(columns=translationDict)

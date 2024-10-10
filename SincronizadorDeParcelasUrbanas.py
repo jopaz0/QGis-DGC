@@ -55,6 +55,8 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
     for cc in [1,2,3]:
         csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
         diccionarios[cc] = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+        if not diccionarios[cc]:
+            return False
         if poseedores:
             diccionarios[cc] = DICT_Filter(diccionarios[cc], matchFilters={'TEN':'S'})
         else:
@@ -118,7 +120,11 @@ def CompletarTabla(ejido, capa = False):
     conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
     for cc in [1,2,3]:
         csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
-        diccionario += CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+        csv = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+        if csv:
+            diccionario += csv
+        else:
+            return False
 
     #aplico algunas conversiones a los datos.. parece que solo necesite una
     for entidad in diccionario:
@@ -176,7 +182,8 @@ def GenerarEjidoSincronizado(ejido):
         eliminarColumnas=[]
         nombreCsvUnido = 'MergedCSVs'
         csvUnido = CSV_MergeFiles(directoriosCSVs, listaCsvs, codificacionCsv, separador, camposNumericosDecimales, sustitucionesDeEncabezados, encabezadosAMayusculas, eliminarColumnasParecidas, eliminarColumnas, nombreCsvUnido)
-        
+        if not csvUnido:
+            return False
         ejido = STR_FillWithChars(ejido, 3, '0')
         csvs = CSV_DivideByFieldValue(csvUnido, 'TEN', 'S', enc='latin-1', separator=';')
         csvs = {'PROPIETARIOS': csvs['OTHERS'], 'POSEEDORES': csvs['MATCH']}
@@ -244,5 +251,3 @@ def GenerarEjidoSincronizado(ejido):
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
 generarejidosincronizado = GenerarEjidoSincronizado
 GENERAREJIDOSINCRONIZADO = GenerarEjidoSincronizado
-
-
