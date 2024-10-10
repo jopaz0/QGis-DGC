@@ -1,6 +1,6 @@
 """
-Modulo: Sincronizador de Parcelas (04 Oct 2024)
-Funciones registradas: CompletarPartidas, CompletarTabla
+Modulo: Sincronizador de Parcelas (10 Oct 2024)
+Funciones registradas: GenerarEjidoSincronizado
 Tipee help(funcion) en la consola para mas informacion.
 
 Este script debe reemplazr al anterior sincronizador, que es una 
@@ -8,13 +8,37 @@ reverenda poronga. No deberia trabarse tanto si hay demasiadas
 entradas en los CSVs de Progress. Pero no informa de los errores
 tan detalladamente como el anterior.
 """
+from qgis.core import QgsProject, QgsVectorLayer, QgsFeature
+from qgis.utils import iface
+import processing
+from qgis.PyQt.QtCore import QVariant
 from CommonFunctions import *
 from DGCFunctions import *
 
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
 
-def SincronizarEjidoConTablasProgress(ejido):
+def GenerarEjidoSincronizado(ejido):
+    """
+    Genera capas sincronizadas para el ejido especificado combinando la geometria de los shapefiles y la información de archivos CSV descargados de Progress. 
+
+    PARAMETROS
+    ejido: Cadena de texto o numero entero que representa el código del ejido a procesar. Se ajustará para tener un formato de tres caracteres usando ceros a la izquierda si es necesario.
+
+    COMENTARIOS
+    - Se presupone que los CSV estan ya descargados desde la app CatastroV11 y guardados en C:\MaxlocV11\, o sea la ubicacion por defecto. La funcion se encarga de normalizar los datos y encabezados que vienen por defecto.
+    - Se presupone que las capas de origen estan ubicadas en la ubicacion por defecto en PUEBLOS CAD-GIS, poseen los campos normalizados y el campo PARTIDA ya completado. Las capas originales no sufren cambios.
+    - La funcion genera capas temporales, sincroniza los datos segun PARTIDA y las carga al lienzo de QGIS.
+    - Las parcelas cuya partida no tuviera su contraparte en los CSV, mantendran sus datos originales, excepto COD, DOCUMENTO y APELLIDO, que quedaran en blanco.
+
+    RETORNO
+    No retorna ningún valor.
+
+    EXCEPCIONES
+    - Captura errores relacionados con la carga de capas, manejo de archivos y operaciones de unión de tablas.
+    - Cualquier excepción se imprime en la consola para diagnóstico.
+    
+    """
     #Todos estos son los parametros de entrada para CSV_MergeFiles
     try:
         directoriosCSVs = r'C:\MaxlocV11'
