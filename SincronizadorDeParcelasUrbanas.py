@@ -8,7 +8,7 @@ reverenda poronga. No deberia trabarse tanto si hay demasiadas
 entradas en los CSVs de Progress. Pero no informa de los errores
 tan detalladamente como el anterior.
 """
-from qgis.core import QgsProject, QgsVectorLayer, QgsFeature
+from qgis.core import *
 from qgis.utils import iface
 import processing
 from qgis.PyQt.QtCore import QVariant
