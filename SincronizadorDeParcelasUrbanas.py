@@ -9,7 +9,7 @@ entradas en los CSVs de Progress. Pero no informa de los errores
 tan detalladamente como el anterior.
 """
 from qgis.core import *
-from qgis.utils import iface
+from qgis.utils import *
 import processing
 from qgis.PyQt.QtCore import QVariant
 from CommonFunctions import *
