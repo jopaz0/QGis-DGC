@@ -25,8 +25,8 @@ def BuscarCapasUrbanas(numeroDeEjido):
     numeroDeEjido = STR_FillWithChars(numeroDeEjido, 3, '0')
     capas = {}
     carpetaEjido = [os.path.join(directorioPueblosCADGIS, d) for d in os.listdir(directorioPueblosCADGIS) if os.path.isdir(os.path.join(directorioPueblosCADGIS, d)) and d.startswith(numeroDeEjido)][0]
-    carpetaPoligonos = [os.path.join(carpetaEjido, d) for d in os.listdir(carpetaEjido) if os.path.isdir(os.path.join(carpetaEjido, d)) and 'POLIGONO' in d][0]
+    carpetaPoligonos = [os.path.join(carpetaEjido, d) for d in os.listdir(carpetaEjido) if os.path.isdir(os.path.join(carpetaEjido, d)) and 'POLIGONO' in d.upper()][0]
 
-    capas['PROPIETARIOS'] = [os.path.join(carpetaPoligonos, d) for d in os.listdir(carpetaPoligonos) if os.path.isfile(os.path.join(carpetaPoligonos, d)) and 'PROPIETARIO' in d and d.endswith('.shp')][0]
-    capas['POSEEDORES'] = [os.path.join(carpetaPoligonos, d) for d in os.listdir(carpetaPoligonos) if os.path.isfile(os.path.join(carpetaPoligonos, d)) and 'POSEEDOR' in d and d.endswith('.shp')][0]
+    capas['PROPIETARIOS'] = [os.path.join(carpetaPoligonos, d) for d in os.listdir(carpetaPoligonos) if os.path.isfile(os.path.join(carpetaPoligonos, d)) and 'PROPIETARIO' in d.upper() and d.lower().endswith('.shp')][0]
+    capas['POSEEDORES'] = [os.path.join(carpetaPoligonos, d) for d in os.listdir(carpetaPoligonos) if os.path.isfile(os.path.join(carpetaPoligonos, d)) and 'POSEEDOR' in d.upper() and d.lower().endswith('.shp')][0]
     return capas
