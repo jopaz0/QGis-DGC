@@ -220,7 +220,10 @@ def GenerarEjidoSincronizado(ejido):
                         else:
                             for campo in campos:
                                 try:
-                                    feature[campo] = feature[f'{prefijo}{campo}']
+                                    if campo == 'MZNA':
+                                        feature[campo] = STR_RemoveEndingChars(STR_RemoveStartingChars(feature[f'{prefijo}{campo}']    ,'0'),'X')
+                                    else:
+                                        feature[campo] = feature[f'{prefijo}{campo}']
                                 except Exception as e:
                                     #añadir mensaje de error?
                                     continue

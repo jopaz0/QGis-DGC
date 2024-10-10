@@ -1,5 +1,5 @@
 """
-Common Python Functions (09 Oct 2024)
+Common Python Functions (10 Oct 2024)
 Created for use at DGC with PyQGis, but general enough to implement in other projects.
 
 COMMENTS:
@@ -476,7 +476,7 @@ def STR_RemoveStartingChars(string,char):
         is returned.
     """
     string = str(string)
-    while len(string)>0 and string[0] == char:
+    while len(string)>0 and string[0].upper() == char:
         string = string[1:]
     return string
 
@@ -502,7 +502,7 @@ def STR_RemoveEndingChars(string, char):
         is returned.
     """
     string = str(string)
-    while len(string)>0 and string[-1] == char:
+    while len(string)>0 and string[-1].upper() == char:
         string = string[:-1]
     return string
 
