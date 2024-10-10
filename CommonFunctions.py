@@ -7,6 +7,8 @@ import os
 import pandas as pd
 import gc
 from qgis.core import QgsVectorLayer, QgsProject
+from qgis.core import (QgsVectorLayer, QgsProject, QgsApplication, QgsVectorFileWriter, QgsLayerTreeGroup, QgsLayerTreeLayer) #These are not necessary yet
+from PyQt5.QtCore import QVariant, QDate, QDateTime, QTime
 
 def CANVAS_AddLayer(layer, name=False, delimiter=False):
     """
