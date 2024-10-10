@@ -17,6 +17,131 @@ from DGCFunctions import *
 
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
+def CompletarPartidas(ejido, capa=False, poseedores=False):
+    """
+    Completa el campo 'PARTIDA' en la capa especificada basado en datos de archivos CSV correspondientes a un ejido especificado.
+
+    PARÁMETROS
+    ejido: Entero o cadena que representa el código del ejido a procesar.
+    capa: Objeto QgsVectorLayer que representa la capa vectorial a actualizar. Si no se especifica, se utilizará la capa activa en el lienzo de QGIS.
+    poseedores: Booleano que indica si se deben filtrar los registros para poseedores (True) o propietarios (False). El valor por defecto es False.
+    soloSeleccionados: Booleano que indica si solo se procesarán las entidades seleccionadas (True) o todas las entidades en la capa (False). El valor por defecto es True.
+
+    COMENTARIOS
+    - La funcion no diferencia parcelas de propietarios normales de parcelas de propiedad horizontal. Las parcelas con CC = 4 o 5 no se sincronizaran.
+    - La función verifica la presencia de campos requeridos ('NOMENCLA', 'PARTIDA', 'CC', 'TEN') en la capa. Si falta alguno, se imprime un mensaje de error y la función finaliza.
+    - Se obtienen diccionarios de datos de archivos CSV ubicados en la carpeta `C:\MaxlocV11`. Los CSV relevantes se filtran según el campo 'TEN' de acuerdo con el parámetro `poseedores`.
+    - Las parcelas se separan por 'CC' y el campo 'PARTIDA' se actualiza utilizando un método de sincronización basado en el campo 'NOMENCLA'.
+
+    RETORNO
+    No retorna ningún valor.
+    """
+    if capa:
+        capa = CANVAS_CheckForLayer(capa)
+    else:
+        capa = iface.activeLayer()
+
+    entidades = CANVAS_CheckSelection(capa)
+    if not entidades:
+        return
+
+    #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
+    for campo in ['NOMENCLA','PARTIDA', 'CC','TEN']:
+        if not campo in [x.name() for x in capa.fields()]:
+            print(f'La capa {capa.name()} no tenia el campo {campo}' )
+            return False
+
+    #obtengo los diccionarios desde disco
+    diccionarios = {1:False,2:False,3:False}
+    nombrecc = {1:'Chacra',2:'Quinta',3:'Manzana'}
+    camposDecimales = ['PORCEN','V2','V3','V4']
+    camposBorrarAprox = ['EXPTE','ANIO']
+    conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
+    for cc in [1,2,3]:
+        csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
+        diccionarios[cc] = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+        if poseedores:
+            diccionarios[cc] = DICT_Filter(diccionarios[cc], matchFilters={'TEN':'S'})
+        else:
+            diccionarios[cc] = DICT_Filter(diccionarios[cc], unmatchFilters={'TEN':'S'})
+
+        diccionarios[cc] = DICT_SetKey(diccionarios[cc], 'NOMENCLA')
+
+    #separo las parcelas por cc y matcheo por nomenclatura con el diccionario que le corresponda
+    #de momento, esto no tiene en cuenta PHS
+    for cc in [1,2,3]:
+        subconjunto = [x for x in entidades if x['CC']==cc]
+        SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
+
+def CompletarTabla(ejido, capa = False):
+    """
+    Completa los valores de atributos de las parcelas seleccionadas en la capa actual, basándose en la información obtenida de archivos CSV correspondientes a un ejido.
+
+    PARÁMETROS
+    ejido: Número entero o cadena de texto que representa el código del ejido a procesar. 
+    capa: Capa vectorial de tipo QgsVectorLayer en la que se van a actualizar los datos. Si no se especifica, se tomará la capa activa en el lienzo de QGIS.
+    soloSeleccionados: Booleano que indica si solo se procesarán las entidades seleccionadas (True) o todas las entidades de la capa (False). Por defecto es True.
+
+    COMENTARIOS
+    - Se espera que la capa contenga los campos 'PARTIDA' y 'CC'. Si alguno de estos campos no se encuentra en la capa, la función devolverá un mensaje de error y finalizará.
+    - Los datos de los archivos CSV se cargan desde la carpeta `C:\MaxlocV11` y se unifican en una lista de diccionarios. Se aplican ciertas conversiones a los campos, como eliminar caracteres iniciales y finales en los nombres de manzana ('MZNA').
+    - Los campos 'COD', 'DOCUMENTO', 'APELLIDO' y 'REGISTRO' de la capa se blanquean antes de realizar la sincronización con el diccionario.
+    - Si la clave 'PARTIDA' de una entidad no se encuentra en el diccionario, se mantendrán los valores en blanco en los campos especificados.
+
+    RETORNO
+    No retorna ningún valor.
+
+    EXCEPCIONES
+    - Si la capa especificada no contiene los campos requeridos ('PARTIDA', 'CC'), se imprime un mensaje de error y la función se interrumpe.
+    - Si la selección de entidades está vacía o la capa no tiene ninguna entidad, se imprime un mensaje y la función se interrumpe.
+    - Captura y maneja cualquier error durante la edición de la capa, imprimiendo mensajes de error y revirtiendo los cambios si es necesario.
+
+    """
+    #controlo el input de la capa y seleccion
+    if capa:
+        capa = CANVAS_CheckForLayer(capa)
+    else:
+        capa = iface.activeLayer()
+
+    seleccion = CANVAS_CheckSelection(capa)
+    if not seleccion:
+        return
+
+    #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
+    for campo in ['PARTIDA', 'CC']:
+        if not campo in [x.name() for x in capa.fields()]:
+            print(f'La capa {capa.name()} no tenia el campo {campo}' )
+            return False
+
+    #obtengo las listas de diccionarios desde disco y los unifico
+    diccionario = []
+    nombrecc = {1:'Chacra',2:'Quinta',3:'Manzana'}
+    camposDecimales = ['PORCEN','V2','V3','V4']
+    camposBorrarAprox = ['EXPTE','ANIO']
+    conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
+    for cc in [1,2,3]:
+        csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
+        diccionario += CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+
+    #aplico algunas conversiones a los datos.. parece que solo necesite una
+    for entidad in diccionario:
+        entidad['MZNA'] = RemoveEndingChars(RemoveStartingChars(entidad['MZNA'], '0'), 'X')
+
+    diccionario = DICT_SetKey(diccionario, 'PARTIDA')
+
+    # Blanqueo los valores de COD, DOCUMENTO, APELLIDO y REGISTRO de las entidades
+    with edit(capa):
+        for entidad in seleccion:
+            for campo in ['COD','DOCUMENTO','APELLIDO','REGISTRO']:
+                if not campo in [x.name() for x in capa.fields()]:
+                    print(f'La capa {capa.name()} no tenia el campo {campo}' )
+                else:
+                    entidad[campo] = None
+            if not capa.updateFeature(entidad):
+                print(f"Error al blanquear la capa. Revertiendo cambios.")
+                capa.rollBack()
+    # Si no se encuentra la partida en el diccionario, es xq no existen
+    SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
 
 def GenerarEjidoSincronizado(ejido):
     """

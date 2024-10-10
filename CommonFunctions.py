@@ -1,14 +1,22 @@
 """
 Common Python Functions (09 Oct 2024)
 Created for use at DGC with PyQGis, but general enough to implement in other projects.
-"""
 
+COMMENTS:
+- Functions starting with CANVAS usually require an open QGis map because they take parameters from active layer and selected features.
+- Functions starting with CSV, DICT or STR operate over such variable types. DICT usually operates lists of dicts, but can receive a dict and will cast it into a list.
+"""
 import os
-import pandas as pd
 import gc
-from qgis.core import QgsVectorLayer, QgsProject
-from qgis.core import (QgsVectorLayer, QgsProject, QgsApplication, QgsVectorFileWriter, QgsLayerTreeGroup, QgsLayerTreeLayer) #These are not necessary yet
+import pandas as pd
+from qgis.utils import *
+from qgis.gui import *
+from qgis.core import *
 from PyQt5.QtCore import QVariant, QDate, QDateTime, QTime
+#from qgis.core import (QgsVectorLayer, QgsProject, QgsApplication, QgsVectorFileWriter, QgsLayerTreeGroup, QgsLayerTreeLayer) #These are not necessary yet
+
+
+#FUNCTIONS stariting with CANVAS usually require an open QGis map because they take parameters from active layer and selected features.
 
 def CANVAS_AddLayer(layer, name=False, delimiter=False):
     """
@@ -72,6 +80,39 @@ def CANVAS_CheckForLayer(layer):
         return False
     print(f"Unexpected error while checking for layer {str(layer)} in map canvas, @ CANVAS_CheckForLayer. Unexpected layer format?")
     return False
+
+def CANVAS_CheckSelection(layer, onlySelected=True):
+    """
+    Validates if the specified layer has any features based on the selection criteria.
+
+    PARAMETERS
+    layer: QgsVectorLayer object. The layer from which features will be checked.
+    onlySelected: Boolean indicating whether to consider only selected features or all features in the layer. Default is True.
+
+    COMMENTS
+    - If `onlySelected` is True, the function checks if there are any selected features in the layer. If no features are selected, it prints a warning message and returns False.
+    - If `onlySelected` is False, it considers all features in the layer. If the layer is empty, it prints a warning message and returns False.
+    - The function returns the list of features matching the criteria or False if no features were found.
+
+    RETURNS
+    List of features if the specified criteria are met; otherwise, it returns False.
+
+    EXCEPTIONS
+    - None explicitly raised, but it prints warning messages to indicate empty layers or lack of selected features.
+
+    """
+
+    if onlySelected:
+        features = layer.selectedFeatures()
+        if not features:
+            print(f'No selected features in {layer.name()}')
+            return False
+    else:
+        features = [x for x in layer.getFeatures()]
+        if not features:
+            print(f'Layer {layer.name()} was empty')
+            return False
+    return features
 
 def CANVAS_RemoveLayer(layer):
     """
@@ -157,6 +198,67 @@ def CANVAS_RemoveLayersContaining(layerName):
     for layer in layers:
         if layerName in layer.name():
             QgsProject.instance().removeMapLayer(layer)
+
+def CSV_ToDictList(csvPath, 
+                  floatFields=[], 
+                  dropFields_aprox=[], 
+                  dropFields_exact=[], 
+                  enc='latin-1', 
+                  separator=';',
+                  fieldNameTranslations={},
+                  fieldsToUppercase=True):
+    """
+    Converts a CSV file into a list of dictionaries, allowing for data transformations such as field renaming, field dropping, and numeric formatting.
+
+    PARAMETERS
+    csvPath: String representing the path to the CSV file to be converted.
+    floatFields: List of field names that should be converted to float type. These fields will undergo additional transformations to ensure they are in a consistent format.
+    dropFields_aprox: List of substrings. Any field name in the CSV that contains one of these substrings will be dropped.
+    dropFields_exact: List of exact field names. Any field with a name that matches an item in this list will be dropped.
+    enc: String representing the file's encoding. Default is 'latin-1'.
+    separator: String representing the CSV separator. Default is ';'.
+    fieldNameTranslations: Dictionary to rename CSV columns. Keys are original column names, values are the new names to be assigned.
+    fieldsToUppercase: Boolean indicating whether to convert field names to uppercase. Default is True.
+
+    COMMENTS
+    - The function first reads the CSV using pandas, with initial transformations such as renaming and dropping fields.
+    - It supports renaming columns based on the `fieldNameTranslations` parameter.
+    - Fields in `floatFields` are processed to ensure proper float formatting, replacing comma with a dot and rounding to two decimals.
+    - If `fieldsToUppercase` is set to True, all field names are converted to uppercase.
+
+    RETURNS
+    List of dictionaries where each dictionary corresponds to a row in the CSV, with the appropriate transformations applied.
+
+    EXCEPTIONS
+    - Raises FileNotFoundError if `csvPath` does not exist.
+    - Raises ValueError if there are issues during the float conversion or if the CSV is malformed.
+
+    """
+
+    data = pd.read_csv(csvPath, encoding=enc, sep=separator, skipinitialspace=True)
+    if fieldsToUppercase:
+        data.columns = map(str.upper, data.columns)
+    translationDict = {col: fieldNameTranslations.get(col, col) for col in data.columns}
+    data = data.rename(columns=translationDict)
+    for field in dropFields_aprox:
+        columns_to_drop = [col for col in data.columns if field in col]
+        data = data.drop(columns=columns_to_drop)
+    for field in dropFields_exact:
+        columns_to_drop = [col for col in data.columns if field == col]
+        data = data.drop(columns=columns_to_drop)
+    for field in floatFields:
+        if field.upper() in data.columns:
+            data[field.upper()] = (
+                data[field.upper()]
+                .astype(str)
+                .str.replace('.', '')
+                .str.replace(',', '.')
+                .str.strip()
+                .astype(float)
+                .round(2)
+            )
+    csvList = data.to_dict(orient='records')
+    return csvList
 
 def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
     """
@@ -278,6 +380,132 @@ def CSV_MergeFiles(
             del data
         gc.collect()
 
+def DICT_Filter(dictList, matchFilters={}, unmatchFilters={}):
+    """
+    Filters a list of dictionaries based on specified matching and unmatching conditions.
+
+    PARAMETERS
+    dictList: List of dictionaries to be filtered. Each dictionary should have the same set of keys.
+    matchFilters: Dictionary representing key-value pairs that must be matched in the dictionaries. If a key-value pair is present in `matchFilters`, only dictionaries with the same key-value pair will be included in the result.
+    unmatchFilters: Dictionary representing key-value pairs that must *not* be matched in the dictionaries. If a key-value pair is present in `unmatchFilters`, dictionaries with the same key-value pair will be excluded from the result.
+
+    COMMENTS
+    - The function iterates through `dictList` and evaluates each dictionary against the criteria in `matchFilters` and `unmatchFilters`.
+    - If a dictionary satisfies all conditions in `matchFilters` and does not match any conditions in `unmatchFilters`, it is included in the `result` list.
+
+    RETURNS
+    List of dictionaries that meet the criteria defined by `matchFilters` and `unmatchFilters`.
+
+    EXCEPTIONS
+    - If any key in `matchFilters` or `unmatchFilters` is not present in the dictionaries of `dictList`, a KeyError will be raised.
+
+    """
+    if isinstance(dictList, dict):
+        dictList = list(dictList.values())
+    result = []
+    for element in dictList:
+        flag = True
+        for key, value in matchFilters.items():
+            if not value == element[key]:
+                flag = False
+                break
+        for key, value in unmatchFilters.items():
+            if value == element[key]:
+                flag = False
+                break
+        if flag:
+            result += [element]
+    return result
+
+def DICT_SetKey(dictList, keyField):
+    """
+    Organizes a list of dictionaries or a dictionary of dictionaries into a new dictionary using the specified field as the key.
+
+    PARAMETERS
+    dictList: List of dictionaries or Dictionary of dictionaries.
+        - If a list is provided, it will be reorganized based on the specified keyField.
+        - If a dictionary of dictionaries is provided, it will be converted into a list of dictionaries before processing.
+    keyField: String.
+        The field in the dictionary to be used as the key for the new dictionary.
+
+    COMMENTS
+    - If a dictionary of dictionaries is provided, it will be transformed into a list of dictionaries using only the values.
+    - Each dictionary in dictList must contain the keyField; otherwise, the function will terminate and return False.
+    - If multiple dictionaries share the same keyField value, they are grouped together in a list under that key.
+    - This function is useful for grouping elements by specific attributes (e.g., grouping a list of parcels by their zone code).
+
+    RETURNS
+    A dictionary where each key corresponds to a unique value in keyField, and its value is a list of dictionaries that share that keyField value.
+
+    EXCEPTIONS
+    - If a dictionary in dictList does not contain keyField, the function returns False and prints a message to the console.
+    """
+    if isinstance(dictList, dict):
+        dictList = list(dictList.values())
+    result = {}
+    for entry in dictList:
+        if not keyField in entry:
+            print(f'An element lacked ')
+            return False
+        value = entry.get(keyField)
+        if value in result:
+            result[value].append(entry)
+        else:
+            result[value] = [entry]
+    return result
+
+def STR_RemoveStartingChars(string,char):
+    """
+    Removes all leading characters from the input string that match the specified character.
+
+    PARAMETERS
+    string: str
+        The input string from which to remove leading characters.
+    char: str
+        The character to remove from the beginning of the input string.
+
+    COMMENTS
+    This function iteratively removes the specified character from the start of the string until 
+    it encounters a different character or the string becomes empty. It is useful for cleaning up 
+    strings that might have unwanted leading characters such as spaces, zeroes, or special symbols.
+
+    RETURNS
+    str
+        The modified string without leading characters that match the specified character.
+        If the input string is entirely composed of the specified character, an empty string 
+        is returned.
+    """
+    string = str(string)
+    while len(string)>0 and string[0] == char:
+        string = string[1:]
+    return string
+
+def STR_RemoveEndingChars(string, char):
+    """
+    Removes all trailing characters from the input string that match the specified character.
+
+    PARAMETERS
+    string: str
+        The input string from which to remove trailing characters.
+    char: str
+        The character to remove from the end of the input string.
+
+    COMMENTS
+    This function iteratively removes the specified character from the end of the string until 
+    it encounters a different character or the string becomes empty. It is useful for cleaning up 
+    strings that might have unwanted trailing characters such as spaces, zeroes, or special symbols.
+
+    RETURNS
+    str
+        The modified string without trailing characters that match the specified character.
+        If the input string is entirely composed of the specified character, an empty string 
+        is returned.
+    """
+    string = str(string)
+    while len(string)>0 and string[-1] == char:
+        string = string[:-1]
+    return string
+
 def STR_FillWithChars(string, width, char, insertAtStart=True):
     """
     Fills a string with a specified character until it reaches the desired width.
@@ -377,3 +605,71 @@ def IsValueCompatible(value, fieldType):
     else:
         # Para otros tipos, permitir cualquier valor no nulo
         return value is not None
+
+def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMultiples=False):
+    """
+    Synchronizes field values between a QGIS layer and an external data dictionary.
+
+    PARAMETERS
+    layer: QgsVectorLayer object representing the target layer where attributes will be updated.
+    features: QgsFeatureIterator or list of QgsFeature objects representing the features to be updated.
+    data: Dictionary containing feature data. The keys should match the values in the key field, and each key maps to a list of dictionaries representing attribute values.
+    keyField: String representing the name of the key field used to match features between the layer and the data dictionary.
+    fields: List of field names to be synchronized. If not provided, all fields in the layer except the key field will be used.
+    ignoreMultiples: Boolean indicating whether to skip updates when multiple entries in `data` share the same key. Defaults to False.
+
+    COMMENTS
+    - This function assumes that `data` is structured such that `data[key]` returns a list of dictionaries, where each dictionary represents attribute values for a corresponding feature.
+    - If `ignoreMultiples` is set to False, and a key is found more than once in the data dictionary, a warning will be printed but the update will proceed using the first entry.
+
+    RETURNS
+    Boolean indicating whether the synchronization was successful. Returns False if the key field is not found in the layer or the data source, or if any feature update fails.
+
+    EXCEPTIONS
+    - Captures and prints errors related to updating feature attributes or mismatched data types.
+    - If a feature update fails, it attempts to revert changes and stops the process for that feature.
+
+    """
+    layerFields = [f.name() for f in layer.fields()]
+    dictFields = [k for k in next(iter(data.values()))[0].keys()]
+    if not fields:
+        fields = [f.name() for f in layer.fields()]
+        fields.remove(keyField)
+    if not keyField in layerFields or not keyField in dictFields:
+        print(f'Key field {keyField} was not found on either {layer.name()} or the data source')
+        return False
+    notFound = []
+    for field in fields:
+        if not field in layerFields:
+            print(f'Field {field} was not found on {layer.name()} and will be ignored')
+            notFound += [field]
+        if not field in dictFields:
+            print(f'Field {field} was not found on data and will be ignored')
+            notFound += [field]
+    for field in notFound:
+        fields.remove(field)
+    for feature in features:
+        key = feature[keyField]
+        if key in data:
+            entries = data[key]
+            if len(entries) > 1:
+                print(f'More than 1 feature with key {key} was found on dictionary.')
+                if ignoreMultiples:
+                    continue
+            entry = entries[0]
+            for field in fields:
+                with edit(layer):
+                    if field in entry: 
+                        value = entry[field]
+                        fieldType = layer.fields().field(field).type()
+                        if IsValueCompatible(value, fieldType):
+                            try:
+                                feature[field] = value
+                            except Exception as e:
+                                print(f"Fallo al copiar {value} a {field}({fieldType}). Errormsg: {e}")
+                    else:
+                        print(f'Field {field} was not found in')
+                    if not layer.updateFeature(feature):
+                        print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
+                        layer.rollBack()
+
