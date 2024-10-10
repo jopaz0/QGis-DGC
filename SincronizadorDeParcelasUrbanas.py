@@ -62,6 +62,9 @@ def GenerarEjidoSincronizado(ejido):
             try:
                 capa = PathToLayer(capas[ten])
                 csv = CANVAS_AddLayer(PathToLayer(csvs[ten], delimiter=';'))
+                nCapa = capa.featureCount()
+                nCsv = csv.featureCount()
+                print(f'Cantidad de entidades en {capa.name()} ({nCapa}) vs csv ({nCsv})')
                 prefijo = 'CSV_'
                 parametros = { 'DISCARD_NONMATCHING' : False, 
                             'FIELD' : 'PARTIDA', 
