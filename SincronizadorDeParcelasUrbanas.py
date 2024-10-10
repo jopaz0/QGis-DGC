@@ -55,7 +55,7 @@ def GenerarEjidoSincronizado(ejido):
         
         ejido = STR_FillWithChars(ejido, 3, '0')
         csvs = CSV_DivideByFieldValue(csvUnido, 'TEN', 'S', enc='latin-1', separator=';')
-        csvs = {'PROPIETARIOS': csvs['OTHERS'], 'POSEEDORES': csvs['OTHERS']}
+        csvs = {'PROPIETARIOS': csvs['OTHERS'], 'POSEEDORES': csvs['MATCH']}
         
         capas = BuscarCapasUrbanas(ejido)
         for ten in ['PROPIETARIOS','POSEEDORES']:
