@@ -1,12 +1,7 @@
 """
 Modulo: Sincronizador de Parcelas (10 Oct 2024)
-Funciones registradas: GenerarEjidoSincronizado
+Funciones registradas: CompletarPartidas, CompletarTabla, GenerarEjidoSincronizado
 Tipee help(funcion) en la consola para mas informacion.
-
-Este script debe reemplazr al anterior sincronizador, que es una 
-reverenda poronga. No deberia trabarse tanto si hay demasiadas
-entradas en los CSVs de Progress. Pero no informa de los errores
-tan detalladamente como el anterior.
 """
 from qgis.core import *
 from qgis.utils import *
@@ -19,7 +14,7 @@ from DGCFunctions import *
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
 def CompletarPartidas(ejido, capa=False, poseedores=False):
     """
-    Completa el campo 'PARTIDA' en la capa especificada basado en datos de archivos CSV correspondientes a un ejido especificado.
+    Completa el campo 'PARTIDA' de las parcelas seleccionadas en la capa actual usando 'NOMENCLA' para comparar con los datos de archivos CSV correspondientes a un ejido especificado.
 
     PARÁMETROS
     ejido: Entero o cadena que representa el código del ejido a procesar.
