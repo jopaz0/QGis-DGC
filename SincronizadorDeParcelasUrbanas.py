@@ -128,7 +128,7 @@ def CompletarTabla(ejido, capa = False):
 
     #aplico algunas conversiones a los datos.. parece que solo necesite una
     for entidad in diccionario:
-        entidad['MZNA'] = RemoveEndingChars(RemoveStartingChars(entidad['MZNA'], '0'), 'X')
+        entidad['MZNA'] = STR_RemoveEndingChars(STR_RemoveStartingChars(entidad['MZNA'], '0'), 'X')
 
     diccionario = DICT_SetKey(diccionario, 'PARTIDA')
 
