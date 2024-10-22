@@ -18,7 +18,7 @@ class NumberingTool(QgsMapToolEmitPoint):
     concat: Booleano que indica si se debe concatenar la numeración con los valores existentes en el campo objetivo.
     """
 
-    def __init__(self, startingNumber, targetField='NOMENCLA', concat=True):
+    def __init__(self, startingNumber=1, targetField='NOMENCLA', concat=True):
         """
         Inicializa la herramienta de numeración con el lienzo del mapa, la capa y los parámetros de numeración proporcionados.
 
@@ -50,12 +50,11 @@ class NumberingTool(QgsMapToolEmitPoint):
         self.points = []  # Almacena puntos para crear la línea
         self.setCursor(Qt.CrossCursor)  # Cambia el cursor a una cruz cuando se activa la herramienta
         self.rubberBand = None
-        print(f"""Herramienta de numeración activada:
- Capa = '{iface.activeLayer().name()}'
- Campo = '{targetField}'
- Número de inicio = {startingNumber},
- Concatenar con datos anteriores = {concat}
-""")
+        print(f'Herramienta de numeración activada:')
+        print(f'Capa = {iface.activeLayer().name()}')
+        print(f'Campo = {targetField}')
+        print(f'Número de inicio = {startingNumber}')
+        print(f'Concatenar con datos anteriores = {concat}')
 
     def canvasPressEvent(self, event):
         """

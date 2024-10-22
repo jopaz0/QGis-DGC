@@ -3,7 +3,7 @@ Modulo: Digitalizacion (22 Oct 2024)
 Funciones destinadas a digitalizar parcelas.
 Funciones: 
  > AsignarValorACampo / nomenclar
- > CortarOchava / ochavar
+ > CortarOchava / ochava
  > NumerarParcelas / numerar
 Tipee help(funcion) en la consola para mas informacion.
 """
@@ -20,10 +20,10 @@ def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
     seleccionadas.
 
     PARAMETROS
-    campoObjetivo: cadena de caracteres
-        Nombre del campo/columna de la tabla donde se va a modificar
     valor: numero o cadena de caracteres
         Valor que se va a aplicar.
+    campoObjetivo: cadena de caracteres (opcional)
+        Nombre del campo/columna de la tabla donde se va a modificar
 
     COMENTARIOS
     Hola, soy un comentario! Me resulta un poco mas rapido que usar la
@@ -42,13 +42,14 @@ def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
         print(f'El campo {campoObjetivo} no existe en {layer.name()}')
         return False
     fieldType = layer.fields().field(campoObjetivo).type()
+    if not layer.isEditable():
+        layer.startEditing()
     if IsValueCompatible(valor, fieldType):
-        with edit(layer):
-            for feature in features:
-                feature[campoObjetivo] = valor
-                if not layer.updateFeature(feature):
-                        print(f"Error al actualizar la entidad.")
-                        layer.rollBack()
+        for feature in features:
+            feature[campoObjetivo] = valor
+            if not layer.updateFeature(feature):
+                print(f"Error al actualizar la entidad.")
+                layer.rollBack()
         return True
     else: 
         print(f'El tipo de valor ({fieldType}) proporcionado no era compatible con {campoObjetivo}.')
@@ -59,22 +60,21 @@ Nomenclar = AsignarValorACampo
 nomenclar = AsignarValorACampo
 NOMENCLAR = AsignarValorACampo
 
-def CortarOchava(distancia=4, capa=None):
+def CortarOchava(distancia=4):
     """
     Permite cortar rapidamente ochavas.
 
     PARAMETROS
     distancia: numero
         Distancia que va a tomar a cada lado del vertice al cortar la ochava.
-    capa: QgsVectorLayer
-        Capa donde se van a aplicar los cambios. Toma por defecto la capa actual. Mejor no lo toques.
 
     COMENTARIOS
     Invocar la herramienta permite seleccionar puntos cercanos a un vertice de una geometria. Calcula dos puntos hacia los vertices adyacentes a la distancia especificada (por defecto 4 metros), los inserta y elimina el vertice seleccionado.
     Nada
     """
-    tool = ChamferTool(distancia)
-    iface.mapCanvas().setMapTool(tool)
+    herramienta = ChamferTool(distancia)
+    iface.mapCanvas().setMapTool(herramienta)
+    iface._currentTool = herramienta
 cortarochava = CortarOchava
 CORTAROCHAVA = CortarOchava
 Ochava = CortarOchava
@@ -107,8 +107,9 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     RETORNO
     Nada
     """
-    tool = NumberingTool(numeroInicial, campoObjetivo, concatenar)
-    iface.mapCanvas().setMapTool(tool)
+    herramienta = NumberingTool(numeroInicial, campoObjetivo, concatenar)
+    iface.mapCanvas().setMapTool(herramienta)
+    iface._currentTool = herramienta
 numerarparcelas = NumerarParcelas
 NUMERARPARCELAS = NumerarParcelas
 Numerar = NumerarParcelas

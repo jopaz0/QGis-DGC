@@ -1,6 +1,7 @@
 from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
+from qgis.PyQt.QtCore import Qt
 
 class ChamferTool(QgsMapToolEmitPoint):
     """
@@ -31,6 +32,7 @@ class ChamferTool(QgsMapToolEmitPoint):
         self.canvas = canvas
         self.distance = distance
         self.layer = iface.activeLayer()
+        self.setCursor(Qt.CrossCursor)
 
     def canvasReleaseEvent(self, event):
         """
