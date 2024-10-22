@@ -73,6 +73,7 @@ class ChamferTool(QgsMapToolEmitPoint):
             if self.layer.selectedFeatureCount() == 1:
                 feature = self.layer.selectedFeatures()[0]
                 if self.tolerance:
+                    #esto claramente no esta funcionando
                     geom = GEOM_DeleteDuplicatePoints(feature.geometry(), self.tolerance)
                     print('Trate de corregir eh!')
                 else:
