@@ -28,8 +28,8 @@ class ChamferTool(QgsMapToolEmitPoint):
         PARAMETROS
         distance: float
             La distancia desde el vértice para calcular los nuevos puntos.
-        layer: QgsVectorLayer, opcional
-            La capa en la que se aplicará la herramienta. Si no se proporciona, se utilizará la capa activa.
+        tolerance: float or False
+            La tolerancia usada para simplificar puntos repetidos en la geometria. Si se setea en False o similar, no simplifica
         """
         canvas = iface.mapCanvas()
         super().__init__(canvas)
