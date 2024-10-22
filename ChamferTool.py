@@ -72,7 +72,7 @@ class ChamferTool(QgsMapToolEmitPoint):
             self.layer.selectByRect(rect, Qgis.SelectBehavior.SetSelection)
             if self.layer.selectedFeatureCount() == 1:
                 feature = self.layer.selectedFeatures()[0]
-                if tolerance:
+                if self.tolerance:
                     geom = GEOM_DeleteDuplicatePoints(feature.geometry(), self.tolerance)
                 else:
                     geom = feature.geometry()
