@@ -11,8 +11,8 @@ from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
 from CommonFunctions import IsValueCompatible
-import ChamferTool
-import NumberingTool
+from ChamferTool import *
+from NumberingTool import *
 
 def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
     """
