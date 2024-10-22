@@ -457,6 +457,57 @@ def DICT_SetKey(dictList, keyField):
             result[value] = [entry]
     return result
 
+def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
+    """
+    Elimina los vértices duplicados de una geometría de tipo polígono o multipolígono, utilizando una tolerancia específica.
+
+    PARÁMETROS
+    geometry: QgsGeometry.
+        La geometría del polígono o multipolígono sobre la que se va a trabajar.
+    tolerance: Float.
+        Distancia mínima entre vértices (en unidades de mapa) para considerarlos como duplicados. El valor predeterminado es 0.01 (1 centímetro).
+
+    COMENTARIOS
+    - La función recorre los vértices de la geometría y elimina aquellos que estén a una distancia menor o igual a la tolerancia especificada.
+    - Es compatible tanto con geometrías de un solo polígono como con multipolígonos.
+    - Si la geometría está vacía o no es válida, la función devuelve None.
+
+    RETORNA
+    Una nueva instancia de QgsGeometry sin los vértices duplicados.
+
+    EXCEPCIONES
+    - Si la geometría es nula o no válida, la función devuelve una advertencia y la geometria original.
+    """
+    try:
+        if not geometry:  # Verificar si la geometría es válida
+            return None
+
+        # Crear una nueva lista de puntos sin duplicados
+        newCoordinates = []
+        
+        for part in geometry.parts():
+            points = part.vertices()
+            cleanPoints = []
+            lastPoint = None
+            
+            for point in points:
+                if lastPoint is None or QgsPointXY(lastPoint).distance(QgsPointXY(point)) > tolerance:
+                    cleanPoints.append(QgsPointXY(point))
+                lastPoint = QgsPointXY(point)
+
+            newCoordinates.append(cleanPoints)
+
+        # Crear la nueva geometría a partir de las coordenadas filtradas
+        if geometry.isMultipart():
+            newGeometry = QgsGeometry.fromMultiPolygonXY([newCoordinates])
+        else:
+            newGeometry = QgsGeometry.fromPolygonXY(newCoordinates)
+        
+        return newGeometry
+    except Exception as e:
+        print('Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints.')
+        return geometry
+
 def STR_RemoveStartingChars(string,char):
     """
     Removes all leading characters from the input string that match the specified character.

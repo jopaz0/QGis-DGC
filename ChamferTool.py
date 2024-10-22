@@ -1,7 +1,9 @@
+import math
 from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
+from CommonFunctions import GEOM_DeleteDuplicatePoints
 
 class ChamferTool(QgsMapToolEmitPoint):
     """
@@ -15,9 +17,11 @@ class ChamferTool(QgsMapToolEmitPoint):
         La distancia desde el vértice para calcular los nuevos puntos.
     layer: QgsVectorLayer, opcional
         La capa en la que se aplicará la herramienta. Si no se proporciona, se utilizará la capa activa.
+    tolerance: float or False
+        La tolerancia usada para simplificar puntos repetidos en la geometria. Si se setea en False o similar, no simplifica
     """
 
-    def __init__(self, distance):
+    def __init__(self, distance, tolerance=0.01):
         """
         Inicializa la herramienta de mapa.
 
@@ -33,6 +37,7 @@ class ChamferTool(QgsMapToolEmitPoint):
         self.distance = distance
         self.layer = iface.activeLayer()
         self.setCursor(Qt.CrossCursor)
+        self.tolerance = tolerance
 
     def canvasReleaseEvent(self, event):
         """
@@ -67,7 +72,10 @@ class ChamferTool(QgsMapToolEmitPoint):
             self.layer.selectByRect(rect, Qgis.SelectBehavior.SetSelection)
             if self.layer.selectedFeatureCount() == 1:
                 feature = self.layer.selectedFeatures()[0]
-                geom = feature.geometry()
+                if tolerance:
+                    geom = GEOM_DeleteDuplicatePoints(feature.geometry(), self.tolerance)
+                else:
+                    geom = feature.geometry()
 
                 # Obtener el vértice más cercano, el anterior y el siguiente
                 nearestVertex = geom.closestVertex(point)
