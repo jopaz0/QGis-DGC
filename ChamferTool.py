@@ -77,6 +77,7 @@ class ChamferTool(QgsMapToolEmitPoint):
                     print('Trate de corregir eh!')
                 else:
                     geom = feature.geometry()
+                    print('No corrijo un carajo. puto.')
 
                 # Obtener el vértice más cercano, el anterior y el siguiente
                 nearestVertex = geom.closestVertex(point)
