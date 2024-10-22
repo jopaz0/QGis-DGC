@@ -3,7 +3,7 @@ from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
 from qgis.PyQt.QtCore import Qt
-from CommonFunctions import GEOM_DeleteDuplicatePoints
+from CommonFunctions import *
 
 class ChamferTool(QgsMapToolEmitPoint):
     """
