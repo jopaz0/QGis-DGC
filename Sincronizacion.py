@@ -1,6 +1,10 @@
 """
-Modulo: Sincronizador de Parcelas (10 Oct 2024)
-Funciones registradas: CompletarPartidas, CompletarTabla, GenerarEjidoSincronizado
+Modulo: Sincronizacion (10 Oct 2024)
+Funciones destinadas a sincronizar las tablas de parcelas (urbanas, de momento) con informacion actualizada. Lee informacion desde los CSV/XLS descargados de Progress.
+Funciones: 
+ > CompletarPartidas
+ > CompletarTabla
+ > GenerarEjidoSincronizado
 Tipee help(funcion) en la consola para mas informacion.
 """
 from qgis.core import *

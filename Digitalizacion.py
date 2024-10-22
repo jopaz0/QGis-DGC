@@ -2,9 +2,9 @@
 Modulo: Digitalizacion (22 Oct 2024)
 Funciones destinadas a digitalizar parcelas.
 Funciones: 
-    > AsignarValorACampo / nomenclar
-    > CortarOchava / ochavar
-    > NumerarParcelas / numerar
+ > AsignarValorACampo / nomenclar
+ > CortarOchava / ochavar
+ > NumerarParcelas / numerar
 Tipee help(funcion) en la consola para mas informacion.
 """
 from qgis.core import *
