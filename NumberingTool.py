@@ -34,13 +34,13 @@ class NumberingTool(QgsMapToolEmitPoint):
 
         if startingNumber < 0:
             print(f"El número no debe ser negativo.")
-            iface.mapCanvas().unsetMapTool(self)
+            canvas.unsetMapTool(self)
         else:
             self.currentNumber = startingNumber
 
         if not targetField in [field.name() for field in iface.activeLayer().fields()]:
             print(f"! - El campo {targetField} no existe en la capa.")
-            iface.mapCanvas().unsetMapTool(self)
+            canvas.unsetMapTool(self)
         else:
             self.targetField = targetField
 

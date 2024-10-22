@@ -26,8 +26,9 @@ class ChamferTool(QgsMapToolEmitPoint):
         layer: QgsVectorLayer, opcional
             La capa en la que se aplicará la herramienta. Si no se proporciona, se utilizará la capa activa.
         """
+        canvas = iface.mapCanvas()
         super().__init__(canvas)
-        self.canvas = iface.mapCanvas()
+        self.canvas = canvas
         self.distance = distance
         self.layer = iface.activeLayer()
 
@@ -117,5 +118,5 @@ class ChamferTool(QgsMapToolEmitPoint):
             El evento de pulsación de tecla.
         """
         if event.key() == Qt.Key_Escape:
-            iface.mapCanvas().setMapTool(QgsMapTool())
+            self.canvas.setMapTool(QgsMapTool())
    
