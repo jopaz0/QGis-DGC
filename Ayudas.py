@@ -5,6 +5,7 @@ Funciones:
  > Abrir
  > Backup
  > CambiarEjido
+ > ActualizarShapesPueblo / rehacermzsyregs
 Tipee help(funcion) en la consola para mas informacion.
 """
 import os, zipfile
@@ -87,7 +88,7 @@ BACKUP = Backup
 
 def CambiarEjido (ejido, circ = False, radio = False):
     """
-    Cambia las capas del mapa de trabajo predeterminado al pueblo indicado. Puede filtrar las parcelas por CIRC y RADIO.
+    Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca. Puede filtrar las parcelas por CIRC y RADIO.
 
     PARAMETROS
     ejido: numero entero o cadena de caracteres
@@ -103,30 +104,41 @@ def CambiarEjido (ejido, circ = False, radio = False):
     RETORNO
     Nada
     """
-    directory  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
-    if not os.path.exists(directory):
-        directory  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
-    capas = BuscarCapasUrbanas(ejido)
-    filtros = {}
-    if circ:
-        filtros['CIRC'] = circ
-    if radio:
-        filtros['RADIO'] = radio
-    #improviso esto aca, despues puedo hacerlo mas prolijo. o no, qsy
-    nombres = {
-        'PROPIETARIOS': ['Propietarios-PHs', filtros],
-        'POSEEDORES': ['Poseedores', filtros],
-        'EXPEDIENTES': ['Expedientes', filtros],
-        'MANZANAS': ['Manzanas', {}],
-        'RADIOS': ['ORIGEN_RADIOS', {}],
-        'CIRCUNSCRIPCIONES': ['ORIGEN_CIRCS', {}],
-        'CALLES': ['ORIGEN_CALLES', {}],
-        'MEDIDAS-REG': ['ORIGEN_MEDIDAS_REGISTRADOS', {}],
-        'MEDIDAS-TITULOS': ['ORIGEN_MEDIDAS_TITULOS', {}],
-        'REGISTRADOS': ['Registrados', {}],
-    }
-    for nombre, valor in nombres.items():
-        CANVAS_RepathLayer(valor[0], capas[nombre], valor[1])
+    try:
+        dicEjido = BuscarCapasUrbanas(ejido)
+        if not dicEjido['NOMBRE'] or dicEjido['NOMBRE']=='-':
+            print(f'El ejido {ejido} no existe?')
+            return
+        filtros = {}
+        if circ:
+            filtros['CIRC'] = circ
+        if radio:
+            filtros['RADIO'] = radio
+        #improviso esto aca, despues puedo hacerlo mas prolijo. O no, qsy
+        nombres = {
+            'PROPIETARIOS': ['Propietarios-PHs', filtros],
+            'POSEEDORES': ['Poseedores', filtros],
+            'EXPEDIENTES': ['Expedientes', filtros],
+            'MANZANAS': ['Manzanas', {}],
+            'RADIOS': ['ORIGEN_RADIOS', {}],
+            'CIRCUNSCRIPCIONES': ['ORIGEN_CIRCS', {}],
+            'CALLES': ['ORIGEN_CALLES', {}],
+            'MEDIDAS-REG': ['ORIGEN_MEDIDAS_REGISTRADOS', {}],
+            'MEDIDAS-TITULOS': ['ORIGEN_MEDIDAS_TITULOS', {}],
+            'REGISTRADOS': ['Registrados', {}],
+        }
+        for nombre, valor in nombres.items():
+            CANVAS_RepathLayer(valor[0], dicEjido[nombre], valor[1])
+        
+        capa = CANVAS_CheckForLayer('Propietarios-PHs')
+        capa.selectAll()
+        extent = capa.boundingBoxOfSelected()
+        if not extent.isEmpty():
+            iface.mapCanvas().setExtent(extent)
+            iface.mapCanvas().refresh()
+        capa.removeSelection()
+    except Exception as e:
+        print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
 cambiarejido = CambiarEjido
 CAMBIAREJIDO = CambiarEjido
 
