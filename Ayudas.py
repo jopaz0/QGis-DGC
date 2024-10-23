@@ -2,7 +2,9 @@
 Modulo: Ayudas (23 Oct 2024)
 Funciones varias para agilizar o automatizar el trabajo diario en DGC.
 Funciones: 
+ > Abrir
  > Backup
+ > CambiarEjido
 Tipee help(funcion) en la consola para mas informacion.
 """
 import os, zipfile
@@ -47,14 +49,15 @@ ABRIR = Abrir
 
 def Backup():
     """
-    Realiza una copia de seguridad de los archivos en las carpetas POLIGONOS Y PLANO PUEBLO de cada ejido.
+    Realiza una copia de seguridad de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
 
     PARAMETROS
     Ninguno
 
     COMENTARIOS
-    - La función busca en el directorio L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS aquellos que comienzan con tres números seguidos de un guion. 
+    - La función busca en el directorio L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS aquellos que comienzan con tres números seguidos de un guion, es decir las carpetas de los pueblos. 
     - Crea un archivo zip en el directorio de documentos del usuario, que contiene los archivos encontrados en las carpetas que cumplen con el criterio especificado.
+    - No genera backup de parcelas rurales.
 
     RETORNO
     Nada
@@ -67,7 +70,10 @@ def Backup():
         if os.path.isdir(os.path.join(directory, folder)) and folder[:3].isdigit() and folder[3] == '-':
             townFolder = os.path.join(directory, folder)
             for subfolder in os.listdir(townFolder):
-                if os.path.isdir(os.path.join(townFolder, subfolder)) and 'POLIGONOS' in subfolder.upper() or 'PUEBLO' in subfolder.upper():
+                if os.path.isdir(os.path.join(townFolder, subfolder)) and 
+                     'POLIGONO' in subfolder.upper() or 
+                     'PUEBLO' in subfolder.upper() or 
+                     'EXPEDIENTE' in subfolder.upper():
                     files += [os.path.join(townFolder, subfolder, x) for x in os.listdir(os.path.join(townFolder, subfolder))]
     backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
     if not os.path.exists(backup_dir):
@@ -81,7 +87,7 @@ BACKUP = Backup
 
 def CambiarEjido (ejido, circ = False, radio = False):
     """
-    Cambia las capas del mapa de trabajo predeterminado al pueblo indicado. Puede filtrar las parcelas por CIRC y RADIO
+    Cambia las capas del mapa de trabajo predeterminado al pueblo indicado. Puede filtrar las parcelas por CIRC y RADIO.
 
     PARAMETROS
     ejido: numero entero o cadena de caracteres
@@ -110,7 +116,7 @@ def CambiarEjido (ejido, circ = False, radio = False):
     nombres = {
         'PROPIETARIOS': ['Propietarios-PHs', filtros],
         'POSEEDORES': ['Poseedores', filtros],
-        'EXPEDIENTES': ['Expedientes', {}],
+        'EXPEDIENTES': ['Expedientes', filtros],
         'MANZANAS': ['Manzanas', {}],
         'RADIOS': ['ORIGEN_RADIOS', {}],
         'CIRCUNSCRIPCIONES': ['ORIGEN_CIRCS', {}],
@@ -119,5 +125,46 @@ def CambiarEjido (ejido, circ = False, radio = False):
         'MEDIDAS-TITULOS': ['ORIGEN_MEDIDAS_TITULOS', {}],
         'REGISTRADOS': ['Registrados', {}],
     }
-    for nombre in list(nombres.keys()):
-        CANVAS_RepathLayer(nombres[nombre], capas[nombre][0], capas[nombre][1])
+    for nombre, valor in nombres.items():
+        CANVAS_RepathLayer(valor[0], capas[nombre], valor[1])
+cambiarejido = CambiarEjido
+CAMBIAREJIDO = CambiarEjido
+
+def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, sustituirCapas=True):
+    """
+    Genera los shapes de Manzanas y Registrados de un ejido a partir de sus parcelas.
+
+    PARAMETROS
+    ejido: numero entero o cadena de caracteres
+        El numero del ejido a regenerar
+    sustituirCapas: booleano
+        Opcional, por defecto Verdadero, sustituye las capas previas en PLANO PUEBLO del ejido
+    agregarAlLienzo: booleano
+        Opcional, por defecto Verdadero, carga las capas generadas al lienzo de QGis
+    
+    COMENTARIOS
+    - La función transforma automaticamente el numero de ejido a una cadena de 3 digitos completando con ceros.
+    - Si sustituirCapas es verdadero, elimina las capas de manzanas y registrados anteriores, de forma irreversible
+
+    RETORNO
+    """
+    manzanas = GenerarShapeManzanas(ejido, distanciaBuffer, agregarAlLienzo)
+    registrados = GenerarShapeRegistrados(ejido, distanciaBuffer, agregarAlLienzo)
+    if not sustituirCapas:
+        return
+    capas = BuscarCapasUrbanas(ejido)
+    carpeta = os.path.dirname(capas['MANZANAS'])
+    capasViejas = [os.path.join(carpeta, archivo) for archivo in os.listdir(carpeta) if 'MANZANA' in archivo.upper() or 'REGISTRADO' in archivo.upper()]
+    for capa in capasViejas:
+        try:
+            os.remove(capa)
+        except Exception as e:
+            print(f'No pude eliminar {capa}. ErrorMSG: {e}')
+    for capa in [manzanas, registrados]:
+        try:
+            QgsVectorFileWriter.writeAsVectorFormat(capa, os.path.join(carpeta, f'{capa.name()}.shp'), 'utf-8', driverName='ESRI Shapefile')
+        except:
+            print(f'No pude guardar la capa {capa.name()}. ErrorMSG: {e}')
+RehacerMzsYRegs = ActualizarShapesPueblo
+rehacermzsyregs = ActualizarShapesPueblo
+REHACERMZSYREGS = ActualizarShapesPueblo

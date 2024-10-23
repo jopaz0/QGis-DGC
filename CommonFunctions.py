@@ -225,11 +225,11 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}):
         for layer in QgsProject.instance().mapLayers().values():
             if layerName.upper() in layer.name().upper():
                 layers.append(layer)
-        if len(layers) > 1:
+        if len(layers) < 1:
             print (f'No layer matching {layerName} was found.')
             return False
         if filters:
-            expression = ' AND '.join([f'{f}={filters[f]}' for f in list(filters.keys())])
+            expression = ' AND '.join([f"{f}={filters[f]}" if isinstance(filters[f], (int, float)) else f"{f}='{filters[f]}'" for f in filters])
         for layer in layers:
             name = layer.name()
             layer.setDataSource(layerPath, name, 'ogr')

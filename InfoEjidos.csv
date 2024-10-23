@@ -1,118 +1,118 @@
-"EJIDO";"NOMBRE";"FAJA";"ESCPUEBLO";"RESPONSABLE"
-1;"Realico";4;9000;"OPAZO"
-2;"A. Van Praet";4;3000;"OPAZO"
-3;"Ojeda";4;3000;"CALDERON"
-4;"Alta Italia";4;6000;"OPAZO"
-5;"Embajador Martini";4;6000;"OPAZO"
-6;"Ingeniero Luiggi";4;12000;"OJEDA"
-7;"Maisonnave";4;2500;"CALDERON"
-8;"-";0;1;
-9;"Falucho";4;5000;"OPAZO"
-10;"Hilario Lagos";4;7500;"CALDERON"
-11;"-";0;1;
-12;"Sarah";4;14000;"CALDERON"
-13;"Bernardo Larroude";4;14000;"OPAZO"
-14;"Vertiz";4;9000;"OPAZO"
-15;"Intendente Alvear";4;21000;"CALDERON"
-16;"Ceballos";4;7000;"CALDERON"
-17;"Speluzzi";4;12500;"OPAZO"
-18;"Agustoni";4;11000;"OPAZO"
-19;"Dorila";4;11000;"OJEDA"
-20;"Trebolares";4;1750;"OPAZO"
-21;"General Pico";4;16000;"OJEDA"
-22;"Arata";4;6500;"CALDERON"
-23;"Metileo";4;6000;"OPAZO"
-24;"Monte Nievas";4;7000;"OPAZO"
-25;"Trenel";4;9000;"CALDERON"
-26;"Eduardo Castex";4;12500;"OJEDA"
-27;"Mauricio Mayer";4;25000;"CALDERON"
-28;"Winifreda";4;6500;"OPAZO"
-29;"Bouef";4;1500;"CALDERON"
-30;"-";0;1;
-31;"-";0;1;
-32;"Relmo";4;6500;"OPAZO"
-33;"Colonia San Jose";4;2250;"OPAZO"
-34;"Quemu Quemu";4;9000;"CALDERON"
-35;"Miguel Cane";4;6000;"OPAZO"
-36;"Colonia Baron";4;6500;"OJEDA"
-37;"Villa Mirasol";4;5000;"OPAZO"
-38;"Huelen";4;2000;"CALDERON"
-39;"Catrilo";4;11000;"CALDERON"
-40;"-";0;1;
-41;"Uriburu";4;8000;"OPAZO"
-42;"Lonquimay";4;6000;"CALDERON"
-43;"La Gloria";4;11000;"OPAZO"
-44;"Anguil";4;14000;"CALDERON"
-45;"Cachirulo";4;2250;"CALDERON"
-46;"Toay";4;29000;"OPAZO"
-47;"Santa Rosa";4;29000;"OPAZO"
-48;"Naico";4;7000;"CALDERON"
-49;"Doblas";4;3000;"OPAZO"
-50;"Quehue";4;4000;"CALDERON"
-51;"Ataliva Roca";4;8500;"OJEDA"
-52;"-";0;1;
-53;"Rolon";4;5000;"CALDERON"
-54;"Miguel Riglos";4;5000;"CALDERON"
-55;"Tomas M. Anchorena";4;2000;"OPAZO"
-56;"Hidalgo";4;1750;"OPAZO"
-57;"-";0;1;
-58;"Macachin";4;14500;"OJEDA"
-59;"Colonia Santa Teresa";4;7500;"CALDERON"
-60;"Guatrache";4;9000;"OJEDA"
-61;"-";0;1;
-62;"Alpachiri";4;8500;"OPAZO"
-63;"-";0;1;
-64;"General Campos";4;4000;"OPAZO"
-65;"Peru";4;1500;"CALDERON"
-66;"-";0;1;
-67;"Colonia Santa Maria";4;2500;"CALDERON"
-68;"-";0;1;
-69;"Unanue";4;4500;"CALDERON"
-70;"-";0;1;
-71;"Hucal";4;2000;"OPAZO"
-72;"Jacinto Arauz";4;7500;"OJEDA"
-73;"Abramo";4;3000;"OJEDA"
-74;"San Martin";4;4500;"OJEDA"
-75;"Bernasconi";4;4500;"CALDERON"
-76;"La Adela";4;7500;"OPAZO"
-77;"-";0;1;
-78;"-";0;1;
-79;"Chamaico";3;500;"CALDERON"
-80;"Rancul";3;7500;"OPAZO"
-81;"Quetrequen";3;3500;"CALDERON"
-82;"Parera";3;12500;"CALDERON"
-83;"Caleufu";3;5000;"OPAZO"
-84;"La Maruja";3;4000;"OPAZO"
-85;"Pichi Huinca";3;4000;"OPAZO"
-86;"Ingeniero Foster";3;2500;"OPAZO"
-87;"Luan Toro";3;5500;"CALDERON"
-88;"Telen";3;4000;"CALDERON"
-89;"Victorica";3;24000;"OPAZO"
-90;"Loventue";3;20000;"OPAZO"
-91;"Conhello";3;5000;"CALDERON"
-92;"-";0;1;
-93;"Ceriola";3;3500;"CALDERON"
-94;"Rucanelo";3;2500;"OPAZO"
-95;"Carro Quemado";3;60000;"OPAZO"
-96;"-";0;1;
-97;"General Acha";3;22500;"CALDERON"
-98;"Chacharramendi";3;1250;"OPAZO"
-99;"Cuchillo Co";3;2250;"CALDERON"
-100;"Pichi Mahuida";0;1;
-101;"Graneros";0;1;
-102;"Puelches";3;2500;"OPAZO"
-103;"Santa Isabel";3;7500;"OPAZO"
-104;"La Pastoril";0;1;"OPAZO"
-105;"Colonia Emilio Mitre";0;1;
-106;"Paso de los Algarrobos";0;1;
-107;"Limay Mahuida";3;1250;"CALDERON"
-108;"La Reforma";3;1000;"CALDERON"
-109;"Algarrobo Del Aguila";3;2500;"CALDERON"
-110;"Puelen";2;3000;"CALDERON"
-111;"Gobernador Ayala";0;1;
-112;"Colonia 25 De Mayo";2;65000;"CALDERON"
-113;"Arbol Solo";0;1;
-114;"Gobernador Dubal";2;3500;"OPAZO"
-115;"LaHumada";2;2250;"OPAZO"
-116;"Colonia Chica";2;30000;"CALDERON"
-117;"Casa De Piedra";2;15000;"OPAZO"
+"EJIDO";"NOMBRE";"FAJA";"ESCPUEBLO";"RESPONSABLE";"FAJA"
+1;"Realico";4;9000;"OPAZO";5346
+2;"A. Van Praet";4;3000;"OPAZO";5346
+3;"Ojeda";4;3000;"CALDERON";5346
+4;"Alta Italia";4;6000;"OPAZO";5346
+5;"Embajador Martini";4;6000;"OPAZO";5346
+6;"Ingeniero Luiggi";4;12000;"OJEDA";5346
+7;"Maisonnave";4;2500;"CALDERON";5346
+8;"-";0;1;;5346
+9;"Falucho";4;5000;"OPAZO";5346
+10;"Hilario Lagos";4;7500;"CALDERON";5346
+11;"-";0;1;;5346
+12;"Sarah";4;14000;"CALDERON";5346
+13;"Bernardo Larroude";4;14000;"OPAZO";5346
+14;"Vertiz";4;9000;"OPAZO";5346
+15;"Intendente Alvear";4;21000;"CALDERON";5346
+16;"Ceballos";4;7000;"CALDERON";5346
+17;"Speluzzi";4;12500;"OPAZO";5346
+18;"Agustoni";4;11000;"OPAZO";5346
+19;"Dorila";4;11000;"OJEDA";5346
+20;"Trebolares";4;1750;"OPAZO";5346
+21;"General Pico";4;16000;"OJEDA";5346
+22;"Arata";4;6500;"CALDERON";5346
+23;"Metileo";4;6000;"OPAZO";5346
+24;"Monte Nievas";4;7000;"OPAZO";5346
+25;"Trenel";4;9000;"CALDERON";5346
+26;"Eduardo Castex";4;12500;"OJEDA";5346
+27;"Mauricio Mayer";4;25000;"CALDERON";5346
+28;"Winifreda";4;6500;"OPAZO";5346
+29;"Bouef";4;1500;"CALDERON";5346
+30;"-";0;1;;5346
+31;"-";0;1;;5346
+32;"Relmo";4;6500;"OPAZO";5346
+33;"Colonia San Jose";4;2250;"OPAZO";5346
+34;"Quemu Quemu";4;9000;"CALDERON";5346
+35;"Miguel Cane";4;6000;"OPAZO";5346
+36;"Colonia Baron";4;6500;"OJEDA";5346
+37;"Villa Mirasol";4;5000;"OPAZO";5346
+38;"Huelen";4;2000;"CALDERON";5346
+39;"Catrilo";4;11000;"CALDERON";5346
+40;"-";0;1;;5346
+41;"Uriburu";4;8000;"OPAZO";5346
+42;"Lonquimay";4;6000;"CALDERON";5346
+43;"La Gloria";4;11000;"OPAZO";5346
+44;"Anguil";4;14000;"CALDERON";5346
+45;"Cachirulo";4;2250;"CALDERON";5346
+46;"Toay";4;29000;"OPAZO";5346
+47;"Santa Rosa";4;29000;"OPAZO";5346
+48;"Naico";4;7000;"CALDERON";5346
+49;"Doblas";4;3000;"OPAZO";5346
+50;"Quehue";4;4000;"CALDERON";5346
+51;"Ataliva Roca";4;8500;"OJEDA";5346
+52;"-";0;1;;5346
+53;"Rolon";4;5000;"CALDERON";5346
+54;"Miguel Riglos";4;5000;"CALDERON";5346
+55;"Tomas M. Anchorena";4;2000;"OPAZO";5346
+56;"Hidalgo";4;1750;"OPAZO";5346
+57;"-";0;1;;5346
+58;"Macachin";4;14500;"OJEDA";5346
+59;"Colonia Santa Teresa";4;7500;"CALDERON";5346
+60;"Guatrache";4;9000;"OJEDA";5346
+61;"-";0;1;;5346
+62;"Alpachiri";4;8500;"OPAZO";5346
+63;"-";0;1;;5346
+64;"General Campos";4;4000;"OPAZO";5346
+65;"Peru";4;1500;"CALDERON";5346
+66;"-";0;1;;5346
+67;"Colonia Santa Maria";4;2500;"CALDERON";5346
+68;"-";0;1;;5346
+69;"Unanue";4;4500;"CALDERON";5346
+70;"-";0;1;;5346
+71;"Hucal";4;2000;"OPAZO";5346
+72;"Jacinto Arauz";4;7500;"OJEDA";5346
+73;"Abramo";4;3000;"OJEDA";5346
+74;"San Martin";4;4500;"OJEDA";5346
+75;"Bernasconi";4;4500;"CALDERON";5346
+76;"La Adela";4;7500;"OPAZO";5346
+77;"-";0;1;;5346
+78;"-";0;1;;5346
+79;"Chamaico";3;500;"CALDERON";5345
+80;"Rancul";3;7500;"OPAZO";5345
+81;"Quetrequen";3;3500;"CALDERON";5345
+82;"Parera";3;12500;"CALDERON";5345
+83;"Caleufu";3;5000;"OPAZO";5345
+84;"La Maruja";3;4000;"OPAZO";5345
+85;"Pichi Huinca";3;4000;"OPAZO";5345
+86;"Ingeniero Foster";3;2500;"OPAZO";5345
+87;"Luan Toro";3;5500;"CALDERON";5345
+88;"Telen";3;4000;"CALDERON";5345
+89;"Victorica";3;24000;"OPAZO";5345
+90;"Loventue";3;20000;"OPAZO";5345
+91;"Conhello";3;5000;"CALDERON";5345
+92;"-";0;1;;5345
+93;"Ceriola";3;3500;"CALDERON";5345
+94;"Rucanelo";3;2500;"OPAZO";5345
+95;"Carro Quemado";3;60000;"OPAZO";5345
+96;"-";0;1;;5345
+97;"General Acha";3;22500;"CALDERON";5345
+98;"Chacharramendi";3;1250;"OPAZO";5345
+99;"Cuchillo Co";3;2250;"CALDERON";5345
+100;"Pichi Mahuida";0;1;;5345
+101;"Graneros";0;1;;5345
+102;"Puelches";3;2500;"OPAZO";5345
+103;"Santa Isabel";3;7500;"OPAZO";5345
+104;"La Pastoril";0;1;"OPAZO";5345
+105;"Colonia Emilio Mitre";0;1;;5345
+106;"Paso de los Algarrobos";0;1;;5345
+107;"Limay Mahuida";3;1250;"CALDERON";5345
+108;"La Reforma";3;1000;"CALDERON";5345
+109;"Algarrobo Del Aguila";3;2500;"CALDERON";5345
+110;"Puelen";2;3000;"CALDERON";5344
+111;"Gobernador Ayala";0;1;;5344
+112;"Colonia 25 De Mayo";2;65000;"CALDERON";5344
+113;"Arbol Solo";0;1;;5344
+114;"Gobernador Dubal";2;3500;"OPAZO";5344
+115;"LaHumada";2;2250;"OPAZO";5344
+116;"Colonia Chica";2;30000;"CALDERON";5344
+117;"Casa De Piedra";2;15000;"OPAZO";5344
