@@ -9,34 +9,7 @@ import urllib.request
 import importlib.util
 import tempfile
 from CommonFunctions import *
-
 DicEjidos = {}
-def CompletarDicEjidos():
-    """
-    Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
-
-    PARAMETROS
-
-    COMENTARIOS
-    - Larga un choclo impresionante de alertas en la consola. Es algo a rever.
-
-    RETORNOS
-    Un diccionario con las informacion de los ejidos y las rutas de sus capas.
-    """
-    global DicEjidos
-    DicEjidos = {}
-    url = f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/InfoEjidos.csv'
-    tempFolder = tempfile.gettempdir()
-    sys.path.append(tempFolder)
-    csvPath = os.path.join(tempFolder, f"InfoEjidos.csv")
-    if os.path.exists(csvPath):
-        os.remove(csvPath)
-    urllib.request.urlretrieve(url, csvPath)
-    ejidos = CSV_ToDictList(csvPath, enc='utf-8', separator=';',)
-    ejidos = DICT_SetKey(ejidos, 'EJIDO')
-    for key, value in ejidos.items():
-        DicEjidos[key] = value[0]
-        DicEjidos[key].update(BuscarCapasUrbanas(key))
 
 def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     """
@@ -76,6 +49,33 @@ def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     capas['MEDIDAS-TITULOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'TIT'])
     capas['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'])
     return capas
+
+def CompletarDicEjidos():
+    """
+    Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
+
+    PARAMETROS
+
+    COMENTARIOS
+    - Larga un choclo impresionante de alertas en la consola. Es algo a rever.
+
+    RETORNOS
+    Un diccionario con las informacion de los ejidos y las rutas de sus capas.
+    """
+    global DicEjidos
+    DicEjidos = {}
+    url = f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/InfoEjidos.csv'
+    tempFolder = tempfile.gettempdir()
+    sys.path.append(tempFolder)
+    csvPath = os.path.join(tempFolder, f"InfoEjidos.csv")
+    if os.path.exists(csvPath):
+        os.remove(csvPath)
+    urllib.request.urlretrieve(url, csvPath)
+    ejidos = CSV_ToDictList(csvPath, enc='utf-8', separator=';',)
+    ejidos = DICT_SetKey(ejidos, 'EJIDO')
+    for key, value in ejidos.items():
+        DicEjidos[key] = value[0]
+        DicEjidos[key].update(BuscarCapasUrbanas(key))
 
 def GenerarShapeManzanas(ejido, distanciaBuffer=0.05, agregarAlLienzo=True):
     """
