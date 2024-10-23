@@ -8,6 +8,17 @@ from CommonFunctions import *
 
 global DicEjidos = {}
 def CompletarDicEjidos():
+    """
+    Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
+
+    PARAMETROS
+
+    COMENTARIOS
+    - Larga un choclo impresionante de alertas en la consola. Es algo a rever.
+
+    RETORNOS
+    Un diccionario con las informacion de los ejidos y las rutas de sus capas.
+    """
     global DicEjidos
     DicEjidos = {}
     url = f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/InfoEjidos.csv'
@@ -24,13 +35,15 @@ def CompletarDicEjidos():
         DicEjidos[key].update(BuscarCapasUrbanas(key))
 CompletarDicEjidos()
 
-def BuscarCapasUrbanas(numeroDeEjido):
+def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     """
-    Busca y devuelve las rutas de las capas urbanas en el sistema de archivos.
+    Busca y devuelve las rutas de las capas urbanas en el sistema de archivos. Intenta primero buscarlas en el diccionario de ejidos.
 
     PARAMETROS
     ejido: numero entero o cadena de caracteres
         Representa el numero del ejido. Se rellenará con ceros a la izquierda hasta tener 3 caracteres.
+    reescribirDicEjidos: booleano
+        Si se le asigna verdadero, se va directamente a reescribir las direcciones en la global dicEjidos, en vez de intentar leerla.
 
     COMENTARIOS
     - La función asume que las capas están organizadas en carpetas específicas dentro de una carpeta raíz.
@@ -39,6 +52,11 @@ def BuscarCapasUrbanas(numeroDeEjido):
     RETORNOS
     Un diccionario con las rutas de las capas urbanas, donde las claves son PROPIETARIOS, POSEEDORES, EXPEDIENTES, MANZANAS, RADIOS, CIRCUNSCRIPCIONES, CALLES, MEDIDAS-REG, MEDIDAS-TITUOS y REGISTRADOS.
     """
+    global DicEjidos
+    if not reescribirDicEjidos:
+        n = int(numeroDeEjido)
+        if n in DicEjidos.keys():
+            return DicEjidos[n]
     directorioPueblosCADGIS  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
     if not os.path.exists(directorioPueblosCADGIS):
         directorioPueblosCADGIS  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
