@@ -200,6 +200,49 @@ def CANVAS_RemoveLayersContaining(layerName):
         if layerName in layer.name():
             QgsProject.instance().removeMapLayer(layer)
 
+def CANVAS_RepathLayer(layerName, layerPath, filters={}):
+    #filters can be upgraded to support a string with the already built filter. maybe later
+    """
+    Changes the data source of all layers that contain a string to the provided path.
+
+    PARAMETERS
+    layerName: String
+        A string wich will be compared to the names of all loaded layers in the map canvas.
+    layerPath: String
+        The path of the new layer
+    filters: Dictionary
+        A dictionary of strings, like {nameOfField: valueOfField}
+
+    COMMENTS
+    - The function iterates through all layers in the current QGIS project, replacing the data source of the ones matching layerName.
+    - If filters are set, the layer will be filtered accordingly. Only supports '=' for fields and values, and ' AND ' between each filter.
+
+    RETURNS
+    None
+    """
+    layers = []
+    try:
+        for layer in QgsProject.instance().mapLayers().values():
+            if layerName.upper() in layer.name().upper():
+                layers.append(layer)
+        if len(layers) > 1:
+            print (f'No layer matching {layerName} was found.')
+            return False
+        if filters:
+            expression = ' AND '.join([f'{f}={filters[f]}' for f in list(filters.keys())])
+        for layer in layers:
+            name = layer.name()
+            layer.setDataSource(layerPath, name, 'ogr')
+            if filters:
+                layer.setSubsetString(expression)
+                print(f'Layer {name} datasource changed to {layerPath} and filtered with {expression}.')
+            else:
+                print(f'Layer {name} datasource changed to {layerPath}.')
+        return True
+    except Exception as e:
+        print (f'Error while changing datsource on layer {layerName}. ErrorMSG: {e}')
+        return False
+
 def CSV_ToDictList(csvPath, 
                   floatFields=[], 
                   dropFields_aprox=[], 
@@ -458,6 +501,47 @@ def DICT_SetKey(dictList, keyField):
             result[value] = [entry]
     return result
 
+def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
+    """
+    Navigates a folder following the given filters, returns any file matching the last filter and the given extension.
+
+    PARAMETROS
+    rootFolder: String 
+        Self explanatory
+    filters: List
+        Contains a list of strings that are to be compared to the contents of the folder and subfolders, secuencially
+    ext: String
+        Extension of the file to be returned
+
+    COMMENTS
+    - La función asume que las capas están organizadas en carpetas específicas dentro de una carpeta raíz.
+    - Se construyen las rutas a las capas de propietarios y poseedores a partir de la estructura de carpetas.
+
+    RETORNOS
+    Un diccionario con las rutas de las capas urbanas, donde las claves son PROPIETARIOS, POSEEDORES, EXPEDIENTES, MANZANAS, RADIOS, CIRCUNSCRIPCIONES, CALLES, MEDIDAS-REG, MEDIDAS-TITUOS y REGISTRADOS.
+    """
+    try:
+        subfolder = rootFolder
+        for filter in filters[:-1]:
+            subfolder = [os.path.join(subfolder, d) for d in os.listdir(subfolder) if os.path.isdir(os.path.join(subfolder, d)) and filter in d.upper()]
+            if len(subfolder) > 1:
+                print(f'Alerta, hay mas de una carpeta en {subfolder} que coincide con {filter}.')
+            subfolder = subfolder[0]
+        match = [os.path.join(subfolder, d) 
+                for d in os.listdir(subfolder) 
+                if os.path.isfile(os.path.join(subfolder, d)) and 
+                filters[-1] in d.upper() and 
+                d.lower().endswith(ext)]
+        if not match:
+            print(f'Error, no se encontro el archivo.')
+            return False
+        elif len(match) > 1:
+            print(f'Alerta, hay mas de un archivo que coincide con los filtros.')
+        return match[0]
+    except Exception as e:
+        print(f'Error al buscar la capa {filter} en {subfolder}. ErrorMSG: {e}')
+        return False
+
 def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
     """
     Recursively extracts the points from a polygon or multipolygon geometry, preserving the ring structure.
@@ -556,6 +640,36 @@ def STR_GetTimestamp(includeMs = False, justDay = False):
     ms = STR_FillWithChars(time.microsecond // 1000, 3)
     return f'{year}-{month}-{day} {hour}-{minute} {sec}-{ms}'
 
+def STR_IntToRoman(num):
+    """
+    Converts an integer to its Roman numeral representation.
+
+    PARAMETERS
+    num: Integer
+        The integer to convert to a Roman numeral. Must be in the range from 1 to 3999.
+
+    RETURNS
+    String
+        The Roman numeral representation of the input integer.
+
+    COMMENTS
+    - The function handles integers within the specified range (1 to 3999) as Roman numerals 
+      do not have a standard representation for zero or negative numbers.
+    - The conversion follows standard Roman numeral conventions.
+    """
+
+    val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+    syms = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV","I"]
+    roman_num = ""
+    i = 0
+    # Construir el número romano
+    while num > 0:
+        for _ in range(num // val[i]):
+            roman_num += syms[i]
+            num -= val[i]
+        i += 1
+    return roman_num
+
 def STR_RemoveEndingChars(string, char):
     """
     Removes all trailing characters from the input string that match the specified character.
@@ -607,6 +721,44 @@ def STR_RemoveStartingChars(string,char):
     while len(string)>0 and string[0].upper() == char:
         string = string[1:]
     return string
+
+def STR_IntToRoman(num):
+    """
+    Converts a Roman numeral string to its integer representation.
+
+    PARAMETERS
+    s: String
+        The Roman numeral string to convert. Must be a valid Roman numeral.
+
+    RETURNS
+    Integer
+        The integer representation of the input Roman numeral.
+
+    COMMENTS
+    - The function processes the Roman numeral string from right to left, applying the rules
+      of Roman numeral subtraction and addition.
+    - Valid Roman numerals should follow standard conventions; otherwise, the function may 
+      produce incorrect results.
+    """
+    values = {
+        'I': 1,
+        'V': 5,
+        'X': 10,
+        'L': 50,
+        'C': 100,
+        'D': 500,
+        'M': 1000
+    }
+    total = 0
+    prevValue = 0
+    for char in reversed(num):
+        currentValue = values[char]
+        if currentValue < prevValue:
+            total -= currentValue
+        else:
+            total += currentValue
+        prevValue = currentValue
+    return total
 
 def PathToLayer(path, name=False, delimiter=';'):
     """
