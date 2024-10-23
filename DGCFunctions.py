@@ -1,5 +1,5 @@
 """
-DGC Python Functions (09 Oct 2024)
+DGC Python Functions (23 Oct 2024)
 Created for use at DGC with PyQGis, only work in that enviroment due to file structure. Docstrings and variable names are in spanish, as a deference for coworkers that may have to update this someday.
 
 """
