@@ -4,6 +4,10 @@ Created for use at DGC with PyQGis, only work in that enviroment due to file str
 
 """
 import os
+import sys
+import urllib.request
+import importlib.util
+import tempfile
 from CommonFunctions import *
 
 DicEjidos = {}
