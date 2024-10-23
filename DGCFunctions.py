@@ -28,26 +28,25 @@ def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     Un diccionario con las rutas de las capas urbanas, donde las claves son PROPIETARIOS, POSEEDORES, EXPEDIENTES, MANZANAS, RADIOS, CIRCUNSCRIPCIONES, CALLES, MEDIDAS-REG, MEDIDAS-TITUOS y REGISTRADOS.
     """
     global DicEjidos
+    n = int(numeroDeEjido)
     if not reescribirDicEjidos:
-        n = int(numeroDeEjido)
         if n in DicEjidos.keys():
             return DicEjidos[n]
     directorioPueblosCADGIS  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
     if not os.path.exists(directorioPueblosCADGIS):
         directorioPueblosCADGIS  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
     numeroDeEjido = STR_FillWithChars(numeroDeEjido, 3, '0')
-    capas = {}
-    capas['PROPIETARIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'PROP'])
-    capas['POSEEDORES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'POSE'])
-    capas['EXPEDIENTES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'EXP', 'EXP'])
-    capas['MANZANAS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'MANZ'])
-    capas['RADIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'RADIO'])
-    capas['CIRCUNSCRIPCIONES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CIRC'])
-    capas['CALLES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CALLE'])
-    capas['MEDIDAS-REG'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGS'])
-    capas['MEDIDAS-TITULOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'TIT'])
-    capas['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'])
-    return capas
+    DicEjidos[n]['PROPIETARIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'PROP'])
+    DicEjidos[n]['POSEEDORES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'POSE'])
+    DicEjidos[n]['EXPEDIENTES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'EXP', 'EXP'])
+    DicEjidos[n]['MANZANAS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'MANZ'])
+    DicEjidos[n]['RADIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'RADIO'])
+    DicEjidos[n]['CIRCUNSCRIPCIONES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CIRC'])
+    DicEjidos[n]['CALLES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CALLE'])
+    DicEjidos[n]['MEDIDAS-REG'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGS'])
+    DicEjidos[n]['MEDIDAS-TITULOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'TIT'])
+    DicEjidos[n]['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'])
+    return DicEjidos[n]
 
 def CompletarDicEjidos():
     """
@@ -72,9 +71,11 @@ def CompletarDicEjidos():
     urllib.request.urlretrieve(url, csvPath)
     ejidos = CSV_ToDictList(csvPath, enc='utf-8', separator=';',)
     ejidos = DICT_SetKey(ejidos, 'EJIDO')
+
     for key, value in ejidos.items():
         DicEjidos[key] = value[0]
-        DicEjidos[key].update(BuscarCapasUrbanas(key))
+        DicEjidos[key].update(BuscarCapasUrbanas(key, True))
+    return DicEjidos
 
 def GenerarShapeManzanas(ejido, distanciaBuffer=0.05, agregarAlLienzo=True):
     """
@@ -157,3 +158,15 @@ def GenerarShapeRegistrados(ejido, distanciaBuffer=0.05, agregarAlLienzo=True):
         return FalsE
 
 CompletarDicEjidos()
+print("""Perdon por el spam, te dejo un michi mamadisimo
+      A__A
+     (•^ •) 
+    ＿ノヽ ノ＼＿
+`/　`/ ⌒Ｙ⌒ Ｙ  ヽ
+( 　(三ヽ人　 /　  |
+|　ﾉ⌒＼ ￣￣ヽ   ノ
+ヽ＿＿＿＞､＿_／
+    ｜( 王 ﾉ〈   
+    /ﾐ`ー―彡\  
+   / ╰    ╯ \ 
+""")
