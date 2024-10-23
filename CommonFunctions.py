@@ -514,18 +514,16 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
         Extension of the file to be returned
 
     COMMENTS
-    - La función asume que las capas están organizadas en carpetas específicas dentro de una carpeta raíz.
-    - Se construyen las rutas a las capas de propietarios y poseedores a partir de la estructura de carpetas.
 
-    RETORNOS
-    Un diccionario con las rutas de las capas urbanas, donde las claves son PROPIETARIOS, POSEEDORES, EXPEDIENTES, MANZANAS, RADIOS, CIRCUNSCRIPCIONES, CALLES, MEDIDAS-REG, MEDIDAS-TITUOS y REGISTRADOS.
+    RETURNS
+        String containing the first match for filters and extension.
     """
     try:
         subfolder = rootFolder
         for filter in filters[:-1]:
             subfolder = [os.path.join(subfolder, d) for d in os.listdir(subfolder) if os.path.isdir(os.path.join(subfolder, d)) and filter in d.upper()]
             if len(subfolder) > 1:
-                print(f'Alerta, hay mas de una carpeta en {subfolder} que coincide con {filter}.')
+                print(f'Alert, there is more than one folder in {subfolder} that matches {filter}.')
             subfolder = subfolder[0]
         match = [os.path.join(subfolder, d) 
                 for d in os.listdir(subfolder) 
@@ -533,13 +531,13 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
                 filters[-1] in d.upper() and 
                 d.lower().endswith(ext)]
         if not match:
-            print(f'Error, no se encontro el archivo.')
+            print(f'Error, file not found.')
             return False
         elif len(match) > 1:
-            print(f'Alerta, hay mas de un archivo que coincide con los filtros.')
+            print(f'Alert, there is more than one file on {subfolder} that matches {filters[-1]}.')
         return match[0]
     except Exception as e:
-        print(f'Error al buscar la capa {filter} en {subfolder}. ErrorMSG: {e}')
+        print(f'Error while looking for {filter} in {subfolder}. ErrorMSG: {e}')
         return False
 
 def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
