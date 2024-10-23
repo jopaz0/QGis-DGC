@@ -1,3 +1,7 @@
+"""
+ChamferTool Class Definition (23 Oct 2024) - Jonatan Opazo (j.d.o.dalessandro@gmail.com)
+Created for use at DGC with PyQGis, but general enough to implement in other projects.
+"""
 import math
 from qgis.core import *
 from qgis.utils import *
@@ -7,29 +11,29 @@ from CommonFunctions import *
 
 class ChamferTool(QgsMapToolEmitPoint):
     """
-    Herramienta de mapa para aplicar un corte en ochava a un vértice de un polígono en la capa activa.
+    Map tool to apply a chamfer cut to a vertex of a polygon in the active layer.
 
-    Esta herramienta permite seleccionar un vértice en una entidad de la capa activa y crear dos nuevos puntos
-    a una distancia específica desde ese vértice. Los puntos se insertan en la geometría del polígono.
+    This tool allows selecting a vertex in a feature of the active layer and creating two new points
+    at a specific distance from that vertex. The points are inserted into the polygon's geometry.
 
-    PARAMETROS
+    PARAMETERS
     distance: float
-        La distancia desde el vértice para calcular los nuevos puntos.
-    layer: QgsVectorLayer, opcional
-        La capa en la que se aplicará la herramienta. Si no se proporciona, se utilizará la capa activa.
+        The distance from the vertex to calculate the new points.
+    layer: QgsVectorLayer, optional
+        The layer on which the tool will be applied. If not provided, the active layer will be used.
     tolerance: float or False
-        La tolerancia usada para simplificar puntos repetidos en la geometria. Si se setea en False o similar, no simplifica
+        The tolerance used to simplify repeated points in the geometry. If set to False or similar, no simplification occurs.
     """
 
     def __init__(self, distance, tolerance=0.01):
         """
-        Inicializa la herramienta de mapa.
+        Initializes the map tool.
 
-        PARAMETROS
+        PARAMETERS
         distance: float
-            La distancia desde el vértice para calcular los nuevos puntos.
+            The distance from the vertex to calculate the new points.
         tolerance: float or False
-            La tolerancia usada para simplificar puntos repetidos en la geometria. Si se setea en False o similar, no simplifica
+            The tolerance used to simplify repeated points in the geometry. If set to False or similar, no simplification occurs.
         """
         canvas = iface.mapCanvas()
         super().__init__(canvas)
@@ -41,14 +45,14 @@ class ChamferTool(QgsMapToolEmitPoint):
 
     def canvasReleaseEvent(self, event):
         """
-        Maneja el evento de liberación del mouse en el canvas.
+        Handles the mouse release event on the canvas.
 
-        Al liberar el botón del mouse, se llama a la lógica de la herramienta para aplicar el corte en ochava
-        en el polígono seleccionado.
+        Upon releasing the mouse button, the tool's logic is called to apply the chamfer cut
+        to the selected polygon.
 
-        PARAMETROS
+        PARAMETERS
         event: QMouseEvent
-            El evento de liberación del botón del mouse.
+            The mouse button release event.
         """
         point = self.toMapCoordinates(event.pos())
         button = event.button()
@@ -56,31 +60,25 @@ class ChamferTool(QgsMapToolEmitPoint):
 
     def chamferTool(self, point, button):
         """
-        Aplica el corte en ochava al polígono seleccionado en la capa.
+        Cuts a chamfer in the feature lying below the point selected, at the nearest point.
 
-        Reemplaza el vértice seleccionado por dos nuevos puntos a la distancia especificada.
-
-        PARAMETROS
+        PARAMETERS
         point: QgsPoint
-            El punto donde se ha hecho clic en el canvas.
+            The selected point on canvas.
         button: int
-            El botón del mouse que se ha liberado (usualmente Qt.LeftButton).
+            Mouse's released button (usually Qt.LeftButton).
         """
         if button == Qt.LeftButton:
-            # Obtener la entidad debajo del punto seleccionado...
             rect = QgsRectangle(point.x() - 0.0001, point.y() - 0.0001, point.x() + 0.0001, point.y() + 0.0001)
             self.layer.selectByRect(rect, Qgis.SelectBehavior.SetSelection)
             if self.layer.selectedFeatureCount() == 1:
                 feature = self.layer.selectedFeatures()[0]
-                if self.tolerance:
-                    #esto claramente no esta funcionando
-                    geom = GEOM_DeleteDuplicatePoints(feature.geometry(), self.tolerance)
-                    print('Trate de corregir eh!')
-                else:
+                #this way, if used as standalone tool, it will fail GEOM_DeleteDuplicatePoints and default to the feature geometry
+                try:
+                    geom = GEOM_DeleteDuplicatePoints(feature.geometry(), self.tolerance) if self.tolerance else feature.geometry()
+                except:
                     geom = feature.geometry()
-                    print('No corrijo un carajo. puto.')
 
-                # Obtener el vértice más cercano, el anterior y el siguiente
                 nearestVertex = geom.closestVertex(point)
                 vertexIndex = nearestVertex[1]
                 vertexPrevIndex = nearestVertex[2]
@@ -89,7 +87,6 @@ class ChamferTool(QgsMapToolEmitPoint):
                 vertexPrev = geom.vertexAt(vertexPrevIndex)
                 vertexNext = geom.vertexAt(vertexNextIndex)
 
-                # Calcular los dos puntos a 'distancia' del vértice
                 angle = math.atan2(vertexPrev.y() - vertex.y(), vertexPrev.x() - vertex.x())
                 newX = vertex.x() + self.distance * math.cos(angle)
                 newY = vertex.y() + self.distance * math.sin(angle)
@@ -100,7 +97,6 @@ class ChamferTool(QgsMapToolEmitPoint):
                 newY = vertex.y() + self.distance * math.sin(angle)
                 newPointNext = QgsPoint(newX, newY)
 
-                # Reemplazar el vértice con los nuevos puntos
                 if geom.isMultipart():
                     wktType = 'MultiPolygon '
                     vertices = geom.asMultiPolygon()[0][0]
@@ -110,7 +106,6 @@ class ChamferTool(QgsMapToolEmitPoint):
                 vertices[vertexIndex] = newPointPrev
                 vertices.insert(vertexNextIndex, newPointNext)
 
-                # Actualizar la geometría
                 wkt = wktType + ' (((' + ', '.join(f'{p.x()} {p.y()}' for p in vertices) + ')))'
                 newGeometry = QgsGeometry.fromWkt(wkt)
                 if not self.layer.isEditable():
@@ -122,13 +117,13 @@ class ChamferTool(QgsMapToolEmitPoint):
 
     def keyPressEvent(self, event):
         """
-        Maneja los eventos de pulsación de teclas cuando la herramienta está activa.
+        Handles key press events when the tool is active.
 
-        Al presionar Esc, cancela el uso de la herramienta.
+        Pressing Esc cancels the use of the tool.
 
-        PARAMETROS
+        PARAMETERS
         event: QKeyEvent
-            El evento de pulsación de tecla.
+            The key press event.
         """
         if event.key() == Qt.Key_Escape:
             self.canvas.setMapTool(QgsMapTool())
