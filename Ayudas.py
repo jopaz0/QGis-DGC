@@ -120,4 +120,4 @@ def CambiarEjido (ejido, circ = False, radio = False):
         'REGISTRADOS': ['Registrados', {}],
     }
     for nombre in list(nombres.keys()):
-        RepathLayer(nombres[nombre], capas[nombre][0], capas[nombre][1])
+        CANVAS_RepathLayer(nombres[nombre], capas[nombre][0], capas[nombre][1])
