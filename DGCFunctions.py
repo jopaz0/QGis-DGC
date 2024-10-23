@@ -6,7 +6,7 @@ Created for use at DGC with PyQGis, only work in that enviroment due to file str
 import os
 from CommonFunctions import *
 
-global DicEjidos = {}
+DicEjidos = {}
 def CompletarDicEjidos():
     """
     Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
