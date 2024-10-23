@@ -9,6 +9,7 @@ COMMENTS:
 import os
 import gc
 import pandas as pd
+import datetime
 from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
@@ -495,32 +496,65 @@ def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
         print(f'Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints. ErrorMSG: {e}')
         return geometry
 
-
-def STR_RemoveStartingChars(string,char):
+def STR_FillWithChars(string, width, char='0', insertAtStart=True):
     """
-    Removes all leading characters from the input string that match the specified character.
+    Fills a string with a specified character until it reaches the desired width.
 
     PARAMETERS
-    string: str
-        The input string from which to remove leading characters.
-    char: str
-        The character to remove from the beginning of the input string.
+    string: The original string to be filled.
+    width: Integer representing the target length of the string after filling.
+    char: String representing the character to use for filling.
+    insertAtStart: Optional; Boolean indicating whether to insert the character at the start 
+                   (True) or at the end (False) of the string. Default is True.
 
     COMMENTS
-    This function iteratively removes the specified character from the start of the string until 
-    it encounters a different character or the string becomes empty. It is useful for cleaning up 
-    strings that might have unwanted leading characters such as spaces, zeroes, or special symbols.
+    - The function converts the input to a string and adds the specified character until 
+      the length of the string matches the given width.
 
     RETURNS
-    str
-        The modified string without leading characters that match the specified character.
-        If the input string is entirely composed of the specified character, an empty string 
-        is returned.
+    String filled with the specified character to reach the desired width.
     """
     string = str(string)
-    while len(string)>0 and string[0].upper() == char:
-        string = string[1:]
+    while len(string)<width:
+        if insertAtStart:
+            string = char + string
+        else:
+            string = string + char
     return string
+
+def STR_GetTimestamp(includeMs = False, justDay = False):
+    """
+    Generates a timestamp string formatted as 'YYYY-MM-DD HH-MM-SS-SSS'.
+
+    PARAMETERS
+    includeMs: Optional; Boolean indicating whether to include milliseconds in the timestamp. 
+               Default is False.
+    justDay: Optional; Boolean indicating whether to return only the date part ('YYYY-MM-DD'). 
+              Default is False.
+
+    COMMENTS
+    - The function retrieves the current date and time, formatting it according to the specified 
+      parameters. If `justDay` is True, it returns only the date in 'YYYY-MM-DD' format.
+    - If `includeMs` is True, milliseconds will be included in the format.
+    - If justDay is True, includeMs will be ignored
+
+    RETURNS
+    String representing the formatted timestamp.
+    """
+
+    time = datetime.datetime.now()
+    year = str(time.year)
+    month = STR_FillWithChars(time.month,2)
+    day = STR_FillWithChars(time.day,2)
+    if justDay:
+        return f'{year}-{month}-{day}'
+    hour = STR_FillWithChars(time.hour,2)
+    minute = STR_FillWithChars(time.minute,2)
+    if not includeMs:
+        return f'{year}-{month}-{day} {hour}-{minute}'
+    sec = STR_FillWithChars(time.second,2)
+    ms = STR_FillWithChars(time.microsecond // 1000, 3)
+    return f'{year}-{month}-{day} {hour}-{minute} {sec}-{ms}'
 
 def STR_RemoveEndingChars(string, char):
     """
@@ -548,30 +582,30 @@ def STR_RemoveEndingChars(string, char):
         string = string[:-1]
     return string
 
-def STR_FillWithChars(string, width, char, insertAtStart=True):
+def STR_RemoveStartingChars(string,char):
     """
-    Fills a string with a specified character until it reaches the desired width.
+    Removes all leading characters from the input string that match the specified character.
 
     PARAMETERS
-    string: The original string to be filled.
-    width: Integer representing the target length of the string after filling.
-    char: String representing the character to use for filling.
-    insertAtStart: Optional; Boolean indicating whether to insert the character at the start 
-                   (True) or at the end (False) of the string. Default is True.
+    string: str
+        The input string from which to remove leading characters.
+    char: str
+        The character to remove from the beginning of the input string.
 
     COMMENTS
-    - The function converts the input to a string and adds the specified character until 
-      the length of the string matches the given width.
+    This function iteratively removes the specified character from the start of the string until 
+    it encounters a different character or the string becomes empty. It is useful for cleaning up 
+    strings that might have unwanted leading characters such as spaces, zeroes, or special symbols.
 
     RETURNS
-    String filled with the specified character to reach the desired width.
+    str
+        The modified string without leading characters that match the specified character.
+        If the input string is entirely composed of the specified character, an empty string 
+        is returned.
     """
     string = str(string)
-    while len(string)<width:
-        if insertAtStart:
-            string = char + string
-        else:
-            string = string + char
+    while len(string)>0 and string[0].upper() == char:
+        string = string[1:]
     return string
 
 def PathToLayer(path, name=False, delimiter=';'):
