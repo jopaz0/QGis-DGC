@@ -37,7 +37,6 @@ def CompletarDicEjidos():
     for key, value in ejidos.items():
         DicEjidos[key] = value[0]
         DicEjidos[key].update(BuscarCapasUrbanas(key))
-CompletarDicEjidos()
 
 def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     """
@@ -158,3 +157,4 @@ def GenerarShapeRegistrados(ejido, distanciaBuffer=0.05, agregarAlLienzo=True):
         print(f'Error al generar los registrados del ejido {ejido}. ErrorMSG: {e}')
         return FalsE
 
+CompletarDicEjidos()
