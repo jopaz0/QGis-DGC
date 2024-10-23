@@ -459,54 +459,42 @@ def DICT_SetKey(dictList, keyField):
 
 def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
     """
-    Elimina los vértices duplicados de una geometría de tipo polígono o multipolígono, utilizando una tolerancia específica.
+    Recursively extracts the points from a polygon or multipolygon geometry, preserving the ring structure.
 
-    PARÁMETROS
-    geometry: QgsGeometry.
-        La geometría del polígono o multipolígono sobre la que se va a trabajar.
-    tolerance: Float.
-        Distancia mínima entre vértices (en unidades de mapa) para considerarlos como duplicados. El valor predeterminado es 0.01 (1 centímetro).
+    PARAMETERS
+    geometry: QgsGeometry
+        The input polygon or multipolygon geometry.
+    tolerance: float
+        The minimum distance between points to be considered distinct.
 
-    COMENTARIOS
-    - La función recorre los vértices de la geometría y elimina aquellos que estén a una distancia menor o igual a la tolerancia especificada.
-    - Es compatible tanto con geometrías de un solo polígono como con multipolígonos.
-    - Si la geometría está vacía o no es válida, la función devuelve None.
-
-    RETORNA
-    Una nueva instancia de QgsGeometry sin los vértices duplicados.
-
-    EXCEPCIONES
-    - Si la geometría es nula o no válida, la función devuelve una advertencia y la geometria original.
+    RETURNS
+    QgsGeometry
+        A geometry matching the input with duplicate points removed.
     """
     try:
-        if not geometry:  # Verificar si la geometría es válida
-            return None
+        cleaned_geometries = []
 
-        # Crear una nueva lista de puntos sin duplicados
-        newCoordinates = []
-        
-        for part in geometry.parts():
-            points = part.vertices()
-            cleanPoints = []
-            lastPoint = None
-            
-            for point in points:
-                if lastPoint is None or QgsPointXY(lastPoint).distance(QgsPointXY(point)) > tolerance:
-                    cleanPoints.append(QgsPointXY(point))
-                lastPoint = QgsPointXY(point)
-
-            newCoordinates.append(cleanPoints)
-
-        # Crear la nueva geometría a partir de las coordenadas filtradas
         if geometry.isMultipart():
-            newGeometry = QgsGeometry.fromMultiPolygonXY([newCoordinates])
+            for part in geometry.asMultiPolygon():
+                cleaned_polygon = GEOM_DeleteDuplicatePoints(QgsGeometry.fromPolygonXY(part), tolerance)
+                cleaned_geometries.append(cleaned_polygon)
+            return QgsGeometry.fromMultiPolygonXY([polygon.asPolygon() for polygon in cleaned_geometries])
         else:
-            newGeometry = QgsGeometry.fromPolygonXY(newCoordinates)
-        
-        return newGeometry
+            rings = geometry.asPolygon()
+            cleaned_rings = []
+            for ring in rings:
+                clean_points = []
+                last_point = None
+                for point in ring:
+                    if last_point is None or QgsPointXY(last_point).distance(QgsPointXY(point)) > tolerance:
+                        clean_points.append(QgsPointXY(point))
+                    last_point = QgsPointXY(point)
+                cleaned_rings.append(clean_points)
+            return QgsGeometry.fromPolygonXY(cleaned_rings)
     except Exception as e:
-        print('Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints.')
+        print(f'Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints. ErrorMSG: {e}')
         return geometry
+
 
 def STR_RemoveStartingChars(string,char):
     """
