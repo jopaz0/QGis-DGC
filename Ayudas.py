@@ -70,10 +70,10 @@ def Backup():
         if os.path.isdir(os.path.join(directory, folder)) and folder[:3].isdigit() and folder[3] == '-':
             townFolder = os.path.join(directory, folder)
             for subfolder in os.listdir(townFolder):
-                if os.path.isdir(os.path.join(townFolder, subfolder)) and 
+                if os.path.isdir(os.path.join(townFolder, subfolder)) and (
                      'POLIGONO' in subfolder.upper() or 
                      'PUEBLO' in subfolder.upper() or 
-                     'EXPEDIENTE' in subfolder.upper():
+                     'EXPEDIENTE' in subfolder.upper()):
                     files += [os.path.join(townFolder, subfolder, x) for x in os.listdir(os.path.join(townFolder, subfolder))]
     backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
     if not os.path.exists(backup_dir):
