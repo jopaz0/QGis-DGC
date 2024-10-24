@@ -358,7 +358,8 @@ INFOEJIDO = InfoEjido
 
 def RecargarInfoEjidos():
     """
-    Vuelve a leer la informacion de los ejidos.
+    Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 recargarinfoejidos = RecargarInfoEjidos

@@ -4,7 +4,7 @@ Created for use at DGC with PyQGis, only work in that enviroment due to file str
 """
 import os
 from CommonFunctions import *
-DicEjidos = {}
+DicEjidos = DICT_SetKey(CSV_ToDictList(PATH_GetFileFromWeb('InfoEjidos.csv'), separator=';'), 'EJIDO')
 
 def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     """
