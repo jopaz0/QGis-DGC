@@ -50,7 +50,7 @@ ABRIR = Abrir
 
 def Backup():
     """
-    Realiza una copia de seguridad de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
+    Realiza una copia de seguridad de los shapefiles de cada ejido.
 
     PARAMETROS
     Ninguno
@@ -63,26 +63,27 @@ def Backup():
     RETORNO
     Nada
     """
-    directory  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
-    if not os.path.exists(directory):
-        directory  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
+    global DicEjidos
     files = []
-    for folder in os.listdir(directory):
-        if os.path.isdir(os.path.join(directory, folder)) and folder[:3].isdigit() and folder[3] == '-':
-            townFolder = os.path.join(directory, folder)
-            for subfolder in os.listdir(townFolder):
-                if os.path.isdir(os.path.join(townFolder, subfolder)) and (
-                     'POLIGONO' in subfolder.upper() or 
-                     'PUEBLO' in subfolder.upper() or 
-                     'EXPEDIENTE' in subfolder.upper()):
-                    files += [os.path.join(townFolder, subfolder, x) for x in os.listdir(os.path.join(townFolder, subfolder))]
+    for _, val in DicEjidos.items():
+        files += val['PROPIETARIOS']
+        files += val['POSEEDORES']
+        files += val['EXPEDIENTES']
+        files += val['MANZANAS']
+        files += val['RADIOS']
+        files += val['CIRCUNSCRIPCIONES']
+        files += val['CALLES']
+        files += val['MEDIDAS-REG']
+        files += val['MEDIDAS-TITULOS']
+        files += val['REGISTRADOS']
     backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)
     zipFile = os.path.join(backup_dir, 'BACKUP GEODESIA ' + STR_GetTimestamp() + '.zip')
     with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
         for file in files:
-            package.write(file, os.path.relpath(file, start=backup_dir)) 
+            if file:
+                package.write(file, os.path.relpath(file, start=backup_dir)) 
 backup = Backup
 BACKUP = Backup
 
