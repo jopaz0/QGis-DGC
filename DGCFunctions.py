@@ -7,7 +7,7 @@ from CommonFunctions import *
 
 DicEjidos = {}
 
-def InicializarDicejidos():
+def InicializarDicEjidos():
     """
     Inicializa el diccionario de ejidos si esta vacio.
     """
@@ -16,7 +16,7 @@ def InicializarDicejidos():
         csvPath = PATH_GetFileFromWeb('InfoEjidos.csv')
         ejidos = DICT_SetKey(CSV_ToDictList(csvPath, separator=';'), 'EJIDO')
         DicEjidos = { key: value[0] for key, value in ejidos.items()}
-InicializarDicejidos()
+InicializarDicEjidos()
 
 def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     """
