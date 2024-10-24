@@ -551,6 +551,8 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
         subfolder = rootFolder
         for filter in filters[:-1]:
             subfolder = [os.path.join(subfolder, d) for d in os.listdir(subfolder) if os.path.isdir(os.path.join(subfolder, d)) and filter in d.upper()]
+            if not subfolder:
+                print(f'Alert, there is no folder in {subfolder} that matches {filter}.')
             if len(subfolder) > 1:
                 print(f'Alert, there is more than one folder in {subfolder} that matches {filter}.')
             subfolder = subfolder[0]
