@@ -4,7 +4,19 @@ Created for use at DGC with PyQGis, only work in that enviroment due to file str
 """
 import os
 from CommonFunctions import *
-DicEjidos = DICT_SetKey(CSV_ToDictList(PATH_GetFileFromWeb('InfoEjidos.csv'), separator=';'), 'EJIDO')
+
+DicEjidos = {}
+
+def InicializarDicejidos():
+    """
+    Inicializa el diccionario de ejidos si esta vacio.
+    """
+    global DicEjidos
+    if not DicEjidos:
+        csvPath = PATH_GetFileFromWeb('InfoEjidos.csv')
+        ejidos = DICT_SetKey(CSV_ToDictList(csvPath, separator=';'), 'EJIDO')
+        DicEjidos = { key: value[0] for key, value in ejidos.items()}
+InicializarDicejidos()
 
 def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     """
