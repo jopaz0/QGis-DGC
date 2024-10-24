@@ -6,16 +6,18 @@ COMMENTS:
 - Functions starting with CANVAS usually require an open QGis map because they take parameters from active layer and selected features.
 - Functions starting with CSV, DICT or STR operate over such variable types. DICT usually operates lists of dicts, but can receive a dict and will cast it into a list.
 """
+import sys
 import os
 import gc
-import pandas as pd
+import tempfile
 import datetime
+import urllib.request
+import importlib.util
+import pandas as pd
 from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
 from PyQt5.QtCore import QVariant, QDate, QDateTime, QTime
-#from qgis.core import (QgsVectorLayer, QgsProject, QgsApplication, QgsVectorFileWriter, QgsLayerTreeGroup, QgsLayerTreeLayer) #These are not necessary yet
-
 
 #FUNCTIONS stariting with CANVAS usually require an open QGis map because they take parameters from active layer and selected features.
 
@@ -543,7 +545,7 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
     COMMENTS
 
     RETURNS
-        String containing the first match for filters and extension.
+        String containing the filepath of the first match.
     """
     try:
         subfolder = rootFolder
@@ -565,6 +567,35 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
         return match[0]
     except Exception as e:
         print(f'Error while looking for {filter} in {subfolder}. ErrorMSG: {e}')
+        return False
+
+def PATH_GetFileFromWeb(filename, urlRoot=f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/'):
+    """
+    Tryes to retrieve a file from the web, by defaults searchs for it in this Github repo.
+
+    PARAMETROS
+    filename: String 
+        Self explanatory
+    urlRoot: String
+        The part of the URL that is not the filename (duh)
+
+    COMMENTS
+
+    RETURNS
+        - String containing the filepath of the downloaded file
+        - False if failed to get the file
+    """
+    try:
+        tempFolder = tempfile.gettempdir()
+        filePath = os.path.join(tempFolder, filename)
+        if os.path.exists(filePath):
+            os.remove(filePath)
+        url = urlRoot + name
+        urllib.request.urlretrieve(url, filePath)
+        return filePath
+
+    except Exception as e:
+        print(f"Error al descargar {filename}: {e}")
         return False
 
 def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
