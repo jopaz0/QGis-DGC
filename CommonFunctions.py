@@ -588,12 +588,13 @@ def PATH_GetFileFromWeb(filename, urlRoot=f'https://raw.githubusercontent.com/jo
     try:
         tempFolder = tempfile.gettempdir()
         filePath = os.path.join(tempFolder, filename)
+        url = urlRoot + urllib.parse.quote(filename)
         if os.path.exists(filePath):
             os.remove(filePath)
-        url = urlRoot + name
-        urllib.request.urlretrieve(url, filePath)
-        return filePath
-
+        response = urllib.request.urlretrieve(url, filePath)
+        if type(response) is tuple:
+            return response[0]
+        return response
     except Exception as e:
         print(f"Error al descargar {filename}: {e}")
         return False
