@@ -4,6 +4,7 @@ Funciones varias para agilizar o automatizar el trabajo diario en DGC.
 Funciones: 
  > Abrir
  > Backup
+ > BackupLigero
  > CambiarEjido
  > ActualizarShapesPueblo / rehacermzsyregs
 Tipee help(funcion) en la consola para mas informacion.
