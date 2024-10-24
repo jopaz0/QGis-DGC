@@ -11,6 +11,8 @@ Funciones:
  > GenerarShapeManzanas / rehacermzs
  > GenerarShapeRegistrados / rehacerregs
 Tipee help(funcion) en la consola para mas informacion.
+
+Fomentando la vagancia responsable desde 2017!
 """
 import os, zipfile
 from pathlib import Path
