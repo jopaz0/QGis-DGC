@@ -901,6 +901,8 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
             notFound += [field]
     for field in notFound:
         fields.remove(field)
+    if not layer.isEditable():
+        layer.startEditing()
     for feature in features:
         key = feature[keyField]
         if key in data:
@@ -911,18 +913,17 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                     continue
             entry = entries[0]
             for field in fields:
-                with edit(layer):
-                    if field in entry: 
-                        value = entry[field]
-                        fieldType = layer.fields().field(field).type()
-                        if IsValueCompatible(value, fieldType):
-                            try:
-                                feature[field] = value
-                            except Exception as e:
-                                print(f"Fallo al copiar {value} a {field}({fieldType}). Errormsg: {e}")
-                    else:
-                        print(f'Field {field} was not found in')
-                    if not layer.updateFeature(feature):
-                        print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
-                        layer.rollBack()
+                if field in entry: 
+                    value = entry[field]
+                    fieldType = layer.fields().field(field).type()
+                    if IsValueCompatible(value, fieldType):
+                        try:
+                            feature[field] = value
+                        except Exception as e:
+                            print(f"Fallo al copiar {value} a {field}({fieldType}). Errormsg: {e}")
+                else:
+                    print(f'Field {field} was not found in')
+                if not layer.updateFeature(feature):
+                    print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
+                    layer.rollBack()
 
