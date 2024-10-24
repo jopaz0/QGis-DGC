@@ -127,9 +127,9 @@ def BackupLigero():
 backup = Backup
 BACKUP = Backup
 
-def CambiarEjido (ejido, circ = False, radio = False):
+def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
     """
-    Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca. Puede filtrar las parcelas por CIRC y RADIO.
+    Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca. 
 
     PARAMETROS
     ejido: numero entero o cadena de caracteres
@@ -137,10 +137,15 @@ def CambiarEjido (ejido, circ = False, radio = False):
     circ: numero entero
         Opcional, la circunscripcion a filtrar
     radio: caracter
-        Opcional, el radio a filtrar 
+        Opcional, el radio a filtrar. No es sensible a mayusculas
+    cc: numero entero
+        Opcional, el cc a filtrar 
+    mzna: numero entero o cadena de caracteres
+        Opcional, la mzna a filtrar. No es sensible a mayusculas
     
     COMENTARIOS
     - La función transforma automaticamente el numero de ejido a una cadena de 3 digitos completando con ceros.
+    - Puede enfocar una circ, radio o manzana si se enlazo correctamente la capa de propietarios. De lo contrario no enfoca nada.
 
     RETORNO
     Nada
@@ -150,34 +155,45 @@ def CambiarEjido (ejido, circ = False, radio = False):
         if not dicEjido['NOMBRE'] or dicEjido['NOMBRE']=='-':
             print(f'El ejido {ejido} no existe?')
             return
-        filtros = {}
-        if circ:
-            filtros['CIRC'] = circ
-        if radio:
-            filtros['RADIO'] = radio
-        #improviso esto aca, despues puedo hacerlo mas prolijo. O no, qsy
+
+        #improviso este dicc aca, despues puedo hacerlo mas prolijo importando un csv. O no, qsy
         nombres = {
-            'PROPIETARIOS': ['Propietarios-PHs', filtros],
-            'POSEEDORES': ['Poseedores', filtros],
-            'EXPEDIENTES': ['Expedientes', {}],
-            'MANZANAS': ['Manzanas', filtros],
-            'RADIOS': ['ORIGEN_RADIOS', {}],
-            'CIRCUNSCRIPCIONES': ['ORIGEN_CIRCS', {}],
-            'CALLES': ['ORIGEN_CALLES', {}],
-            'MEDIDAS-REG': ['ORIGEN_MEDIDAS_REGISTRADOS', filtros],
-            'MEDIDAS-TITULOS': ['ORIGEN_MEDIDAS_TITULOS', filtros],
-            'REGISTRADOS': ['Registrados', filtros],
+            'PROPIETARIOS': 'Propietarios-PHs',
+            'POSEEDORES': 'Poseedores',
+            'EXPEDIENTES': 'Expedientes',
+            'MANZANAS': 'Manzanas',
+            'RADIOS': 'ORIGEN_RADIOS',
+            'CIRCUNSCRIPCIONES': 'ORIGEN_CIRCS',
+            'CALLES': 'ORIGEN_CALLES',
+            'MEDIDAS-REG': 'ORIGEN_MEDIDAS_REGISTRADOS',
+            'MEDIDAS-TITULOS': 'ORIGEN_MEDIDAS_TITULOS',
+            'REGISTRADOS': 'Registrados',
         }
         for nombre, valor in nombres.items():
-            CANVAS_RepathLayer(valor[0], dicEjido[nombre], valor[1])
+            CANVAS_RepathLayer(valor, dicEjido[nombre])
         
+        #a partir de aca empieza la parte de enfocar la seleccion
         capa = CANVAS_CheckForLayer('Propietarios-PHs')
+        if not capa:
+            return
         capa.selectAll()
-        extent = capa.boundingBoxOfSelected()
-        if not extent.isEmpty():
-            iface.mapCanvas().setExtent(extent)
-            iface.mapCanvas().refresh()
-        capa.removeSelection()
+        CANVAS_ZoomToSelectedFeatures(capa)
+
+        if circ or radio or cc or mzna:
+            capa = CANVAS_CheckForLayer('Propietarios-PHs')
+            filtros = {}
+            if circ:
+                filtros['CIRC'] = circ
+            if radio:
+                filtros['RADIO'] = radio.upper()
+            if cc:
+                filtros['CC'] = cc
+            if mzna:
+                filtros['MZNA'] = str(mzna).upper()
+            expresion = ' AND '.join([f"{f}={filters[f]}" if isinstance(filters[f], (int, float)) else f"{f}='{filters[f]}'" for f in filters])
+            capa.selectByExpression(expresion)
+            CANVAS_ZoomToSelectedFeatures(capa)
+            
     except Exception as e:
         print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
 cambiarejido = CambiarEjido

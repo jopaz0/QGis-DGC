@@ -243,6 +243,26 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}):
         print (f'Error while changing datsource on layer {name}. ErrorMSG: {e}')
         return False
 
+def CANVAS_ZoomToSelectedFeatures(layer):
+    """
+    Zooms to selected features in layer, if any.
+
+    PARAMETERS
+    layere: QgsVectorLayer
+        The layer containing the selected features
+
+    COMMENTS
+
+    RETURNS
+    """
+    try:
+        extent = layer.boundingBoxOfSelected()
+        if not extent.isEmpty():
+            iface.mapCanvas().setExtent(extent)
+            iface.mapCanvas().refresh()
+    except:
+        print('No features selected to zoom into.')
+
 def CSV_ToDictList(csvPath, 
                   floatFields=[], 
                   dropFields_aprox=[], 
