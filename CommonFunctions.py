@@ -235,12 +235,12 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}):
             layer.setDataSource(layerPath, name, 'ogr')
             if filters:
                 layer.setSubsetString(expression)
-                print(f'Layer {name} datasource changed to {layerPath} and filtered with {expression}.')
+                print(f'Layer {name} datasource changed to {os.path.basename(layerPath)} and filtered with {expression}.')
             else:
-                print(f'Layer {name} datasource changed to {layerPath}.')
+                print(f'Layer {name} datasource changed to {os.path.basename(layerPath)}.')
         return True
     except Exception as e:
-        print (f'Error while changing datsource on layer {layerName}. ErrorMSG: {e}')
+        print (f'Error while changing datsource on layer {name}. ErrorMSG: {e}')
         return False
 
 def CSV_ToDictList(csvPath, 
