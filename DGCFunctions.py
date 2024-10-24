@@ -157,6 +157,10 @@ def GenerarShapeRegistrados(ejido, distanciaBuffer=0.05, agregarAlLienzo=True):
         print(f'Error al generar los registrados del ejido {ejido}. ErrorMSG: {e}')
         return FalsE
 
+def LeerDicEjidos():
+    global DicEjidos
+    return DicEjidos
+
 DicEjidos = CompletarDicEjidos()
 print("""Perdon por el spam, te dejo un michi mamadisimo
       A__A
