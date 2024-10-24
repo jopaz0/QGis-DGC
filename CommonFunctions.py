@@ -562,7 +562,7 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
                 filters[-1] in d.upper() and 
                 d.lower().endswith(ext)]
         if not match:
-            print(f'Error, file not found.')
+            print(f'Alert, there is no file in {subfolder} that matches {filter}.')
             return False
         elif len(match) > 1:
             print(f'Alert, there is more than one file on {subfolder} that matches {filters[-1]}.')
