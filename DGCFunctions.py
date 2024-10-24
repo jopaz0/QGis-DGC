@@ -69,7 +69,7 @@ def CompletarDicEjidos():
     if os.path.exists(csvPath):
         os.remove(csvPath)
     urllib.request.urlretrieve(url, csvPath)
-    ejidos = CSV_ToDictList(csvPath, enc='utf-8', separator=';',)
+    ejidos = CSV_ToDictList(csvPath, separator=';')
     ejidos = DICT_SetKey(ejidos, 'EJIDO')
 
     for key, value in ejidos.items():
