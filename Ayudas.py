@@ -50,13 +50,52 @@ ABRIR = Abrir
 
 def Backup():
     """
-    Realiza una copia de seguridad de los shapefiles de cada ejido.
+    Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
 
     PARAMETROS
     Ninguno
 
     COMENTARIOS
-    - La función busca en el directorio L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS aquellos que comienzan con tres números seguidos de un guion, es decir las carpetas de los pueblos. 
+    - La función lee el contenido de las carpetas directamente desde el disco L; guarda todo lo que encuentre.
+    - Crea un archivo zip en el directorio de documentos del usuario (Documentos/BACKUPS/), que contiene los archivos.
+    - El archivo de salida es alrededor del doble de pesado que usando BackupLigero
+    - No genera backup de parcelas rurales.
+
+    RETORNO
+    Nada
+    """
+    directory  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
+    if not os.path.exists(directory):
+        directory  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
+    files = []
+    for folder in os.listdir(directory):
+        if os.path.isdir(os.path.join(directory, folder)) and folder[:3].isdigit() and folder[3] == '-':
+            townFolder = os.path.join(directory, folder)
+            for subfolder in os.listdir(townFolder):
+                if os.path.isdir(os.path.join(townFolder, subfolder)) and (
+                     'POLIGONO' in subfolder.upper() or 
+                     'PUEBLO' in subfolder.upper() or 
+                     'EXPEDIENTE' in subfolder.upper()):
+                    files += [os.path.join(townFolder, subfolder, x) for x in os.listdir(os.path.join(townFolder, subfolder))]
+    backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    zipFile = os.path.join(backup_dir, 'BACKUP GEODESIA ' + STR_GetTimestamp() + '.zip')
+    with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
+        for file in files:
+            package.write(file, file) 
+backup = Backup
+BACKUP = Backup
+
+def BackupLigero():
+    """
+    Realiza una copia de seguridad de los shapefiles leidos por DicEjidos, de cada ejido.
+
+    PARAMETROS
+    Ninguno
+
+    COMENTARIOS
+    - La función lee los shapefiles contenidos en la global Dic Ejidos. Deja fuera versiones duplicadas y archivos no necesarios en las caprpetas. Para corroborar, consultar CompletarDicEjidos en DGCFunctions.
     - Crea un archivo zip en el directorio de documentos del usuario, que contiene los archivos encontrados en las carpetas que cumplen con el criterio especificado.
     - No genera backup de parcelas rurales.
 
