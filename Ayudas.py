@@ -11,8 +11,9 @@ Tipee help(funcion) en la consola para mas informacion.
 """
 import os, zipfile
 from pathlib import Path
-from CommonFunctions import * # STR_GetTimestamp
-from DGCFunctions import * # BuscarCapasUrbanas
+from qgis.core import *
+from CommonFunctions import *
+from DGCFunctions import *
 
 def Abrir(regs):
     """
@@ -155,7 +156,8 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
         if not dicEjido['NOMBRE'] or dicEjido['NOMBRE']=='-':
             print(f'El ejido {ejido} no existe?')
             return
-
+        crs = QgsCoordinateReferenceSystem(dicEjido['EPSG'])
+        QgsProject.instance().setCrs(crs)
         #improviso este dicc aca, despues puedo hacerlo mas prolijo importando un csv. O no, qsy
         nombres = {
             'PROPIETARIOS': 'Propietarios-PHs',
@@ -170,7 +172,7 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
             'REGISTRADOS': 'Registrados',
         }
         for nombre, valor in nombres.items():
-            CANVAS_RepathLayer(valor, dicEjido[nombre])
+            CANVAS_RepathLayer(valor, dicEjido[nombre], forceCRS=crs)
         
         #a partir de aca empieza la parte de enfocar la seleccion
         capa = CANVAS_CheckForLayer('Propietarios-PHs')
@@ -193,7 +195,7 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
             expresion = ' AND '.join([f"{f}={filters[f]}" if isinstance(filters[f], (int, float)) else f"{f}='{filters[f]}'" for f in filters])
             capa.selectByExpression(expresion)
             CANVAS_ZoomToSelectedFeatures(capa)
-            
+
     except Exception as e:
         print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
 cambiarejido = CambiarEjido

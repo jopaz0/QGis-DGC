@@ -200,7 +200,7 @@ def CANVAS_RemoveLayersContaining(layerName):
         if layerName in layer.name():
             QgsProject.instance().removeMapLayer(layer)
 
-def CANVAS_RepathLayer(layerName, layerPath, filters={}):
+def CANVAS_RepathLayer(layerName, layerPath, filters={}, forceCRS=False):
     #filters can be upgraded to support a string with the already built filter. maybe later
     """
     Changes the data source of all layers that contain a string to the provided path.
@@ -212,6 +212,8 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}):
         The path of the new layer
     filters: Dictionary
         A dictionary of strings, like {nameOfField: valueOfField}
+    forceCRS: QgsCoordinateReferenceSystem or False
+        If set, and layer's CRS is not WGS84, changes the CRS of the layer to the parameter's value.
 
     COMMENTS
     - The function iterates through all layers in the current QGIS project, replacing the data source of the ones matching layerName.
@@ -238,6 +240,11 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}):
                 print(f'Layer {name} datasource changed to {os.path.basename(layerPath)} and filtered with {expression}.')
             else:
                 print(f'Layer {name} datasource changed to {os.path.basename(layerPath)}.')
+        if forceCRS:
+            if not layer.crs().authid() == "EPSG:4326":
+                layer.setCrs(forceCRS)
+            else:
+                print(f'Warning, layer {layer.name()} was set to WGS84.')
         return True
     except Exception as e:
         print (f'Error while changing datsource on layer {name}. ErrorMSG: {e}')
