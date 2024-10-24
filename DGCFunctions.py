@@ -48,7 +48,7 @@ def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     DicEjidos[n]['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'])
     return DicEjidos[n]
 
-def CompletarDicEjidos():
+def CompletarDicEjidos(reescribirDicEjidos=False):
     """
     Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
 
@@ -62,19 +62,13 @@ def CompletarDicEjidos():
     """
     global DicEjidos
     DicEjidos = {}
-    url = f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/InfoEjidos.csv'
-    tempFolder = tempfile.gettempdir()
-    sys.path.append(tempFolder)
-    csvPath = os.path.join(tempFolder, f"InfoEjidos.csv")
-    if os.path.exists(csvPath):
-        os.remove(csvPath)
-    urllib.request.urlretrieve(url, csvPath)
+    csvPath = PATH_GetFileFromWeb('InfoEjidos.csv')
     ejidos = CSV_ToDictList(csvPath, separator=';')
     ejidos = DICT_SetKey(ejidos, 'EJIDO')
 
     for key, value in ejidos.items():
         DicEjidos[key] = value[0]
-        DicEjidos[key].update(BuscarCapasUrbanas(key, True))
+        DicEjidos[key].update(BuscarCapasUrbanas(key,reescribirDicEjidos))
     return DicEjidos
 
 def LeerDicEjidos():

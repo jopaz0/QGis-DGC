@@ -10,6 +10,7 @@ Funciones:
  > ActualizarShapesPueblo / rehacermzsyregs
  > GenerarShapeManzanas / rehacermzs
  > GenerarShapeRegistrados / rehacerregs
+ > RecargarInfoEjidos
 Tipee help(funcion) en la consola para mas informacion.
 
 Fomentando la vagancia responsable desde 2017!
@@ -354,4 +355,10 @@ Info = InfoEjido
 INFO = InfoEjido
 infoejido = InfoEjido
 INFOEJIDO = InfoEjido
-        
+
+def RecargarInfoEjidos():
+    """
+    Vuelve a leer la informacion de los ejidos.
+    """
+    CompletarDicEjidos(True)
+recargarinfoejidos = RecargarInfoEjidos
