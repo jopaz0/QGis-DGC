@@ -118,14 +118,14 @@ def CambiarEjido (ejido, circ = False, radio = False):
         nombres = {
             'PROPIETARIOS': ['Propietarios-PHs', filtros],
             'POSEEDORES': ['Poseedores', filtros],
-            'EXPEDIENTES': ['Expedientes', filtros],
-            'MANZANAS': ['Manzanas', {}],
+            'EXPEDIENTES': ['Expedientes', {}],
+            'MANZANAS': ['Manzanas', filtros],
             'RADIOS': ['ORIGEN_RADIOS', {}],
             'CIRCUNSCRIPCIONES': ['ORIGEN_CIRCS', {}],
             'CALLES': ['ORIGEN_CALLES', {}],
-            'MEDIDAS-REG': ['ORIGEN_MEDIDAS_REGISTRADOS', {}],
-            'MEDIDAS-TITULOS': ['ORIGEN_MEDIDAS_TITULOS', {}],
-            'REGISTRADOS': ['Registrados', {}],
+            'MEDIDAS-REG': ['ORIGEN_MEDIDAS_REGISTRADOS', filtros],
+            'MEDIDAS-TITULOS': ['ORIGEN_MEDIDAS_TITULOS', filtros],
+            'REGISTRADOS': ['Registrados', filtros],
         }
         for nombre, valor in nombres.items():
             CANVAS_RepathLayer(valor[0], dicEjido[nombre], valor[1])
