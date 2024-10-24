@@ -10,7 +10,7 @@ Tipee help(funcion) en la consola para mas informacion.
 from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
-from CommonFunctions import IsValueCompatible
+from CommonFunctions import *
 from ChamferTool import *
 from NumberingTool import *
 
