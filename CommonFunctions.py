@@ -698,6 +698,7 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
 {(tabs+1)*'\t'}<description></description>
 {(tabs+1)*'\t'}<styleUrl>#Style{styleBy}{feature[styleBy]}</styleUrl>
 {(tabs+1)*'\t'}<ExtendedData>
+{(tabs+2)*'\t'}<Data name="displayName"><value>{feature[nameBy]}</value></Data>
 {'\n'.join([f'{(tabs+2)*'\t'}<Data name="{field}"><value>{feature[field]}</value></Data>' for field in showInTable if field in featureFields])}
 {(tabs+1)*'\t'}</ExtendedData>
 {KML_TranslateGeometry(feature, tabs+1)}

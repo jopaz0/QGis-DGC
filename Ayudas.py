@@ -279,7 +279,7 @@ def GenerarRegistradosDesdeSeleccion():
 regsdesdesel = GenerarRegistradosDesdeSeleccion
 REGSDESDESEL = GenerarRegistradosDesdeSeleccion
 
-def GenerarKMZDesdeSeleccion(ubicacion=False):
+def GenerarKMZDesdeSeleccion(rutaKml=False):
     """
     Genera un archivo KMZ a partir de las características seleccionadas en la capa activa de QGIS.
 
@@ -294,20 +294,20 @@ def GenerarKMZDesdeSeleccion(ubicacion=False):
     """
     nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
-    ubicacion = ubicacion if ubicacion else os.path.join(PATH_GetDefaultSaveFolder(), f'{nombrePlantilla}-{STR_GetTimestamp()}.kml')
     capa = iface.activeLayer()
-    carpetas = KML_ContentBuilder({'NAME':f'{capa.name()}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    nombre = capa.name()
+    rutaKml = rutaKml if rutaKml else os.path.join(PATH_GetDefaultSaveFolder(), f'{nombre}-Subset-{STR_GetTimestamp()}.kml')
+    carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
         contenido = plantilla.read()
         contenido = contenido.replace('<ContentPlaceholder>', carpetas)
         plantilla.seek(0)
         plantilla.write(contenido)
         plantilla.truncate()
-    with open(ubicacion, 'w', encoding='utf-8') as kmz:
+    with open(rutaKml, 'w', encoding='utf-8') as kmz:
         kmz.write(contenido)
-    #CANVAS_AddLayer(PathToLayer(kml))
-    kmz = KML_ToKMZ(ubicacion)
-    return kmz
+    rutaKmz = KML_ToKMZ(rutaKml)
+    return rutaKmz
 kmzdesdesel = GenerarKMZDesdeSeleccion
 KMZDESDESEL = GenerarKMZDesdeSeleccion
 
