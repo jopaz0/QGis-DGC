@@ -14,6 +14,7 @@ Tipee help(funcion) en la consola para mas informacion.
 Fomentando la vagancia responsable desde 2017!
 """
 import os, zipfile
+import processing
 from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
