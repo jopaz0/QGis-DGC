@@ -171,6 +171,8 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
         capa = CANVAS_CheckForLayer('Propietarios-PHs')
         if not capa:
             return
+        else:
+            iface.setActiveLayer(capa)
         capa.selectAll()
         CANVAS_ZoomToSelectedFeatures(capa)
 
