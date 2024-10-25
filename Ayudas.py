@@ -74,11 +74,13 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
 
     RETORNO
     """
+    global DicEjidos
+    ejido = int(ejido)
     manzanas = GenerarShapeManzanas(ejido, distanciaBuffer, agregarAlLienzo)
     registrados = GenerarShapeRegistrados(ejido, distanciaBuffer, agregarAlLienzo)
     if not sustituirCapas:
         return
-    capas = BuscarCapasUrbanas(ejido)
+    capas = DicEjidos[ejido]
     carpeta = os.path.dirname(capas['MANZANAS'])
     capasViejas = [os.path.join(carpeta, archivo) for archivo in os.listdir(carpeta) if 'MANZANA' in archivo.upper() or 'REGISTRADO' in archivo.upper()]
     for capa in capasViejas:
@@ -86,11 +88,13 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
             os.remove(capa)
         except Exception as e:
             print(f'No pude eliminar {capa}. ErrorMSG: {e}')
-    for capa in [manzanas, registrados]:
-        try:
-            QgsVectorFileWriter.writeAsVectorFormat(capa, os.path.join(carpeta, f'{capa.name()}.shp'), 'utf-8', driverName='ESRI Shapefile')
-        except:
-            print(f'No pude guardar la capa {capa.name()}. ErrorMSG: {e}')
+    try:
+        QgsVectorFileWriter.writeAsVectorFormat(manzanas, os.path.join(carpeta, f'{manzanas.name()}.shp'), 'utf-8', driverName='ESRI Shapefile')
+        QgsVectorFileWriter.writeAsVectorFormat(registrados, os.path.join(carpeta, f'{registrados.name()}.shp'), 'utf-8', driverName='ESRI Shapefile')
+        DicEjidos[int(ejido)]['MANZANAS'] = manzanas.source()
+        DicEjidos[int(ejido)]['REGISTRADOS'] = registrados.source()
+    except:
+        print(f'No pude guardar la capa {capa.name()}. ErrorMSG: {e}')
 RehacerMzsYRegs = ActualizarShapesPueblo
 rehacermzsyregs = ActualizarShapesPueblo
 REHACERMZSYREGS = ActualizarShapesPueblo
