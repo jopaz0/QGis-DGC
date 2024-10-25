@@ -12,6 +12,7 @@ import gc
 import tempfile
 import datetime
 import processing
+import zipfile
 import urllib.request
 import importlib.util
 import pandas as pd
@@ -757,20 +758,23 @@ def KML_TranslateGeometry(feature, tabs=2):
         #cada geometria viene como lista de listas. la primera son los poligonos individuales del multipoligono. la segunda son los anillos del poligono
         for polygon in geoms:
             lines.append(f'{(tabs+1)*'\t'}<Polygon>')
-            lines.append(  f'{(tabs+2)*'\t'}<outerBoundaryIs>')
-            lines.append(      f'{(tabs+3)*'\t'}<coordinates>')
+            lines.append(f'{(tabs+2)*'\t'}<outerBoundaryIs>')
+            lines.append(f'{(tabs+3)*'\t'}<LinearRing>')
+            lines.append(f'{(tabs+4)*'\t'}<coordinates>')
             #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
-            lines.append(          f'{(tabs+4)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in polygon[0]])}')
-            lines.append(      f'{(tabs+3)*'\t'}</coordinates>')
-            lines.append(  f'{(tabs+2)*'\t'}</outerBoundaryIs>')
+            lines.append(f'{(tabs+5)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in polygon[0]])}')
+            lines.append(f'{(tabs+4)*'\t'}</coordinates>')
+            lines.append(f'{(tabs+3)*'\t'}</LinearRing>')
+            lines.append(f'{(tabs+2)*'\t'}</outerBoundaryIs>')
             if len(polygon)>1:
                 for ring in polygon[1:]:
-                    lines.append(  f'{(tabs+2)*'\t'}<innerBoundaryIs>')
-                    lines.append(      f'{(tabs+3)*'\t'}<coordinates>')
-                    #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
-                    lines.append(          f'{(tabs+4)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in ring])}')
-                    lines.append(      f'{(tabs+3)*'\t'}</coordinates>')
-                    lines.append(  f'{(tabs+2)*'\t'}</innerBoundaryIs>')
+                    lines.append(f'{(tabs+2)*'\t'}<innerBoundaryIs>')
+                    lines.append(f'{(tabs+3)*'\t'}<LinearRing>')
+                    lines.append(f'{(tabs+4)*'\t'}<coordinates>')
+                    lines.append(f'{(tabs+5)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in ring])}')
+                    lines.append(f'{(tabs+4)*'\t'}</coordinates>')
+                    lines.append(f'{(tabs+3)*'\t'}<LinearRing>')
+                    lines.append(f'{(tabs+2)*'\t'}</innerBoundaryIs>')
             lines.append(f'{(tabs+1)*'\t'}</Polygon>')
     else:
         #Tengo que adaptar aca el codigo. como no hace a la funcionalidad de catastro, por ahora lo dejo asi
@@ -1064,7 +1068,7 @@ def PathToLayer(path, name=False, delimiter=';'):
         if ext in ['.csv', '.xls']:
             uri = 'file:///'+ path.replace('//','/') +'?delimiter=' + delimiter
             layer = QgsVectorLayer(uri, layerName, 'delimitedtext')
-        elif ext in ['.shp']:
+        elif ext in ['.shp', '.kml']:
             layer = QgsVectorLayer(path, layerName, 'ogr')
         else:
             print(f"Unexpected file extension while converting {str(layer)} to QgsLayer, @ PathToLayer. Unexpected layer format?")
