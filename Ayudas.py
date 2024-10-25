@@ -18,7 +18,9 @@ Tipee help(funcion) en la consola para mas informacion.
 
 :v Fomentando la vagancia responsable desde 2020!
 """
-import os, zipfile
+import os
+import zipfile
+import re
 import processing
 from pathlib import Path
 from qgis.utils import *
@@ -295,8 +297,14 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
     capa = iface.activeLayer()
-    nombre = capa.name()
-    rutaKml = rutaKml if rutaKml else os.path.join(PATH_GetDefaultSaveFolder(), f'{nombre}-Subset-{STR_GetTimestamp()}.kml')
+    if rutaKml:
+        pass
+    else:
+        nombre = re.search(r'\d{3}', capa.source())
+        if nombre:
+            rutaKml = f'{nombre.group()}-{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
+        else:
+            rutaKml = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
     carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
         contenido = plantilla.read()
