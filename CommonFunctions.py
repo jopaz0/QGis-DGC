@@ -227,7 +227,10 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}, forceCRS=False):
     layers = []
     try:
         if not layerPath:
-            layer.setDataSource(layerPath, '', 'ogr')
+            try:
+                layer.setDataSource(layerPath, '', 'ogr')
+            except:
+                pass
             print (f'No layer for {layerName} was found in file system.')
             return False
         for layer in QgsProject.instance().mapLayers().values():
