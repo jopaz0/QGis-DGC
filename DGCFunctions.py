@@ -80,6 +80,101 @@ def CompletarDicEjidos(reescribirDicEjidos=False):
         DicEjidos[key].update(BuscarCapasUrbanas(key,reescribirDicEjidos))
     return DicEjidos
 
+def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLienzo=True):
+    """
+    Genera un shape de Manzanas de la capa indicada. 
+
+    PARAMETROS
+    capa: QgsVectorLayer
+        las capas a ser disueltas
+    nombre: cadena de caracteres
+        Nombre base de la capa de salida, a la cual se le agrega un sufijo.
+    distanciaBuffer: numero 
+        La distancia que debe expanderse y contraerse la capa para eliminar cuñas.
+    agregarAlLienzo: booleano
+        Si se deja en Verdadero, carga la capa al lienzo de QGis.
+
+    COMENTARIOS
+    - Se hacen algunos calculos de antes de disolver; unifica los CC de PH con los de parcelas normales, por ejemplo.
+    - Luego de disolver, se intenta eliminar anillos y cuñas medainte buffers
+
+    RETORNOS
+    - QgsVectorLayer conteniendo la capa si la funcion tuvo exito
+    - Falso si ocurrio un error
+    """
+    if not capa:
+        print('Flaco que mierda es eso que me diste? dame parcelas')
+        return False
+    try:
+        nombre = nombre if nombre else capa.name()
+        capa = processing.run('native:fixgeometries', {'INPUT': capa, 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        capa = processing.run('native:fieldcalculator', {'INPUT': capa, 'FIELD_LENGTH' : 0, 'FIELD_NAME' : 'CC', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 1, 'FORMULA' : 'IF(cc=4,3,if(cc=5,2,cc))', 'OUTPUT' : 'TEMPORARY_OUTPUT'})['OUTPUT']
+        # Aun no tengo las expresiones cargadas en el mapa
+        # capa = processing.run('native:fieldcalculator', { 'FIELD_LENGTH' : 4, 'FIELD_NAME' : 'MZNA', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 2, 'FORMULA' : 'Quitar0(MZNA)', 'INPUT' : capa, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
+        capa = processing.run('native:dissolve', {'INPUT': capa, 'FIELD' : ['EJIDO','CIRC','RADIO','MZNA','CC'], 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer, 'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
+        capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer*-1, 'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
+        capa.setName(f'{nombre}-MANZANAS-{STR_GetTimestamp()}')
+        if agregarAlLienzo:
+            CANVAS_AddLayer(capa)
+        return capa
+    except Exception as e:
+        print(f'Error al generar las manzanas del ejido {ejido}. ErrorMSG: {e}')
+        return False
+RehacerMzs = GenerarShapeManzanas
+rehacermzs = GenerarShapeManzanas
+REHACERMZS = GenerarShapeManzanas
+
+def GenerarShapeRegistrados(capas, nombre=False, distanciaBuffer=0.05, agregarAlLienzo=True):
+    """
+    Genera un shape de Registrados de la capa indicada.
+
+    PARAMETROS
+    capas: lista
+        las capas a ser disueltas
+    nombre: cadena de caracteres
+        Nombre base de la capa de salida, a la cual se le agrega un sufijo.
+    distanciaBuffer: numero 
+        La distancia que debe expanderse y contraerse la capa para eliminar cuñas.
+    agregarAlLienzo: booleano
+        Si se deja en Verdadero, carga la capa al lienzo de QGis.
+
+    COMENTARIOS
+    - Se hacen algunos calculos de antes de disolver; unifica los CC de PH con los de parcelas normales, por ejemplo.
+    - Luego de disolver, se intenta eliminar anillos y cuñas medainte buffers
+
+    RETORNOS
+    - QgsVectorLayer conteniendo la capa si la funcion tuvo exito
+    - Falso si ocurrio un error
+    """
+    for capa in capas:
+        if not capa:
+            print('Flaco que mierda es eso que me diste? dame parcelas')
+            return False
+    try:
+        nombre = nombre if nombre else capa.name()
+        capa = processing.run('native:mergevectorlayers', { 'CRS' : QgsCoordinateReferenceSystem(''), 'LAYERS' : capas, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
+        capa = processing.run('native:fixgeometries', {'INPUT': capa, 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        # Aun no tengo las expresiones cargadas en el mapa
+        # layer = processing.run('native:fieldcalculator', { 'FIELD_LENGTH' : 4, 'FIELD_NAME' : 'MZNA', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 2, 'FORMULA' : 'Quitar0(MZNA)', 'INPUT' : capa, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
+        capa = processing.run('native:fieldcalculator', {'INPUT': capa, 'FIELD_LENGTH' : 0, 'FIELD_NAME' : 'CC', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 1, 'FORMULA' : 'IF(cc=4,3,if(cc=5,2,cc))', 'OUTPUT' : 'TEMPORARY_OUTPUT'})['OUTPUT']
+        capa.setSubsetString('REGISTRADO is not null')
+        capa = processing.run('native:dissolve', {'INPUT': capa, 'FIELD' : ['EJIDO','CIRC','RADIO','MZNA','CC','REGISTRADO'], 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer,'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
+        capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer*-1,'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
+        capa = processing.run('native:addfieldtoattributestable', { 'FIELD_LENGTH' : 2, 'FIELD_NAME' : 'COLOR', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 0, 'INPUT' : capa, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
+        capa = processing.run('native:fieldcalculator', {'FIELD_LENGTH' : 2, 'FIELD_NAME' : 'COLOR', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 1, 'FORMULA' : 'rand(1,25)', 'INPUT' : capa, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
+        capa.setName(f'{nombre}-REGISTRADOS-{STR_GetTimestamp()}')
+        if agregarAlLienzo:
+            CANVAS_AddLayer(capa)
+        return capa
+    except Exception as e:
+        print(f'Error al generar los registrados del ejido {ejido}. ErrorMSG: {e}')
+        return FalsE
+RehacerRegs = GenerarShapeRegistrados
+rehacerregs = GenerarShapeRegistrados
+REHACERREGS = GenerarShapeRegistrados
+
 def LeerDicEjidos():
     """
     Retorna el valor actual de DicEjidos.
