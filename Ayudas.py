@@ -296,7 +296,7 @@ def GenerarKMZDesdeSeleccion(ubicacion=False):
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
     ubicacion = ubicacion if ubicacion else os.path.join(PATH_GetDefaultSaveFolder(), f'{nombrePlantilla}-{STR_GetTimestamp()}.kml')
     capa = iface.activeLayer()
-    carpetas = KML_ContentBuilder({'NAME':f'{capa.name()}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=1, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    carpetas = KML_ContentBuilder({'NAME':f'{capa.name()}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
         contenido = plantilla.read()
         contenido = contenido.replace('<ContentPlaceholder>', carpetas)
