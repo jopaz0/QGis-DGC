@@ -282,7 +282,7 @@ def GenerarKMZDesdeSeleccion(ubicacion=False):
     kml = PATH_GetFileFromWeb('KMLBaseDGC.kml')
     ubicacion = ubicacion if ubicacion else PATH_GetDefaultSaveFolder()
     capa = iface.activeLayer()
-    carpetas = KML_ContentBuilder(capa, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    carpetas = KML_ContentBuilder(capa, 'NOMENCLA', styleBy='CC', tabs=1, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     with open(kml, 'r+', encoding='utf-8') as file:
         contenido = file.read()
         contenido = contenido.replace('<ContentPlaceholder>', carpetas)

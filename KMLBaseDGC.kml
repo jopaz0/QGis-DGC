@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+    <Style id="StyleCC0">
+        <BalloonStyle>
+            <bgColor>FF0A7D9A</bgColor>
+            <text>
+                <![CDATA[
+                    <div style="text-align:center; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                        <h2 style="margin:0;text-align:center;">$[displayName]</h2>
+                        </br>
+                        <table style=''font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:1px''>
+                            <tr bgcolor=#FCF3CF>
+                                <td style="width:80px; min-width:80px; padding:2px;">NOMENCLA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[NOMENCLA]</td>
+                            </tr>
+                            <tr bgcolor=#D4AC0D>
+                                <td style="width:80px; min-width:80px; padding:2px;">PARTIDA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[PARTIDA]</td>
+                            </tr>
+                            <tr bgcolor=#FCF3CF>
+                                <td style="width:80px; min-width:80px; padding:2px;">REGISTRADO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[REGISTRADO]</td>
+                            </tr>
+                            <tr bgcolor=#D4AC0D>
+                                <td style="width:80px; min-width:80px; padding:2px;">CC</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CC]</td>
+                            </tr>
+                            <tr bgcolor=#FCF3CF>
+                                <td style="width:80px; min-width:80px; padding:2px;">APELLIDO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[APELLIDO]</td>
+                            </tr>
+                            <tr bgcolor=#D4AC0D>
+                                <td style="width:80px; min-width:80px; padding:2px;">TEN</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[TEN]</td>
+                            </tr>
+                            <tr bgcolor=#FCF3CF>
+                                <td style="width:80px; min-width:80px; padding:2px;">HECTA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[HECTA]</td>
+                            </tr>
+                            <tr bgcolor=#D4AC0D>
+                                <td style="width:80px; min-width:80px; padding:2px;">AS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[AS]</td>
+                            </tr>
+                            <tr bgcolor=#FCF3CF>
+                                <td style="width:80px; min-width:80px; padding:2px;">CS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CS]</td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </text>
+        </BalloonStyle>
+        <LineStyle>
+            <color>FF0DACD4</color>
+            <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+            <fill>0</fill>
+        </PolyStyle>
+    </Style>
+    <Style id="StyleCC1">
+        <BalloonStyle>
+            <bgColor>FFA67428</bgColor>
+            <text>
+                <![CDATA[
+                    <div style="text-align:center; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                        <h2 style="margin:0;text-align:center;">$[displayName]</h2>
+                        </br>
+                        <table style=''font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:1px''>
+                            <tr bgcolor=#AED6F1>
+                                <td style="width:80px; min-width:80px; padding:2px;">NOMENCLA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[NOMENCLA]</td>
+                            </tr>
+                            <tr bgcolor=#3498DB>
+                                <td style="width:80px; min-width:80px; padding:2px;">PARTIDA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[PARTIDA]</td>
+                            </tr>
+                            <tr bgcolor=#AED6F1>
+                                <td style="width:80px; min-width:80px; padding:2px;">REGISTRADO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[REGISTRADO]</td>
+                            </tr>
+                            <tr bgcolor=#3498DB>
+                                <td style="width:80px; min-width:80px; padding:2px;">CC</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CC]</td>
+                            </tr>
+                            <tr bgcolor=#AED6F1>
+                                <td style="width:80px; min-width:80px; padding:2px;">APELLIDO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[APELLIDO]</td>
+                            </tr>
+                            <tr bgcolor=#3498DB>
+                                <td style="width:80px; min-width:80px; padding:2px;">TEN</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[TEN]</td>
+                            </tr>
+                            <tr bgcolor=#AED6F1>
+                                <td style="width:80px; min-width:80px; padding:2px;">HECTA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[HECTA]</td>
+                            </tr>
+                            <tr bgcolor=#3498DB>
+                                <td style="width:80px; min-width:80px; padding:2px;">AS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[AS]</td>
+                            </tr>
+                            <tr bgcolor=#AED6F1>
+                                <td style="width:80px; min-width:80px; padding:2px;">CS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CS]</td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </text>
+        </BalloonStyle>
+        <LineStyle>
+            <color>FFDB9834</color>
+            <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+            <fill>0</fill>
+        </PolyStyle>
+    </Style>
+    <Style id="StyleCC2">
+        <BalloonStyle>
+            <bgColor>FF2E3AB0</bgColor>
+            <text>
+                <![CDATA[
+                    <div style="text-align:center; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                        <h2 style="margin:0;text-align:center;">$[displayName]</h2>
+                        </br>
+                        <table style=''font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:1px''>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">NOMENCLA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[NOMENCLA]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">PARTIDA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[PARTIDA]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">REGISTRADO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[REGISTRADO]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">CC</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CC]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">APELLIDO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[APELLIDO]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">TEN</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[TEN]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">HECTA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[HECTA]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">AS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[AS]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">CS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CS]</td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </text>
+        </BalloonStyle>
+        <LineStyle>
+            <color>FF3C4CE7</color>
+            <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+            <fill>0</fill>
+        </PolyStyle>
+    </Style>
+    <Style id="StyleCC3">
+        <BalloonStyle>
+            <bgColor>FF48831D</bgColor>
+            <text>
+                <![CDATA[
+                    <div style="text-align:center; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                        <h2 style="margin:0;text-align:center;">$[displayName]</h2>
+                        </br>
+                        <table style=''font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:1px''>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">NOMENCLA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[NOMENCLA]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">PARTIDA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[PARTIDA]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">REGISTRADO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[REGISTRADO]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">CC</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CC]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">APELLIDO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[APELLIDO]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">TEN</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[TEN]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">HECTA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[HECTA]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">AS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[AS]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">CS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CS]</td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </text>
+        </BalloonStyle>
+        <LineStyle>
+            <color>FF63B428</color>
+            <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+            <fill>0</fill>
+        </PolyStyle>
+    </Style>
+    <Style id="StyleCC4">
+        <BalloonStyle>
+            <bgColor>FF48831D</bgColor>
+            <text>
+                <![CDATA[
+                    <div style="text-align:center; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                        <h2 style="margin:0;text-align:center;">$[displayName]</h2>
+                        </br>
+                        <table style=''font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:1px''>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">NOMENCLA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[NOMENCLA]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">PARTIDA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[PARTIDA]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">REGISTRADO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[REGISTRADO]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">CC</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CC]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">APELLIDO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[APELLIDO]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">TEN</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[TEN]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">HECTA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[HECTA]</td>
+                            </tr>
+                            <tr bgcolor=#28B463>
+                                <td style="width:80px; min-width:80px; padding:2px;">AS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[AS]</td>
+                            </tr>
+                            <tr bgcolor=#D5F5E3>
+                                <td style="width:80px; min-width:80px; padding:2px;">CS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CS]</td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </text>
+        </BalloonStyle>
+        <LineStyle>
+            <color>FF63B428</color>
+            <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+            <fill>0</fill>
+        </PolyStyle>
+    </Style>
+    <Style id="StyleCC5">
+        <BalloonStyle>
+            <bgColor>FF2E3AB0</bgColor>
+            <text>
+                <![CDATA[
+                    <div style="text-align:center; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                        <h2 style="margin:0;text-align:center;">$[displayName]</h2>
+                        </br>
+                        <table style=''font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:1px''>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">NOMENCLA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[NOMENCLA]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">PARTIDA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[PARTIDA]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">REGISTRADO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[REGISTRADO]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">CC</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CC]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">APELLIDO</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[APELLIDO]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">TEN</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[TEN]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">HECTA</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[HECTA]</td>
+                            </tr>
+                            <tr bgcolor=#E74C3C>
+                                <td style="width:80px; min-width:80px; padding:2px;">AS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[AS]</td>
+                            </tr>
+                            <tr bgcolor=#F5B7B1>
+                                <td style="width:80px; min-width:80px; padding:2px;">CS</td>	
+                                <td style="width:200px; min-width:200px; padding:2px;">$[CS]</td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </text>
+        </BalloonStyle>
+        <LineStyle>
+            <color>FF3C4CE7</color>
+            <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+            <fill>0</fill>
+        </PolyStyle>
+    </Style>
+    <ContentPlaceholder>
+    </Document>
+</kml>
+    
