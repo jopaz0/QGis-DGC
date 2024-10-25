@@ -54,9 +54,11 @@ def Abrir(regs):
                         os.startfile(os.path.join(path, file))
                         encontrado = True
                 if not encontrado:
-                    iface.messageBar().pushMessage("Advertencia", f'No se encontro El PDF {reg}', level=Qgis.Warning)
+                    print(f'No encontre el registrado {reg[0:2]}.{reg[2:]}.pdf')
+                    #iface.messageBar().pushMessage("Advertencia", f'No se encontro El PDF {reg}', level=Qgis.Warning)
             else:
-                iface.messageBar().pushMessage("Advertencia", f'No se encontro la carpeta {path}', level=Qgis.Warning)
+                print(f'No encontre la carpeta {path}.')
+                #iface.messageBar().pushMessage("Advertencia", f'No se encontro la carpeta {path}', level=Qgis.Warning)
         except Exception as e:
             print(f'Error al abrir el registrado {reg}. ErrorMSG: {e}')
 abrir = Abrir
