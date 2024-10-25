@@ -640,7 +640,7 @@ def KML_ContentBuilder(input, nameBy, styleBy=False, tabs=1, showInTable=[], fol
             lines.append(input['CONTENT'])
         else:
             lines.append(KML_ContentBuilder(input['CONTENT'], nameBy, styleBy, tabs, showInTable))
-        lines.append[f'{(tabs)*'\t'}</Folder>']
+        lines.append(f'{(tabs)*'\t'}</Folder>')
         folder = '\n'.join(lines)
         return folder
 
