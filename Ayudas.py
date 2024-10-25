@@ -163,7 +163,7 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
                 filtros['CC'] = cc
             if mzna:
                 filtros['MZNA'] = str(mzna).upper()
-            expresion = ' AND '.join([f"{f}={filters[f]}" if isinstance(filters[f], (int, float)) else f"{f}='{filters[f]}'" for f in filters])
+            expresion = ' AND '.join([f"{f}={filtros[f]}" if isinstance(filtros[f], (int, float)) else f"{f}='{filtros[f]}'" for f in filtros])
             capa.selectByExpression(expresion)
             CANVAS_ZoomToSelectedFeatures(capa)
 
