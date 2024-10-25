@@ -338,22 +338,30 @@ RehacerRegs = GenerarShapeRegistrados
 rehacerregs = GenerarShapeRegistrados
 REHACERREGS = GenerarShapeRegistrados
 
-def InfoEjido(ejido):
+def InfoEjido(ejido=False):
     """
-    Imprime en consola la informacion existente sobre el ejido.
+    Imprime en consola la informacion existente sobre el ejido o los modulos.
 
     PARAMETROS
     ejido: numero entero o cadena de caracteres
         El numero del ejido a mostrar
     """
-    dicEjido = BuscarCapasUrbanas(ejido)
-    for key, value in dicEjido.items():
-        if not value:
-            print(f' > {key}: -')
-        elif type(value) is str and 'CAD-GIS' in value:
-            print(f' > {key}: ..\\{value.split('\\')[-2]}\{value.split('\\')[-1]}')
-        else:
-            print(f' > {key}: {value}')
+    if not ejido:
+        import Digitalizacion
+        import Sincronizacion
+        import Ayudas
+        help(Digitalizacion)
+        help(Sincronizacion)
+        help(Ayudas)
+    else:
+        dicEjido = BuscarCapasUrbanas(ejido)
+        for key, value in dicEjido.items():
+            if not value:
+                print(f' > {key}: -')
+            elif type(value) is str and 'CAD-GIS' in value:
+                print(f' > {key}: ..\\{value.split('\\')[-2]}\{value.split('\\')[-1]}')
+            else:
+                print(f' > {key}: {value}')
 info = InfoEjido
 Info = InfoEjido
 INFO = InfoEjido
