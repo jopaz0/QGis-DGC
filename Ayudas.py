@@ -2,8 +2,8 @@
 Modulo: Ayudas (23 Oct 2024)
 Funciones varias para agilizar o automatizar el trabajo diario en DGC.
 Funciones: 
- > ActualizarShapesPueblo / rehacermzsyregs
  > Abrir
+ > ActualizarShapesPueblo / rehacermzsyregs
  > CambiarEjido
  > GenerarBackupUrbanoCompleto / backup
  > GenerarBackupUrbanoLigero / backupligero
