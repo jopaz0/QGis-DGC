@@ -5,7 +5,20 @@ Funciones:
  > CompletarPartidas
  > CompletarTabla
  > GenerarEjidoSincronizado
+
 Tipee help(funcion) en la consola para mas informacion.
+
+Permite un flujo de trabajo acortado para pasar parcelas de expedientes a registrados. Lo que suelo hacer es:
+ (Voy a llamar # al numero del ejido donde se trabaja)
+ - Cambiar el mapa al pueblo crrespondiente, usando CAMBIAREJIDO(#)
+ - En Progress, descargo las 3 tablas del ejido. Dejo manzanas para lo ultimo y continuo mientras se descarga
+ - Selecciono las parcelas de expedientes (ya dibujadas) que hay que registrar
+ - Copio las parcelas a la capa de propietarios
+ - Con las parcelas seleccionadas y las tablas descargadas, completo las partidas usando COMPLETARPARTIDAS(#)
+ - Con las parcelas aun seleccionadas y las partidas completadas, completo el resto de la tabla usando COMPLETARTABLA(#)
+
+ Seleccionar todo el pueblo y usar COMPLETARPARTIDAS(#) y/o COMPLETARTABLA(#) tecnicamente funciona, pero puede llegar a demorar mucho y corromper los datos de las parcelas que usamos todos. Para esto, usar GENERAREJIDOSINCRONIZADO(#), hace el mismo trabajo pero carga en el mapa dos capas temporales que pueden ser controladas (las que no tienen informacion en DOCUMENTO Y APELLIDO no fueron sincronizadas, probablemente por estar dada de baja la partida)
+####################################################################################
 """
 from qgis.core import *
 from qgis.utils import *
