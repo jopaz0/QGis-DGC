@@ -775,7 +775,7 @@ def KML_TranslateGeometry(feature, tabs=2):
                     lines.append(f'{(tabs+4)*'\t'}<coordinates>')
                     lines.append(f'{(tabs+5)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in ring])}')
                     lines.append(f'{(tabs+4)*'\t'}</coordinates>')
-                    lines.append(f'{(tabs+3)*'\t'}<LinearRing>')
+                    lines.append(f'{(tabs+3)*'\t'}</LinearRing>')
                     lines.append(f'{(tabs+2)*'\t'}</innerBoundaryIs>')
             lines.append(f'{(tabs+1)*'\t'}</Polygon>')
     else:

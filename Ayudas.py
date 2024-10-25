@@ -302,9 +302,10 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     else:
         nombre = re.search(r'\d{3}', capa.source())
         if nombre:
-            rutaKml = f'{nombre.group()}-{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
+            nombre = f'{nombre.group()}-{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
         else:
-            rutaKml = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
+            nombre = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
+        rutaKml = os.path.join(PATH_GetDefaultSaveFolder(), nombre)
     carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
         contenido = plantilla.read()
