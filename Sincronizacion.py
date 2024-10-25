@@ -6,7 +6,6 @@ Funciones:
  > CompletarTabla
  > GenerarEjidoSincronizado
 
-Tipee help(funcion) en la consola para mas informacion.
 
 Permite un flujo de trabajo acortado para pasar parcelas de expedientes a registrados. Lo que suelo hacer es:
  (Voy a llamar # al numero del ejido donde se trabaja)
@@ -18,7 +17,9 @@ Permite un flujo de trabajo acortado para pasar parcelas de expedientes a regist
  - Con las parcelas aun seleccionadas y las partidas completadas, completo el resto de la tabla usando COMPLETARTABLA(#)
 
  Seleccionar todo el pueblo y usar COMPLETARPARTIDAS(#) y/o COMPLETARTABLA(#) tecnicamente funciona, pero puede llegar a demorar mucho y corromper los datos de las parcelas que usamos todos. Para esto, usar GENERAREJIDOSINCRONIZADO(#), hace el mismo trabajo pero carga en el mapa dos capas temporales que pueden ser controladas (las que no tienen informacion en DOCUMENTO Y APELLIDO no fueron sincronizadas, probablemente por estar dada de baja la partida)
-####################################################################################
+
+Tipee help(funcion) en la consola para mas informacion.
+#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
 """
 from qgis.core import *
 from qgis.utils import *

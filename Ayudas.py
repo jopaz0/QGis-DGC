@@ -9,9 +9,13 @@ Funciones:
  > GenerarRegistradosDesdeSeleccion / mzsdesdesel
  > GenerarManzanasDesdeSeleccion / regsdesdesel
  > InfoEjido / info
-Tipee help(funcion) en la consola para mas informacion.
 
-Fomentando la vagancia responsable desde 2017!
+Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
+
+Tipee help(funcion) en la consola para mas informacion.
+#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
+
+:v Fomentando la vagancia responsable desde 2020!
 """
 import os, zipfile
 import processing

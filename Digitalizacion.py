@@ -5,7 +5,19 @@ Funciones:
  > AsignarValorACampo / nomenclar
  > CortarOchava / ochava
  > NumerarParcelas / numerar
+
+
+Permite un flujo de trabajo acortado para dibujar las parcelas de los expedientes:
+ - Dibujo las parcelas originales, sin las ochavas en caso de que me sea mas siemple (generalmente lo es)
+ - Uso OCHAVA() y voy tocando las esquinas donde quiero generarlas. 
+   - Si quiero una ochava de mas o menos que 4 metros, uso OCHAVA(#), con # siendo la distancia en metros.
+ - Selecciono las parcelas y uso NOMENCLAR('25-1-A-32-') para llenar la parte de la nomenclatura q todas comparten.
+   - Si quiero completar otro campo, por ejemplo a PROF ponerle GARCIA, uso NOMENCLAR('GARCIA','PROF')
+ - Uso NUMERAR(), lo que me permite trazar una multilinea. La hago cruzando las parcelas en el orden en que se numeran, y presiono Enter.
+   - Si la primera parcela de la serie tiene un numero distinto de uno, pongamosle 5, usaria NUMERAR(5)
+   
 Tipee help(funcion) en la consola para mas informacion.
+#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
 """
 from qgis.core import *
 from qgis.utils import *
