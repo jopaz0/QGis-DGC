@@ -6,8 +6,9 @@ Funciones:
  > ActualizarShapesPueblo / rehacermzsyregs
  > CambiarEjido
  > GenerarBackupUrbanoCompleto / backup
- > GenerarRegistradosDesdeSeleccion / mzsdesdesel
+ > GenerarKMZDesdeSeleccion / kmzdesdesel
  > GenerarManzanasDesdeSeleccion / regsdesdesel
+ > GenerarRegistradosDesdeSeleccion / mzsdesdesel
  > InfoEjido / info
 
 Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
@@ -279,20 +280,36 @@ regsdesdesel = GenerarRegistradosDesdeSeleccion
 REGSDESDESEL = GenerarRegistradosDesdeSeleccion
 
 def GenerarKMZDesdeSeleccion(ubicacion=False):
-    kml = PATH_GetFileFromWeb('KMLBaseDGC.kml')
-    ubicacion = ubicacion if ubicacion else PATH_GetDefaultSaveFolder()
+    """
+    Genera un archivo KMZ a partir de las características seleccionadas en la capa activa de QGIS.
+
+    Esta función crea un archivo KMZ que contiene datos KML derivados de las características seleccionadas en la capa activa de QGIS. Utiliza un archivo KML de plantilla, reemplaza un marcador de posición con el contenido KML real y guarda el archivo KML modificado en una ubicación especificada antes de comprimirlo en un archivo KMZ.
+
+    PARAMETROS
+    ubicacion: str, opcional
+        La ruta donde se guardará el archivo KMZ. Si no se proporciona, se establece de forma predeterminada en la carpeta Documentos/Borrar del usuario, con un timestamp añadido al nombre de la plantilla.
+
+    Devuelve:
+        str: La ruta al archivo KMZ generado.
+    """
+    nombrePlantilla = 'KMLBaseDGC'
+    archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
+    ubicacion = ubicacion if ubicacion else os.path.join(PATH_GetDefaultSaveFolder(), f'{nombrePlantilla}-{STR_GetTimestamp()}.kml')
     capa = iface.activeLayer()
-    carpetas = KML_ContentBuilder(capa, 'NOMENCLA', styleBy='CC', tabs=1, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
-    with open(kml, 'r+', encoding='utf-8') as file:
-        contenido = file.read()
+    carpetas = KML_ContentBuilder({'NAME':f'{capa.name()}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=1, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
+        contenido = plantilla.read()
         contenido = contenido.replace('<ContentPlaceholder>', carpetas)
-        file.seek(0)
-        file.write(contenido)
-        file.truncate()
-    kmz = KML_ToKMZ(kml)
-    CANVAS_AddLayer(kml)
+        plantilla.seek(0)
+        plantilla.write(contenido)
+        plantilla.truncate()
+    with open(ubicacion, 'w', encoding='utf-8') as kmz:
+        kmz.write(contenido)
+    #CANVAS_AddLayer(PathToLayer(kml))
+    kmz = KML_ToKMZ(ubicacion)
     return kmz
-    
+kmzdesdesel = GenerarKMZDesdeSeleccion
+KMZDESDESEL = GenerarKMZDesdeSeleccion
 
 def InfoEjido(ejido=False):
     """
