@@ -200,7 +200,7 @@ def GenerarBackupCompleto():
     backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)
-    zipFile = os.path.join(backup_dir, 'BACKUP GEODESIA ' + STR_GetTimestamp() + '.zip')
+    zipFile = os.path.join(backup_dir, 'BACKUP PUEBLOS COMPLETO ' + STR_GetTimestamp() + '.zip')
     with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
         for file in files:
             package.write(file, file) 
@@ -239,7 +239,7 @@ def GenerarBackupLigero():
     backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
     if not os.path.exists(backup_dir):
         os.makedirs(backup_dir)
-    zipFile = os.path.join(backup_dir, 'BACKUP GEODESIA ' + STR_GetTimestamp() + '.zip')
+    zipFile = os.path.join(backup_dir, 'BACKUP PUEBLOS LIGERO ' + STR_GetTimestamp() + '.zip')
     with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
         for file in files:
             if file:
