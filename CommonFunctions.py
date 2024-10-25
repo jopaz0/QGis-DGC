@@ -235,7 +235,7 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}, forceCRS=False):
         if not layerPath:
             try:
                 for layer in layers:
-                    layer.setDataSource(layerPath, '', 'ogr')
+                    layer.setDataSource('', layerName, 'ogr')
             except:
                 pass
             print (f'No layer for {layerName} was found in file system.')
