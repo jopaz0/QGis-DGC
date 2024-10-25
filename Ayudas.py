@@ -6,7 +6,6 @@ Funciones:
  > ActualizarShapesPueblo / rehacermzsyregs
  > CambiarEjido
  > GenerarBackupUrbanoCompleto / backup
- > GenerarBackupUrbanoLigero / backupligero
  > GenerarRegistradosDesdeSeleccion / mzsdesdesel
  > GenerarManzanasDesdeSeleccion / regsdesdesel
  > InfoEjido / info
