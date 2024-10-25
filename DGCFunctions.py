@@ -122,7 +122,7 @@ def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLien
             CANVAS_AddLayer(capa)
         return capa
     except Exception as e:
-        print(f'Error al generar las manzanas del ejido {ejido}. ErrorMSG: {e}')
+        print(f'Error al generar las manzanas para {capa.name()}. ErrorMSG: {e}')
         return False
 RehacerMzs = GenerarShapeManzanas
 rehacermzs = GenerarShapeManzanas
@@ -172,7 +172,7 @@ def GenerarShapeRegistrados(capas, nombre=False, distanciaBuffer=0.05, agregarAl
             CANVAS_AddLayer(capa)
         return capa
     except Exception as e:
-        print(f'Error al generar los registrados del ejido {ejido}. ErrorMSG: {e}')
+        print(f'Error al generar los registrados para {capa.name()}. ErrorMSG: {e}')
         return FalsE
 RehacerRegs = GenerarShapeRegistrados
 rehacerregs = GenerarShapeRegistrados
