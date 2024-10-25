@@ -106,10 +106,12 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
         except Exception as e:
             print(f'No pude eliminar {capa}. ErrorMSG: {e}')
     try:
-        QgsVectorFileWriter.writeAsVectorFormat(manzanas, os.path.join(carpeta, f'{manzanas.name()}.shp'), 'utf-8', driverName='ESRI Shapefile')
-        QgsVectorFileWriter.writeAsVectorFormat(registrados, os.path.join(carpeta, f'{registrados.name()}.shp'), 'utf-8', driverName='ESRI Shapefile')
-        DicEjidos[int(ejido)]['MANZANAS'] = manzanas.source()
-        DicEjidos[int(ejido)]['REGISTRADOS'] = registrados.source()
+        archivoManzanas = os.path.join(carpeta, f'{manzanas.name()}.shp')
+        QgsVectorFileWriter.writeAsVectorFormat(manzanas, archivoManzanas, 'utf-8', driverName='ESRI Shapefile')
+        archivoRegistrados = os.path.join(carpeta, f'{registrados.name()}.shp')
+        QgsVectorFileWriter.writeAsVectorFormat(registrados, archivoRegistrados, 'utf-8', driverName='ESRI Shapefile')
+        DicEjidos[int(ejido)]['MANZANAS'] = archivoManzanas
+        DicEjidos[int(ejido)]['REGISTRADOS'] = archivoRegistrados
     except:
         print(f'No pude guardar la capa {capa.name()}. ErrorMSG: {e}')
 RehacerMzsYRegs = ActualizarShapesPueblo
