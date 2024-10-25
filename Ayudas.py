@@ -120,7 +120,7 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
     """
     try:
         dicEjido = BuscarCapasUrbanas(ejido)
-        if not dicEjido['ENCARGADO'] or dicEjido['ENCARGADO']=='-':
+        if not dicEjido['RESPONSABLE'] or dicEjido['RESPONSABLE']=='-':
             print(f'El ejido {ejido} no existe o no esta activo.')
             return
         crs = QgsCoordinateReferenceSystem(dicEjido['EPSG'])
