@@ -220,46 +220,6 @@ Backup = GenerarBackupUrbanoCompleto
 backup = GenerarBackupUrbanoCompleto
 BACKUP = GenerarBackupUrbanoCompleto
 
-def GenerarBackupUrbanoLigero():
-    """
-    Realiza una copia de seguridad de los shapefiles leidos por DicEjidos, de cada ejido.
-
-    PARAMETROS
-    Ninguno
-
-    COMENTARIOS
-    - La función lee los shapefiles contenidos en la global Dic Ejidos. Deja fuera versiones duplicadas y archivos no necesarios en las caprpetas. Para corroborar, consultar CompletarDicEjidos en DGCFunctions.
-    - Crea un archivo zip en el directorio de documentos del usuario, que contiene los archivos encontrados en las carpetas que cumplen con el criterio especificado.
-    - No genera backup de parcelas rurales.
-
-    RETORNO
-    Nada
-    """
-    global DicEjidos
-    files = []
-    for _, val in DicEjidos.items():
-        files += val['PROPIETARIOS']
-        files += val['POSEEDORES']
-        files += val['EXPEDIENTES']
-        files += val['MANZANAS']
-        files += val['RADIOS']
-        files += val['CIRCUNSCRIPCIONES']
-        files += val['CALLES']
-        files += val['MEDIDAS-REG']
-        files += val['MEDIDAS-TITULOS']
-        files += val['REGISTRADOS']
-    backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
-    zipFile = os.path.join(backup_dir, 'BACKUP PUEBLOS LIGERO ' + STR_GetTimestamp() + '.zip')
-    with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
-        for file in files:
-            if file:
-                package.write(file, os.path.relpath(file, start=backup_dir)) 
-BackupLigero = GenerarBackupUrbanoLigero
-backupligero = GenerarBackupUrbanoLigero
-BACKUPLIGERO = GenerarBackupUrbanoLigero
-
 def GenerarManzanasDesdeSeleccion():
     """
     Genera un shapefile de manzanas parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
