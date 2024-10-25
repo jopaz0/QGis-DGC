@@ -134,7 +134,7 @@ def GenerarShapeRegistrados(capas, nombre=False, distanciaBuffer=0.05, agregarAl
     Genera un shape de Registrados de la capa indicada.
 
     PARAMETROS
-    capas: lista
+    capas: lista de QgsVectorLayer
         las capas a ser disueltas
     nombre: cadena de caracteres
         Nombre base de la capa de salida, a la cual se le agrega un sufijo.

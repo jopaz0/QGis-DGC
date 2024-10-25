@@ -846,6 +846,8 @@ def PathToLayer(path, name=False, delimiter=';'):
     QgsVectorLayer if the file is successfully converted and added to QGIS.
     False if an error occurs or the file format is not supported.
     """
+    if not path:
+        return False
     try:
         layerName = name if name else path.split('\\')[-1].split('.')[0]
         ext = os.path.splitext(path)[1]

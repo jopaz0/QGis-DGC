@@ -85,9 +85,17 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
     """
     global DicEjidos
     ejido = int(ejido)
-    capas = BuscarCapasUrbanas(ejido)
-    manzanas = GenerarShapeManzanas(capas['PROPIETARIOS'], STR_FillWithChars(ejido, 3),distanciaBuffer, agregarAlLienzo)
-    registrados = GenerarShapeRegistrados([capas['PROPIETARIOS'], capas['POSEEDORES']], STR_FillWithChars(ejido, 3), distanciaBuffer, agregarAlLienzo)
+    capas = BuscarCapasUrbanas(ejido) 
+    manzanas = GenerarShapeManzanas(PathToLayer(capas['PROPIETARIOS']), 
+                                    STR_FillWithChars(ejido, 3),
+                                    distanciaBuffer, 
+                                    agregarAlLienzo)
+    registrados = GenerarShapeRegistrados([PathToLayer(capas['PROPIETARIOS']), 
+                                           PathToLayer(capas['POSEEDORES'])
+                                           ], 
+                                          STR_FillWithChars(ejido, 3), 
+                                          distanciaBuffer, 
+                                          agregarAlLienzo)
     if not sustituirCapas:
         return
     carpeta = os.path.dirname(capas['MANZANAS'])
