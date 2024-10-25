@@ -225,14 +225,14 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}, forceCRS=False):
     None
     """
     layers = []
+    if not layerPath:
+        try:
+            layer.setDataSource(layerPath, '', 'ogr')
+        except:
+            pass
+        print (f'No layer for {layerName} was found in file system.')
+        return False
     try:
-        if not layerPath:
-            try:
-                layer.setDataSource(layerPath, '', 'ogr')
-            except:
-                pass
-            print (f'No layer for {layerName} was found in file system.')
-            return False
         for layer in QgsProject.instance().mapLayers().values():
             if layerName.upper() in layer.name().upper():
                 layers.append(layer)
@@ -256,7 +256,7 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}, forceCRS=False):
                 print(f'Warning, layer {layer.name()} was set to WGS84.')
         return True
     except Exception as e:
-        print (f'Error while changing datsource on layer {layerName}. ErrorMSG: {e}')
+        print (f'Error while changing datsource on layer {layerName} to {layerPath}. ErrorMSG: {e}')
         return False
 
 def CANVAS_ZoomToSelectedFeatures(layer):
