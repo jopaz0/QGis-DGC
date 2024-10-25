@@ -85,7 +85,10 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
     """
     global DicEjidos
     ejido = int(ejido)
-    capas = BuscarCapasUrbanas(ejido) 
+    capas = BuscarCapasUrbanas(ejido)
+    if not capas['PROPIETARIOS']:
+        print(f'No encontre los propietarios del ejido {ejido}')
+        return
     manzanas = GenerarShapeManzanas(PathToLayer(capas['PROPIETARIOS']), 
                                     STR_FillWithChars(ejido, 3),
                                     distanciaBuffer, 
@@ -107,8 +110,8 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
             print(f'No pude eliminar {capa}. ErrorMSG: {e}')
     try:
         archivoManzanas = os.path.join(carpeta, f'{manzanas.name()}.shp')
-        QgsVectorFileWriter.writeAsVectorFormat(manzanas, archivoManzanas, 'utf-8', driverName='ESRI Shapefile')
         archivoRegistrados = os.path.join(carpeta, f'{registrados.name()}.shp')
+        QgsVectorFileWriter.writeAsVectorFormat(manzanas, archivoManzanas, 'utf-8', driverName='ESRI Shapefile')
         QgsVectorFileWriter.writeAsVectorFormat(registrados, archivoRegistrados, 'utf-8', driverName='ESRI Shapefile')
         DicEjidos[int(ejido)]['MANZANAS'] = archivoManzanas
         DicEjidos[int(ejido)]['REGISTRADOS'] = archivoRegistrados
