@@ -538,11 +538,255 @@ def DICT_SetKey(dictList, keyField):
             result[value] = [entry]
     return result
 
+def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
+    """
+    Recursively extracts the points from a polygon or multipolygon geometry, preserving the ring structure.
+
+    PARAMETERS
+    geometry: QgsGeometry
+        The input polygon or multipolygon geometry.
+    tolerance: float
+        The minimum distance between points to be considered distinct.
+
+    RETURNS
+    QgsGeometry
+        A geometry matching the input with duplicate points removed.
+    """
+    try:
+        cleaned_geometries = []
+
+        if geometry.isMultipart():
+            for part in geometry.asMultiPolygon():
+                cleaned_polygon = GEOM_DeleteDuplicatePoints(QgsGeometry.fromPolygonXY(part), tolerance)
+                cleaned_geometries.append(cleaned_polygon)
+            return QgsGeometry.fromMultiPolygonXY([polygon.asPolygon() for polygon in cleaned_geometries])
+        else:
+            rings = geometry.asPolygon()
+            cleaned_rings = []
+            for ring in rings:
+                clean_points = []
+                last_point = None
+                for point in ring:
+                    if last_point is None or QgsPointXY(last_point).distance(QgsPointXY(point)) > tolerance:
+                        clean_points.append(QgsPointXY(point))
+                    last_point = QgsPointXY(point)
+                cleaned_rings.append(clean_points)
+            return QgsGeometry.fromPolygonXY(cleaned_rings)
+    except Exception as e:
+        print(f'Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints. ErrorMSG: {e}')
+        return geometry
+
+def GEOM_ToMultiXY(geom):
+    """
+    Converts a QgsGeometry object into its XY coordinates based on geometry type.
+
+    PARAMETERS
+    geom: QgsGeometry
+        The geometry to be converted.
+
+    RETURNS
+    - If the geometry is empty or unsupported, returns None.
+    - For Point geometries, returns QgsPointXY.
+    - For Line geometries, returns a list of QgsPointXY (either asPolyline() or asMultiPolyline()).
+    - For Polygon geometries, returns a list of lists of QgsPointXY (either asPolygon() or asMultiPolygon()).
+    """
+    if geom.isEmpty():
+        return None
+    if geom.type() == QgsWkbTypes.PointGeometry:
+        return [geom.asPoint()]
+    elif geom.type() == QgsWkbTypes.LineGeometry:
+        if geom.isMultipart():
+            return geom.asMultiPolyline()
+        else:
+            return [geom.asPolyline()]
+    elif geom.type() == QgsWkbTypes.PolygonGeometry:
+        if geom.isMultipart():
+            return geom.asMultiPolygon()
+        else:
+            return [geom.asPolygon()]
+    else:
+        return None
+
+def KML_ContentBuilder(input, nameBy, styleBy=False, tabs=1, showInTable=[], folderName=False):
+    """
+    Builds KML content from various input types, including dictionaries, lists, QgsVectorLayer, and QgsFeature.
+
+    PARAMETERS
+    input: dict | list | QgsVectorLayer | QgsFeature
+        The input data from which KML content is generated. Can be a dictionary, list of entities, 
+        a vector layer, or a single feature.
+    nameBy: str
+        The attribute by which to name the KML elements.
+    styleBy: bool | optional
+        Indicates whether to apply styling to the KML elements (default is False).
+    tabs: int
+        The number of tab characters to prepend to each line for formatting (default is 1).
+    showInTable: list
+        A list of attributes to be shown in a table format (default is an empty list).
+    folderName: str | optional
+        The name of the folder to be created in the KML (default is the layer name if a layer is provided).
+
+    RETURNS
+    str
+        A string representing the KML content generated from the input.
+    """
+    if type(input) == dict:
+        lines = [f'{(tabs)*'\t'}<Folder>']
+        lines.append(f'{(tabs+1)*'\t'}<name>{input['NAME']}</name>')
+        if type(input['CONTENT']) is str:
+            lines.append(input['CONTENT'])
+        else:
+            lines.append(KML_ContentBuilder(input['CONTENT'], nameBy, styleBy, tabs, showInTable))
+        folder = '\n'.join(lines)
+        return folder
+
+    #si es una lista, asumo que contiene las entidades a transformar. Devuelvo un texto con los placeholders concatenados
+    elif type(input) == list:
+        content = ''.join([KML_ContentBuilder(subfolder, nameBy, styleBy, tabs+1, showInTable) for subfolder in input])
+        return content
+    
+    elif type(input) == QgsVectorLayer:
+        layer = input
+        folderName = folderName if folderName else layer.name()
+        if layer.selectedFeatures():
+            layer = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(layer.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        else:
+            layer = processing.run('native:fixgeometries', {'INPUT':layer, 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        layer = processing.run('native:reprojectlayer', {'INPUT':layer, 'TARGET_CRS':QgsCoordinateReferenceSystem('EPSG:4326'), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+        features = list(layer.getFeatures())
+        return ''.join([KML_PlacemarkBuilder(feature, nameBy, styleBy, tabs+1, showInTable) for feature in features])
+    
+    #si es una entidad, simplemente la transformo a placeholder. Lo devuelvo como texto
+    elif type(input) == QgsFeature:
+        #hacer esta wea
+        return KML_PlacemarkBuilder(input, nameBy, styleBy, tabs+1, showInTable)
+    else:
+        print('Que chucha me pasaste?')
+    return
+
+def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[]):
+    """
+    Builds a KML Placemark string for the given QgsFeature.
+
+    PARAMETERS
+    feature: QgsFeature
+        The feature for which the KML Placemark is built.
+    nameBy: str
+        The field name used for the name of the Placemark.
+    styleBy: str, optional
+        The field name used to style the Placemark. Default is False.
+    tabs: int, optional
+        The number of tab characters to use for formatting the output. Default is 2.
+    showInTable: list, optional 
+        A list of field names to be included in the ExtendedData section. Default is an empty list.
+    
+    COMMENTS
+    - Reprojecting individually is really taxins. Its recommended to reproject the entire layer instead of this.
+
+    RETURNS
+    A formatted KML Placemark string with feature details and geometry.
+    """
+    featureFields = [f.name() for f in feature.fields()]
+    placemark = f"""{tabs*'\t'}<Placemark>
+{(tabs+1)*'\t'}<name>{feature[nameBy]}</name>
+{(tabs+1)*'\t'}<Snippet></Snippet>
+{(tabs+1)*'\t'}<textColor>#000000</textColor>
+{(tabs+1)*'\t'}<description></description>
+{(tabs+1)*'\t'}<styleUrl>#Style{styleBy}{feature[styleBy]}</styleUrl>
+{(tabs+1)*'\t'}<ExtendedData>
+{'\n'.join([f'{(tabs+2)*'\t'}<Data name="{field}"><value>{feature[field]}</value></Data>' for field in showInTable if field in featureFields])}
+{(tabs+1)*'\t'}</ExtendedData>
+{KML_TranslateGeometry(feature, tabs+1)}
+{tabs*'\t'}</Placemark>
+"""
+    return placemark
+
+def KML_ToKMZ(kmlPath):
+    """
+    Converts a KML file to a KMZ file by compressing it into a zip format.
+
+    PARAMETERS
+    kmlPath: str
+        The file path of the KML file to be converted.
+
+    RETURNS
+    str | bool
+        The file path of the created KMZ file if successful, or False if an error occurs.
+    """
+    kmzPath = kmlPath[:-1] + 'z'
+    resources = 'L:\\Geodesia\\Varios\\Opazo\\Weas Operativas\\'
+    #legendName = 'Leyenda Transparente 1600x1100.png'
+    #legendPath = os.path.join(resources, legendName)
+    try:
+        compression = zipfile.ZIP_DEFLATED
+        with zipfile.ZipFile(kmzPath, 'w') as kmz:
+            kmz.write(kmlPath,kmlPath,compress_type=compression)
+            #kmz.write(legendPath, legendName, compress_type=compression)
+        os.remove(kmlPath)
+        return kmzPath
+    except Exception as e:
+        #print(f'Error al cargar {legendName} al KMZ. Error: {e}')
+        return False
+
+def KML_TranslateGeometry(feature, tabs=2):
+    """
+    Translates a QgsFeature's geometry into KML format, handling polygons and multipolygons.
+
+    PARAMETERS
+    feature: QgsFeature
+        The input feature containing the geometry to be translated.
+    tabs: int
+        The number of tab characters to prepend to each line for formatting.
+
+    COMMENTS
+    Input feature's layer must be reprojected to WGS84 before attempting to translate, otherwise this will return useless coordinates
+    
+    RETURNS
+    str
+        A string representing the KML-formatted geometry.
+    """
+    lines = [f'{(tabs)*'\t'}<MultiGeometry>']
+    geom = feature.geometry()
+    if geom.isEmpty():
+        pass
+    elif geom.type() == QgsWkbTypes.PolygonGeometry:
+        geoms = GEOM_ToMultiXY(geom)
+        #esto esta medio raro, lo pongo en otro formato que, al menos ahora, me deja entender mejor. veremos en unos meses
+        #cada geometria viene como lista de listas. la primera son los poligonos individuales del multipoligono. la segunda son los anillos del poligono
+        for polygon in geoms:
+            lines.append(f'{(tabs+1)*'\t'}<Polygon>')
+            lines.append(  f'{(tabs+2)*'\t'}<outerBoundaryIs>')
+            lines.append(      f'{(tabs+3)*'\t'}<coordinates>')
+            #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
+            lines.append(          f'{(tabs+4)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in polygon[0]])}')
+            lines.append(      f'{(tabs+3)*'\t'}</coordinates>')
+            lines.append(  f'{(tabs+2)*'\t'}</outerBoundaryIs>')
+            if len(polygon)>1:
+                for ring in polygon[1:]:
+                    lines.append(  f'{(tabs+2)*'\t'}<innerBoundaryIs>')
+                    lines.append(      f'{(tabs+3)*'\t'}<coordinates>')
+                    #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
+                    lines.append(          f'{(tabs+4)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in ring])}')
+                    lines.append(      f'{(tabs+3)*'\t'}</coordinates>')
+                    lines.append(  f'{(tabs+2)*'\t'}</innerBoundaryIs>')
+            lines.append(f'{(tabs+1)*'\t'}</Polygon>')
+    else:
+        #Tengo que adaptar aca el codigo. como no hace a la funcionalidad de catastro, por ahora lo dejo asi
+        lines.append(f'{(tabs+1)*'\t'}Me llego una geometria que no era de poligonos...')
+    lines.append(f'{(tabs)*'\t'}</MultiGeometry>')
+    descriptor = '\n'.join(lines)
+    return descriptor
+
+def PATH_GetDefaultSaveFolder():
+    path = os.path.join(Path.home(), 'Documents','BORRAR')
+    os.makedirs(path, exist_ok=True)
+    return path
+
 def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
     """
     Navigates a folder following the given filters, returns any file matching the last filter and the given extension.
 
-    PARAMETROS
+    PARAMETERS
     rootFolder: String 
         Self explanatory
     filters: List
@@ -609,44 +853,6 @@ def PATH_GetFileFromWeb(filename, urlRoot=f'https://raw.githubusercontent.com/jo
     except Exception as e:
         print(f"Error al descargar {filename}: {e}")
         return False
-
-def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
-    """
-    Recursively extracts the points from a polygon or multipolygon geometry, preserving the ring structure.
-
-    PARAMETERS
-    geometry: QgsGeometry
-        The input polygon or multipolygon geometry.
-    tolerance: float
-        The minimum distance between points to be considered distinct.
-
-    RETURNS
-    QgsGeometry
-        A geometry matching the input with duplicate points removed.
-    """
-    try:
-        cleaned_geometries = []
-
-        if geometry.isMultipart():
-            for part in geometry.asMultiPolygon():
-                cleaned_polygon = GEOM_DeleteDuplicatePoints(QgsGeometry.fromPolygonXY(part), tolerance)
-                cleaned_geometries.append(cleaned_polygon)
-            return QgsGeometry.fromMultiPolygonXY([polygon.asPolygon() for polygon in cleaned_geometries])
-        else:
-            rings = geometry.asPolygon()
-            cleaned_rings = []
-            for ring in rings:
-                clean_points = []
-                last_point = None
-                for point in ring:
-                    if last_point is None or QgsPointXY(last_point).distance(QgsPointXY(point)) > tolerance:
-                        clean_points.append(QgsPointXY(point))
-                    last_point = QgsPointXY(point)
-                cleaned_rings.append(clean_points)
-            return QgsGeometry.fromPolygonXY(cleaned_rings)
-    except Exception as e:
-        print(f'Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints. ErrorMSG: {e}')
-        return geometry
 
 def STR_FillWithChars(string, width, char='0', insertAtStart=True):
     """
@@ -827,6 +1033,8 @@ def STR_IntToRoman(num):
             total += currentValue
         prevValue = currentValue
     return total
+
+#Como clasifico esto? por ahora queda asi
 
 def PathToLayer(path, name=False, delimiter=';'):
     """

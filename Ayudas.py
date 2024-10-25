@@ -278,6 +278,22 @@ def GenerarRegistradosDesdeSeleccion():
 regsdesdesel = GenerarRegistradosDesdeSeleccion
 REGSDESDESEL = GenerarRegistradosDesdeSeleccion
 
+def GenerarKMZDesdeSeleccion(ubicacion=False):
+    kml = PATH_GetFileFromWeb('KMLBaseDGC.kml')
+    ubicacion = ubicacion if ubicacion else PATH_GetDefaultSaveFolder()
+    capa = iface.activeLayer()
+    carpetas = KML_ContentBuilder(capa, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    with open(kml, 'r+', encoding='utf-8') as file:
+        contenido = file.read()
+        contenido = contenido.replace('<ContentPlaceholder>', carpetas)
+        file.seek(0)
+        file.write(contenido)
+        file.truncate()
+    kmz = KML_ToKMZ(kml)
+    CANVAS_AddLayer(kml)
+    return kmz
+    
+
 def InfoEjido(ejido=False):
     """
     Imprime en consola la informacion existente sobre el ejido o los modulos.
