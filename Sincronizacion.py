@@ -1,12 +1,27 @@
 """
-Modulo: Sincronizacion (10 Oct 2024)
+Modulo: Sincronizacion (25 Oct 2024)
 Funciones destinadas a sincronizar las tablas de parcelas (urbanas, de momento) con informacion actualizada. Lee informacion desde los CSV/XLS descargados de Progress.
-Funciones: 
- > CompletarPartidas
- > CompletarTabla
- > GenerarEjidoSincronizado
+Funciones:
+ > CompletarPartidas(numero de ejido)
+- Recupera las partidas de las parcelas seleccionadas, en base a NOMENCLA. 
+- Requiere haber descargado los CSV del pueblo en Progress.
 
+ > CompletarTabla(numero de ejido)
+- Recupera los valores de todos los campos, en base a PARTIDA.
+- Requiere haber descargado los CSV del pueblo en Progress.
 
+ > GenerarEjidoSincronizado(numero de ejido)
+- Calcula y carga en el lienzo el resultado de sincronizar todas las parcelas de un ejido. 
+- Las parcelas cuya partida no figure en tabla conservan sus datos anteriores, excepto COD, APELLIDO y TEN. 
+- No tiene en cuenta parcelas que existan en la tabla pero no en los shapefiles.
+- Requiere haber descargado los CSV del pueblo en Progress. 
+
+Seleccionar todo el pueblo y usar COMPLETARPARTIDAS(#) y/o COMPLETARTABLA(#) tecnicamente funciona, pero puede llegar a demorar mucho y corromper los datos de las parcelas que usamos todos.
+
+Tipee help(funcion) en la consola para mas informacion.
+#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
+"""
+"""
 Permite un flujo de trabajo acortado para pasar parcelas de expedientes a registrados. Lo que suelo hacer es:
  (Voy a llamar # al numero del ejido donde se trabaja)
  - Cambiar el mapa al pueblo crrespondiente, usando CAMBIAREJIDO(#)
@@ -15,11 +30,6 @@ Permite un flujo de trabajo acortado para pasar parcelas de expedientes a regist
  - Copio las parcelas a la capa de propietarios
  - Con las parcelas seleccionadas y las tablas descargadas, completo las partidas usando COMPLETARPARTIDAS(#)
  - Con las parcelas aun seleccionadas y las partidas completadas, completo el resto de la tabla usando COMPLETARTABLA(#)
-
- Seleccionar todo el pueblo y usar COMPLETARPARTIDAS(#) y/o COMPLETARTABLA(#) tecnicamente funciona, pero puede llegar a demorar mucho y corromper los datos de las parcelas que usamos todos. Para esto, usar GENERAREJIDOSINCRONIZADO(#), hace el mismo trabajo pero carga en el mapa dos capas temporales que pueden ser controladas (las que no tienen informacion en DOCUMENTO Y APELLIDO no fueron sincronizadas, probablemente por estar dada de baja la partida)
-
-Tipee help(funcion) en la consola para mas informacion.
-#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
 """
 from qgis.core import *
 from qgis.utils import *

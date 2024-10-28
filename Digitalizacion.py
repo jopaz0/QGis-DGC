@@ -2,11 +2,24 @@
 Modulo: Digitalizacion (22 Oct 2024)
 Funciones destinadas a digitalizar parcelas.
 Funciones: 
- > AsignarValorACampo / nomenclar
- > CortarOchava / ochava
- > NumerarParcelas / numerar
+ > AsignarValorACampo(valor) / nomenclar(valor) / nomenclar(valor, campo)
+- Permite asignar rapidamente un valor en un campo a las parcelas seleccionadas. 
+- Por defecto lo asigna en NOMENCLA, pero puede indicarse un campo distinto como segundo parametro.
 
+ > CortarOchava() / ochava() / ochava(5)
+- Permite cortar rapidamente ochavas.
+- Por defecto toma puntos nuevos a 4 unidades (metros) de distancia hacia los vertices adyacentes al seleccionado, pero puede asignarse otra distancia como primer parametro.
 
+ > NumerarParcelas() / numerar() / numerar(50, 'PARCELA', False)
+- Permite numerar poligonos mediante una linea dibujada dinamicamente por el usuario. 
+- Por defecto comienza desde el 1, pero se le puede indicar otro numero inicial como primer parametro.   
+- Por defecto opera sobre el campo NOMENCLA, pero se le puede indicar otro campo como segundo parametro.
+- Por defecto concatena el numero al valor anterior del campo, pero puede indicarsele que reemplace valores como tercer parametro (usar False o 0).
+
+Tipee help(funcion) en la consola para mas informacion.
+#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
+"""
+"""
 Permite un flujo de trabajo acortado para dibujar las parcelas de los expedientes:
  - Dibujo las parcelas originales, sin las ochavas en caso de que me sea mas siemple (generalmente lo es)
  - Uso OCHAVA() y voy tocando las esquinas donde quiero generarlas. 
@@ -15,9 +28,6 @@ Permite un flujo de trabajo acortado para dibujar las parcelas de los expediente
    - Si quiero completar otro campo, por ejemplo a PROF ponerle GARCIA, uso NOMENCLAR('GARCIA','PROF')
  - Uso NUMERAR(), lo que me permite trazar una multilinea. La hago cruzando las parcelas en el orden en que se numeran, y presiono Enter.
    - Si la primera parcela de la serie tiene un numero distinto de uno, pongamosle 5, usaria NUMERAR(5)
-   
-Tipee help(funcion) en la consola para mas informacion.
-#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
 """
 from qgis.core import *
 from qgis.utils import *

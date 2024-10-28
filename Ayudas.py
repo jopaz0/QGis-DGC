@@ -1,17 +1,39 @@
 """
 Modulo: Ayudas (23 Oct 2024)
-Funciones varias para agilizar o automatizar el trabajo diario en DGC.
+Funciones varias para agilizar o automatizar el trabajo diario en DGC. Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
 Funciones: 
- > Abrir
- > ActualizarShapesPueblo / rehacermzsyregs
- > CambiarEjido
- > GenerarBackupUrbanoCompleto / backup
- > GenerarKMZDesdeSeleccion / kmzdesdesel
- > GenerarManzanasDesdeSeleccion / regsdesdesel
- > GenerarRegistradosDesdeSeleccion / mzsdesdesel
- > InfoEjido / info
+ > Abrir(registrado) / abrir(12345) / abrir('1234 25222 50789')
+- Abre los registrados solicitados.
+- Permite abrir un solo registrado o varios en una misma operacion
 
-Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
+ > ActualizarShapesPueblo(ejido) / rehacermzsyregs(ejido, 0.05, True, False)
+- Genera los shapes de Manzanas y Registrados de un ejido a partir de sus parcelas.
+- Por defecto elimina cuñas y anillos mediante buffers a 0.05 unidades (metros), pero se puede cambiar en el primer parametro.
+- Por defecto agrega las capas generadas al lienzo, pero puede indicarsele lo contrario asignando False al segundo parametro.
+- Por defecto reemplaza las capas de PUEBLOS CAD-GIS con las nuevas, pero puede indicarsele lo contrario asignando False al tercer parametro.
+
+ > CambiarEjido(ejido) / cambiarejido(47, 1, 'q', 3, 51) / 
+- Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca.
+- Requiere que las capas esten nombradas de la misma forma que la plantilla.
+- Los parametros siguientes al ejido son opcionales, permiten construir la nomenclatura de una manzana. El script enfoca al pueblo, luego intenta enfocar a la nomenclatura indicada; puede ser una manzana, radio, etc.
+- Por ejemplo, usar cambiarejido(47, 3, 'a') enfocaria al radio A de la circunscripcion III de Santa Rosa.
+
+ > GenerarBackupUrbanoCompleto() / backup()
+- Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
+- El archivo .rar generado queda guardado en la carpeta ../Mis Documentos/BACKUPS del usuario actual.
+
+ > GenerarKMZDesdeSeleccion() / kmzdesdesel()
+- Genera un archivo KMZ a partir de las parcelas seleccionadas en la capa activa de QGIS.
+- El archivo .rar generado queda guardado en la carpeta ../Mis Documentos/BORRAR del usuario actual.
+
+ > GenerarManzanasDesdeSeleccion() / regsdesdesel()
+- Genera un shapefile de manzanas parcial como archivo temporal a partir de las parcelas seleccionadas en la capa activa, y lo carga al lienzo.
+
+ > GenerarRegistradosDesdeSeleccion() / mzsdesdesel()
+- Genera un shapefile de registrados parcial como archivo temporal a partir de las parcelas seleccionadas en la capa activa, y lo carga al lienzo.
+
+ > InfoEjido / info
+- Imprime en consola la informacion existente sobre el ejido.
 
 Tipee help(funcion) en la consola para mas informacion.
 #################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
