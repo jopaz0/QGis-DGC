@@ -675,8 +675,10 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
     PARAMETERS
     feature: QgsFeature
         The feature for which the KML Placemark is built.
-    nameBy: str
+    nameBy: str or function reference
         The field name used for the name of the Placemark.
+        Is string received, it just uses the value of the field.
+        If a function is received, it uses it with the feature as parameter to calculate its name.
     styleBy: str, optional
         The field name used to style the Placemark. Default is False.
     tabs: int, optional
@@ -690,9 +692,13 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
     RETURNS
     A formatted KML Placemark string with feature details and geometry.
     """
+    if callable(nameBy):
+        featureName = nameBy(feature)
+    else:
+        featureName = feature[nameBy]
     featureFields = [f.name() for f in feature.fields()]
     lines = ["\t" * tabs + "<Placemark>"]
-    lines.append("\t" * (tabs+1) + f"<name>{feature[nameBy]}</name>")
+    lines.append("\t" * (tabs+1) + f"<name>{featureName}</name>")
     lines.append("\t" * (tabs+1) + f"<Snippet></Snippet>")
     lines.append("\t" * (tabs+1) + f"<textColor>#000000</textColor>>")
     lines.append("\t" * (tabs+1) + f"<description></description>")
@@ -1008,7 +1014,7 @@ def STR_RemoveStartingChars(string,char):
         string = string[1:]
     return string
 
-def STR_IntToRoman(num):
+def STR_RomanToInt(num):
     """
     Converts a Roman numeral string to its integer representation.
 

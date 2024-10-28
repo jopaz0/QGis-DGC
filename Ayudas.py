@@ -329,7 +329,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
         else:
             nombre = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
         rutaKml = os.path.join(PATH_GetDefaultSaveFolder(), nombre)
-    carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, 'NOMENCLA', styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclatura, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
         contenido = plantilla.read()
         contenido = contenido.replace('<ContentPlaceholder>', carpetas)

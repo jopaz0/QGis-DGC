@@ -61,6 +61,43 @@ def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     DicEjidos[n]['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'])
     return DicEjidos[n]
 
+def CalcularNomenclatura(parcela):
+    """
+    Reconstruye y formatea la nomenclatura de una parcela o manzana a partir de la informacion en sus campos.
+
+    PARAMETROS
+    parcela: QgsFeature
+        Representa el numero del ejido. Se rellenará con ceros a la izquierda hasta tener 3 caracteres.
+    
+    COMENTARIOS
+
+    RETORNOS
+    Una cadena de caracteres bien bonita representando la nomenclatura de la parcela o manzana.
+    """
+    campos = [f.name() for f in parcela.fields()]
+    nomenclatura = []
+    if 'SECCION' in campos:
+        nomenclatura.append(STR_IntToRoman(parcela['SECCION'], 3))
+        nomenclatura.append(parcela['FRACCION'].upper())
+        nomenclatura.append(parcela['LOTE'])
+        nomenclatura.append(parcela['PARCELA'])
+    elif 'EJIDO' in campos:
+        nomenclatura.append(STR_FillWithChars(parcela['EJIDO'], 3))
+        nomenclatura.append(STR_IntToRoman(parcela['CIRC']))
+        if parcela['CC'] == 1:
+            nomenclatura.append('Ch.' + parcela['MZNA'].upper())
+        elif parcela['CC'] in [2,5]:
+            nomenclatura.append(parcela['RADIO'].lower())
+            nomenclatura.append('Qta.' + parcela['MZNA'].upper())
+        elif parcela['CC'] in [3,4]:
+            nomenclatura.append(parcela['RADIO'].lower())
+            nomenclatura.append('Mz.' + parcela['MZNA'].upper())
+        nomenclatura.append(STR_IntToRoman(parcela['CIRC']))
+        if 'PARCELA' in campos:
+            nomenclatura.append(parcela['PARCELA'])
+    nomenclatura = '-'.join(nomenclatura)
+    return nomenclatura
+
 def CompletarDicEjidos(reescribirDicEjidos=False):
     """
     Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
