@@ -77,7 +77,7 @@ def CalcularNomenclatura(parcela):
     campos = [f.name() for f in parcela.fields()]
     nomenclatura = []
     if 'SECCION' in campos:
-        nomenclatura.append(STR_IntToRoman(parcela['SECCION'], 3))
+        nomenclatura.append(STR_IntToRoman(parcela['SECCION']))
         nomenclatura.append(parcela['FRACCION'].upper())
         nomenclatura.append(str(parcela['LOTE']))
         nomenclatura.append(str(parcela['PARCELA']))
