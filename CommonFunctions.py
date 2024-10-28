@@ -704,7 +704,7 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
     lines.append("\t" * (tabs+1) + f"<description></description>")
     lines.append("\t" * (tabs+1) + f"<styleUrl>#Style{styleBy}{feature[styleBy]}</styleUrl>")
     lines.append("\t" * (tabs+1) + f"<ExtendedData>")
-    lines.append("\t" * (tabs+1) + f"<Data name=\"displayName\"><value>{feature[nameBy]}</value></Data>")
+    lines.append("\t" * (tabs+1) + f"<Data name=\"displayName\"><value>{featureName}</value></Data>")
     for field in showInTable:
         if field in featureFields:
             lines.append("\t" * (tabs+2) + f"<Data name=\"{field}\"><value>{feature[field]}</value></Data>")

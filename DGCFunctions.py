@@ -149,7 +149,7 @@ def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLien
         return False
     try:
         nombre = nombre if nombre else capa.name()
-        camposAEliminar = [f.name() for f in capa.fields() if not f in ['EJIDO','CIRC','RADIO','CC','MZNA']]
+        camposAEliminar = [f.name() for f in capa.fields() if not f.name() in ['EJIDO','CIRC','RADIO','CC','MZNA']]
         capa = processing.run('native:fixgeometries', {'INPUT': capa, 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
         capa = processing.run('native:fieldcalculator', {'INPUT': capa, 'FIELD_LENGTH' : 0, 'FIELD_NAME' : 'CC', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 1, 'FORMULA' : 'IF(cc=4,3,if(cc=5,2,cc))', 'OUTPUT' : 'TEMPORARY_OUTPUT'})['OUTPUT']
         # Aun no tengo las expresiones cargadas en el mapa
