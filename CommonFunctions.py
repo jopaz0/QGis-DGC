@@ -634,13 +634,13 @@ def KML_ContentBuilder(input, nameBy, styleBy=False, tabs=1, showInTable=[], fol
         A string representing the KML content generated from the input.
     """
     if type(input) == dict:
-        lines = [f'{(tabs)*'\t'}<Folder>']
-        lines.append(f'{(tabs+1)*'\t'}<name>{input['NAME']}</name>')
+        lines = ["\t" * tabs + "<Folder>"]
+        lines.append("\t" * tabs + f'<name>{input['NAME']}</name>')
         if type(input['CONTENT']) is str:
             lines.append(input['CONTENT'])
         else:
             lines.append(KML_ContentBuilder(input['CONTENT'], nameBy, styleBy, tabs, showInTable))
-        lines.append(f'{(tabs)*'\t'}</Folder>')
+        lines.append("\t" * tabs + f'</Folder>')
         folder = '\n'.join(lines)
         return folder
 
