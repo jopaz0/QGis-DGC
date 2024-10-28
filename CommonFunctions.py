@@ -635,12 +635,12 @@ def KML_ContentBuilder(input, nameBy, styleBy=False, tabs=1, showInTable=[], fol
     """
     if type(input) == dict:
         lines = ["\t" * tabs + "<Folder>"]
-        lines.append("\t" * tabs + f'<name>{input['NAME']}</name>')
+        lines.append("\t" * tabs + f"<name>{input['NAME']}</name>")
         if type(input['CONTENT']) is str:
             lines.append(input['CONTENT'])
         else:
             lines.append(KML_ContentBuilder(input['CONTENT'], nameBy, styleBy, tabs, showInTable))
-        lines.append("\t" * tabs + f'</Folder>')
+        lines.append("\t" * tabs + f"</Folder>")
         folder = '\n'.join(lines)
         return folder
 
