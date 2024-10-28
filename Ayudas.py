@@ -320,6 +320,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
     capa = iface.activeLayer()
+    campos = [f.name() for f in feature.fields()]
     if rutaKml:
         pass
     else:
@@ -329,7 +330,13 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
         else:
             nombre = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
         rutaKml = os.path.join(PATH_GetDefaultSaveFolder(), nombre)
-    carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclatura, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    if 'SECCION' in campos:
+        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclatura, styleBy='StyleCC0', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','APELLIDO','TEN','HECTA','AS','CS'])
+    elif 'EJIDO' in campos:
+        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclatura, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+    else:
+        print('Flaco que mierda me pasaste?')
+        return
     with open(archivoPlantilla, 'r+', encoding='utf-8') as plantilla:
         contenido = plantilla.read()
         contenido = contenido.replace('<ContentPlaceholder>', carpetas)

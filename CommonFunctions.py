@@ -696,13 +696,22 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
         featureName = nameBy(feature)
     else:
         featureName = feature[nameBy]
+    if callable(styleBy):
+        styleName = styleBy(feature)
+    elif type(styleBy) is str:
+        if styleBy in [f.name() for f in parcela.fields()]:
+            styleName = 'Style' + styleBy + feature[styleBy]
+        else:
+            styleName = styleBy
+    else:
+        styleName = ''
     featureFields = [f.name() for f in feature.fields()]
     lines = ["\t" * tabs + "<Placemark>"]
     lines.append("\t" * (tabs+1) + f"<name>{featureName}</name>")
     lines.append("\t" * (tabs+1) + f"<Snippet></Snippet>")
     lines.append("\t" * (tabs+1) + f"<textColor>#000000</textColor>>")
     lines.append("\t" * (tabs+1) + f"<description></description>")
-    lines.append("\t" * (tabs+1) + f"<styleUrl>#Style{styleBy}{feature[styleBy]}</styleUrl>")
+    lines.append("\t" * (tabs+1) + f"<styleUrl>#{styleName}</styleUrl>")
     lines.append("\t" * (tabs+1) + f"<ExtendedData>")
     lines.append("\t" * (tabs+1) + f"<Data name=\"displayName\"><value>{featureName}</value></Data>")
     for field in showInTable:
