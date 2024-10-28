@@ -691,19 +691,21 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
     A formatted KML Placemark string with feature details and geometry.
     """
     featureFields = [f.name() for f in feature.fields()]
-    placemark = f"""{tabs*'\t'}<Placemark>
-{(tabs+1)*'\t'}<name>{feature[nameBy]}</name>
-{(tabs+1)*'\t'}<Snippet></Snippet>
-{(tabs+1)*'\t'}<textColor>#000000</textColor>
-{(tabs+1)*'\t'}<description></description>
-{(tabs+1)*'\t'}<styleUrl>#Style{styleBy}{feature[styleBy]}</styleUrl>
-{(tabs+1)*'\t'}<ExtendedData>
-{(tabs+2)*'\t'}<Data name="displayName"><value>{feature[nameBy]}</value></Data>
-{'\n'.join([f'{(tabs+2)*'\t'}<Data name="{field}"><value>{feature[field]}</value></Data>' for field in showInTable if field in featureFields])}
-{(tabs+1)*'\t'}</ExtendedData>
-{KML_TranslateGeometry(feature, tabs+1)}
-{tabs*'\t'}</Placemark>
-"""
+    lines = ["\t" * tabs + "<Placemark>"]
+    lines.append("\t" * (tabs+1) + f"<name>{feature[nameBy]}</name>")
+    lines.append("\t" * (tabs+1) + f"<Snippet></Snippet>")
+    lines.append("\t" * (tabs+1) + f"<textColor>#000000</textColor>>")
+    lines.append("\t" * (tabs+1) + f"<description></description>")
+    lines.append("\t" * (tabs+1) + f"<styleUrl>#Style{styleBy}{feature[styleBy]}</styleUrl>")
+    lines.append("\t" * (tabs+1) + f"<ExtendedData>")
+    lines.append("\t" * (tabs+1) + f"<Data name=\"displayName\"><value>{feature[nameBy]}</value></Data>")
+    for field in showInTable:
+        if field in featureFields:
+            lines.append("\t" * (tabs+2) + f"<Data name=\"{field}\"><value>{feature[field]}</value></Data>")
+    lines.append("\t" * (tabs+1) + f"</ExtendedData>")
+    lines.append("\t" * (tabs) + KML_TranslateGeometry(feature, tabs+1))
+    lines.append("\t" * (tabs) + f"</Placemark>")
+    placemark = '\n'.join(lines)
     return placemark
 
 def KML_ToKMZ(kmlPath):
@@ -759,29 +761,29 @@ def KML_TranslateGeometry(feature, tabs=2):
         #esto esta medio raro, lo pongo en otro formato que, al menos ahora, me deja entender mejor. veremos en unos meses
         #cada geometria viene como lista de listas. la primera son los poligonos individuales del multipoligono. la segunda son los anillos del poligono
         for polygon in geoms:
-            lines.append(f'{(tabs+1)*'\t'}<Polygon>')
-            lines.append(f'{(tabs+2)*'\t'}<outerBoundaryIs>')
-            lines.append(f'{(tabs+3)*'\t'}<LinearRing>')
-            lines.append(f'{(tabs+4)*'\t'}<coordinates>')
+            lines.append('\t'*(tabs+1) + "<Polygon>")
+            lines.append('\t'*(tabs+2) + "<outerBoundaryIs>")
+            lines.append('\t'*(tabs+3) + "<LinearRing>")
+            lines.append('\t'*(tabs+4) + "<coordinates>")
             #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
-            lines.append(f'{(tabs+5)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in polygon[0]])}')
-            lines.append(f'{(tabs+4)*'\t'}</coordinates>')
-            lines.append(f'{(tabs+3)*'\t'}</LinearRing>')
-            lines.append(f'{(tabs+2)*'\t'}</outerBoundaryIs>')
+            lines.append('\t'*(tabs+5) + f"{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in polygon[0]])}")
+            lines.append('\t'*(tabs+4) + "</coordinates>")
+            lines.append('\t'*(tabs+3) + "</LinearRing>")
+            lines.append('\t'*(tabs+2) + "</outerBoundaryIs>")
             if len(polygon)>1:
                 for ring in polygon[1:]:
-                    lines.append(f'{(tabs+2)*'\t'}<innerBoundaryIs>')
-                    lines.append(f'{(tabs+3)*'\t'}<LinearRing>')
-                    lines.append(f'{(tabs+4)*'\t'}<coordinates>')
-                    lines.append(f'{(tabs+5)*'\t'}{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in ring])}')
-                    lines.append(f'{(tabs+4)*'\t'}</coordinates>')
-                    lines.append(f'{(tabs+3)*'\t'}</LinearRing>')
-                    lines.append(f'{(tabs+2)*'\t'}</innerBoundaryIs>')
-            lines.append(f'{(tabs+1)*'\t'}</Polygon>')
+                    lines.append('\t'*(tabs+2) + "<innerBoundaryIs>")
+                    lines.append('\t'*(tabs+3) + "<LinearRing>")
+                    lines.append('\t'*(tabs+4) + "<coordinates>")
+                    lines.append('\t'*(tabs+5) + f"{' '.join([f"{vertex.x()},{vertex.y()}" for vertex in ring])}")
+                    lines.append('\t'*(tabs+4) + "</coordinates>")
+                    lines.append('\t'*(tabs+3) + "</LinearRing>")
+                    lines.append('\t'*(tabs+2) + "</innerBoundaryIs>")
+            lines.append('\t'*(tabs+1) + "</Polygon>")
     else:
         #Tengo que adaptar aca el codigo. como no hace a la funcionalidad de catastro, por ahora lo dejo asi
-        lines.append(f'{(tabs+1)*'\t'}Me llego una geometria que no era de poligonos...')
-    lines.append(f'{(tabs)*'\t'}</MultiGeometry>')
+        lines.append('\t'*(tabs+1) + 'Me llego una geometria que no era de poligonos...')
+    lines.append('\t'*(tabs+1) + "</MultiGeometry>")
     descriptor = '\n'.join(lines)
     return descriptor
 
