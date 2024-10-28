@@ -79,22 +79,23 @@ def CalcularNomenclatura(parcela):
     if 'SECCION' in campos:
         nomenclatura.append(STR_IntToRoman(parcela['SECCION'], 3))
         nomenclatura.append(parcela['FRACCION'].upper())
-        nomenclatura.append(parcela['LOTE'])
-        nomenclatura.append(parcela['PARCELA'])
+        nomenclatura.append(str(parcela['LOTE']))
+        nomenclatura.append(str(parcela['PARCELA']))
     elif 'EJIDO' in campos:
         nomenclatura.append(STR_FillWithChars(parcela['EJIDO'], 3))
         nomenclatura.append(STR_IntToRoman(parcela['CIRC']))
         if parcela['CC'] == 1:
-            nomenclatura.append('Ch.' + parcela['MZNA'].upper())
+            nomenclatura.append('Ch.' + str(parcela['MZNA']).upper())
         elif parcela['CC'] in [2,5]:
             nomenclatura.append(parcela['RADIO'].lower())
-            nomenclatura.append('Qta.' + parcela['MZNA'].upper())
+            nomenclatura.append('Qta.' + str(parcela['MZNA']).upper())
         elif parcela['CC'] in [3,4]:
             nomenclatura.append(parcela['RADIO'].lower())
-            nomenclatura.append('Mz.' + parcela['MZNA'].upper())
-        nomenclatura.append(STR_IntToRoman(parcela['CIRC']))
+            nomenclatura.append('Mz.' + str(parcela['MZNA']).upper())
+        else:
+            print('Me pasaste un CC rarisimo amigo')
         if 'PARCELA' in campos:
-            nomenclatura.append(parcela['PARCELA'])
+            nomenclatura.append(str(parcela['PARCELA']))
     nomenclatura = '-'.join(nomenclatura)
     return nomenclatura
 
