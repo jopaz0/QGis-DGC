@@ -752,7 +752,7 @@ def KML_TranslateGeometry(feature, tabs=2):
     str
         A string representing the KML-formatted geometry.
     """
-    lines = [f'{(tabs)*'\t'}<MultiGeometry>']
+    lines = ['\t'*(tabs) + "<MultiGeometry>"]
     geom = feature.geometry()
     if geom.isEmpty():
         pass
