@@ -766,7 +766,7 @@ def KML_TranslateGeometry(feature, tabs=2):
             lines.append('\t'*(tabs+3) + "<LinearRing>")
             lines.append('\t'*(tabs+4) + "<coordinates>")
             #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
-            vertices = [f"{vertex.x()},{vertex.y()}" for vertex in polygon[0].vertices()]
+            vertices = [f"{vertex.x()},{vertex.y()}" for vertex in polygon[0]()]
             lines.append('\t' * (tabs + 5) + ' '.join(vertices))
             #lines.append('\t'*(tabs+5) + f"{' '.join([f'{vertex.x()},{vertex.y()}' for vertex in polygon[0]])}")
             lines.append('\t'*(tabs+4) + "</coordinates>")
@@ -777,7 +777,9 @@ def KML_TranslateGeometry(feature, tabs=2):
                     lines.append('\t'*(tabs+2) + "<innerBoundaryIs>")
                     lines.append('\t'*(tabs+3) + "<LinearRing>")
                     lines.append('\t'*(tabs+4) + "<coordinates>")
-                    lines.append('\t'*(tabs+5) + f"{' '.join([f"{vertex.x()},{vertex.y()}" for vertex in ring])}")
+                    vertices = [f"{vertex.x()},{vertex.y()}" for vertex in ring[0]()]
+                    lines.append('\t' * (tabs + 5) + ' '.join(vertices))
+                    #lines.append('\t'*(tabs+5) + f"{' '.join([f"{vertex.x()},{vertex.y()}" for vertex in ring])}")
                     lines.append('\t'*(tabs+4) + "</coordinates>")
                     lines.append('\t'*(tabs+3) + "</LinearRing>")
                     lines.append('\t'*(tabs+2) + "</innerBoundaryIs>")
