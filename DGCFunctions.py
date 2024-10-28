@@ -148,6 +148,7 @@ def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLien
         return False
     try:
         nombre = nombre if nombre else capa.name()
+        camposAEliminar = [f.name() for f in capa.fields() if not f in ['EJIDO','CIRC','RADIO','CC','MZNA']]
         capa = processing.run('native:fixgeometries', {'INPUT': capa, 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
         capa = processing.run('native:fieldcalculator', {'INPUT': capa, 'FIELD_LENGTH' : 0, 'FIELD_NAME' : 'CC', 'FIELD_PRECISION' : 0, 'FIELD_TYPE' : 1, 'FORMULA' : 'IF(cc=4,3,if(cc=5,2,cc))', 'OUTPUT' : 'TEMPORARY_OUTPUT'})['OUTPUT']
         # Aun no tengo las expresiones cargadas en el mapa
@@ -155,6 +156,7 @@ def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLien
         capa = processing.run('native:dissolve', {'INPUT': capa, 'FIELD' : ['EJIDO','CIRC','RADIO','MZNA','CC'], 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
         capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer, 'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
         capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer*-1, 'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
+        capa = processing.run('native:deletecolumn', { 'COLUMN' : camposAEliminar, 'INPUT' : capa, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
         capa.setName(f'{nombre}-MANZANAS-{STR_GetTimestamp()}')
         if agregarAlLienzo:
             CANVAS_AddLayer(capa)
