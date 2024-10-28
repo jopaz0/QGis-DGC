@@ -24,6 +24,7 @@ Funciones:
 
  > GenerarKMZDesdeSeleccion() / kmzdesdesel()
 - Genera un archivo KMZ a partir de las parcelas seleccionadas en la capa activa de QGIS.
+- El estilo utilizado es el normal de Catastro, es decir, colores segun CC (amarillo, celeste, rojo, verde), sin rellenos, tabla de atributos basicos para el sector Economico.
 - El archivo .rar generado queda guardado en la carpeta ../Mis Documentos/BORRAR del usuario actual.
 
  > GenerarManzanasDesdeSeleccion() / regsdesdesel()
@@ -32,7 +33,7 @@ Funciones:
  > GenerarRegistradosDesdeSeleccion() / mzsdesdesel()
 - Genera un shapefile de registrados parcial como archivo temporal a partir de las parcelas seleccionadas en la capa activa, y lo carga al lienzo.
 
- > InfoEjido / info
+ > InfoEjido(ejido) / info(47)
 - Imprime en consola la informacion existente sobre el ejido.
 
 Tipee help(funcion) en la consola para mas informacion.
