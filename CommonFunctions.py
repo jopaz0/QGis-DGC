@@ -666,7 +666,7 @@ def KML_ContentBuilder(input, nameBy, styleBy=False, tabs=1, showInTable=[], fol
         return KML_PlacemarkBuilder(input, nameBy, styleBy, tabs+1, showInTable)
     else:
         print('Que chucha me pasaste?')
-    return
+    return 'Paso algo en KML_ContentBuilder'
 
 def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[]):
     """
@@ -716,7 +716,8 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
     lines.append("\t" * (tabs+1) + f"<Data name=\"displayName\"><value>{featureName}</value></Data>")
     for field in showInTable:
         if field in featureFields:
-            lines.append("\t" * (tabs+2) + f"<Data name=\"{field}\"><value>{feature[field]}</value></Data>")
+            value = STR_CleanHtmlString(str(feature[field]))
+            lines.append("\t" * (tabs+2) + f"<Data name=\"{field}\"><value>{value}</value></Data>")
     lines.append("\t" * (tabs+1) + f"</ExtendedData>")
     lines.append("\t" * (tabs) + KML_TranslateGeometry(feature, tabs+1))
     lines.append("\t" * (tabs) + f"</Placemark>")
@@ -768,38 +769,49 @@ def KML_TranslateGeometry(feature, tabs=2):
         A string representing the KML-formatted geometry.
     """
     lines = ['\t'*(tabs) + "<MultiGeometry>"]
-    geom = feature.geometry()
-    if geom.isEmpty():
-        pass
-    elif geom.type() == QgsWkbTypes.PolygonGeometry:
-        geoms = GEOM_ToMultiXY(geom)
-        #esto esta medio raro, lo pongo en otro formato que, al menos ahora, me deja entender mejor. veremos en unos meses
-        #cada geometria viene como lista de listas. la primera son los poligonos individuales del multipoligono. la segunda son los anillos del poligono
-        for polygon in geoms:
-            lines.append('\t'*(tabs+1) + "<Polygon>")
-            lines.append('\t'*(tabs+2) + "<outerBoundaryIs>")
-            lines.append('\t'*(tabs+3) + "<LinearRing>")
-            lines.append('\t'*(tabs+4) + "<coordinates>")
-            #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
-            vertices = [f"{vertex.x()},{vertex.y()}" for vertex in polygon[0]]
-            lines.append('\t' * (tabs + 5) + ' '.join(vertices))
-            lines.append('\t'*(tabs+4) + "</coordinates>")
-            lines.append('\t'*(tabs+3) + "</LinearRing>")
-            lines.append('\t'*(tabs+2) + "</outerBoundaryIs>")
-            if len(polygon)>1:
-                for ring in polygon[1:]:
-                    lines.append('\t'*(tabs+2) + "<innerBoundaryIs>")
-                    lines.append('\t'*(tabs+3) + "<LinearRing>")
-                    lines.append('\t'*(tabs+4) + "<coordinates>")
-                    vertices = [f"{vertex.x()},{vertex.y()}" for vertex in ring[0]]
-                    lines.append('\t' * (tabs + 5) + ' '.join(vertices))
-                    lines.append('\t'*(tabs+4) + "</coordinates>")
-                    lines.append('\t'*(tabs+3) + "</LinearRing>")
-                    lines.append('\t'*(tabs+2) + "</innerBoundaryIs>")
-            lines.append('\t'*(tabs+1) + "</Polygon>")
-    else:
-        #Tengo que adaptar aca el codigo. como no hace a la funcionalidad de catastro, por ahora lo dejo asi
-        lines.append('\t'*(tabs+1) + 'Me llego una geometria que no era de poligonos...')
+    try:
+        geom = feature.geometry()
+        if geom.isEmpty():
+            pass
+        elif geom.type() == QgsWkbTypes.PolygonGeometry:
+            geoms = GEOM_ToMultiXY(geom)
+            #esto esta medio raro, lo pongo en otro formato que, al menos ahora, me deja entender mejor. veremos en unos meses
+            #cada geometria viene como lista de listas. la primera son los poligonos individuales del multipoligono. la segunda son los anillos del poligono
+            for polygon in geoms:
+                ringType = '<outerBoundaryIs>'
+                lines.append('\t'*(tabs+1) + "<Polygon>")
+                lines.append('\t'*(tabs+2) + ringType)
+                lines.append('\t'*(tabs+3) + "<LinearRing>")
+                lines.append('\t'*(tabs+4) + "<coordinates>")
+                #dentro de cada poligono, asumo q la primera geometria es es anillo exterior
+                vertices = [f"{vertex.x()},{vertex.y()}" for vertex in polygon[0]]
+                lines.append('\t' * (tabs + 5) + ' '.join(vertices))
+                lines.append('\t'*(tabs+4) + "</coordinates>")
+                lines.append('\t'*(tabs+3) + "</LinearRing>")
+                lines.append('\t'*(tabs+2) + "</outerBoundaryIs>")
+                if len(polygon)>1:
+                    for ring in polygon[1:]:
+                        ringType = '<innerBoundaryIs>'
+                        lines.append('\t'*(tabs+2) + "<innerBoundaryIs>")
+                        lines.append('\t'*(tabs+3) + "<LinearRing>")
+                        lines.append('\t'*(tabs+4) + "<coordinates>")
+                        vertices = [f"{vertex.x()},{vertex.y()}" for vertex in ring[0]]
+                        lines.append('\t' * (tabs + 5) + ' '.join(vertices))
+                        lines.append('\t'*(tabs+4) + "</coordinates>")
+                        lines.append('\t'*(tabs+3) + "</LinearRing>")
+                        lines.append('\t'*(tabs+2) + ringType)
+                lines.append('\t'*(tabs+1) + "</Polygon>")
+        else:
+            #Tengo que adaptar aca el codigo. como no hace a la funcionalidad de catastro, por ahora lo dejo asi
+            lines.append('\t'*(tabs+1) + 'Me llego una geometria que no era de poligonos...')
+    except Exception as e:
+        print(f"Encontre una geometria erronea.")
+        lines = ['\t'*(tabs) + "<MultiGeometry>"]
+        lines.append('\t'*(tabs+2) + "<!-- FALLO AL CALCULAR GEOMETRIA -->")
+        """lines.append('\t'*(tabs+4) + "</coordinates>")
+        lines.append('\t'*(tabs+3) + "</LinearRing>")
+        lines.append('\t'*(tabs+2) + ringType)
+        lines.append('\t'*(tabs+1) + "</Polygon>")"""
     lines.append('\t'*(tabs+1) + "</MultiGeometry>")
     descriptor = '\n'.join(lines)
     return descriptor
@@ -881,6 +893,29 @@ def PATH_GetFileFromWeb(filename, urlRoot=f'https://raw.githubusercontent.com/jo
         print(f"Error al descargar {filename}: {e}")
         return False
 
+def STR_CleanHtmlString(string):
+    """
+    Replaces special caracters in a string for them to be safe to use in HTML or XML.
+
+    PARAMETROS
+    string: str
+        Text string to be cleaned.
+
+    RETURNS
+    New string with characters replaced for their html counterparts
+    """
+    replacements = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;'
+    }
+
+    for char, replacement in replacements.items():
+        string = string.replace(char, replacement)
+
+    return string
 def STR_FillWithChars(string, width, char='0', insertAtStart=True):
     """
     Fills a string with a specified character until it reaches the desired width.

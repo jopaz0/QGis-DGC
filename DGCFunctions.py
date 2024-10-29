@@ -76,26 +76,31 @@ def CalcularNomenclatura(parcela):
     """
     campos = [f.name() for f in parcela.fields()]
     nomenclatura = []
-    if 'SECCION' in campos:
-        nomenclatura.append(STR_IntToRoman(parcela['SECCION']))
-        nomenclatura.append(parcela['FRACCION'].upper())
-        nomenclatura.append(str(parcela['LOTE']))
-        nomenclatura.append(str(parcela['PARCELA']))
-    elif 'EJIDO' in campos:
-        nomenclatura.append(STR_FillWithChars(parcela['EJIDO'], 3))
-        nomenclatura.append(STR_IntToRoman(parcela['CIRC']))
-        if parcela['CC'] == 1:
-            nomenclatura.append('Ch.' + str(parcela['MZNA']).upper())
-        elif parcela['CC'] in [2,5]:
-            nomenclatura.append(parcela['RADIO'].lower())
-            nomenclatura.append('Qta.' + str(parcela['MZNA']).upper())
-        elif parcela['CC'] in [3,4]:
-            nomenclatura.append(parcela['RADIO'].lower())
-            nomenclatura.append('Mz.' + str(parcela['MZNA']).upper())
-        else:
-            print('Me pasaste un CC rarisimo amigo')
-        if 'PARCELA' in campos:
+    try:
+        if 'SECCION' in campos:
+            nomenclatura.append(STR_IntToRoman(parcela['SECCION']))
+            nomenclatura.append(parcela['FRACCION'].upper())
+            nomenclatura.append(str(parcela['LOTE']))
             nomenclatura.append(str(parcela['PARCELA']))
+        elif 'EJIDO' in campos:
+            nomenclatura.append(STR_FillWithChars(parcela['EJIDO'], 3))
+            nomenclatura.append(STR_IntToRoman(parcela['CIRC']))
+            if parcela['CC'] == 1:
+                nomenclatura.append('Ch.' + str(parcela['MZNA']).upper())
+            elif parcela['CC'] in [2,5]:
+                radio = parcela['RADIO'].lower() if isinstance(parcela['RADIO'], str) else '?'
+                nomenclatura.append(radio)
+                nomenclatura.append('Qta.' + str(parcela['MZNA']).upper())
+            elif parcela['CC'] in [3,4]:
+                radio = parcela['RADIO'].lower() if isinstance(parcela['RADIO'], str) else '?'
+                nomenclatura.append(radio)
+                nomenclatura.append('Mz.' + str(parcela['MZNA']).upper())
+            else:
+                print('Me pasaste un CC rarisimo amigo')
+            if 'PARCELA' in campos:
+                nomenclatura.append(str(parcela['PARCELA']))
+    except Exception as e:
+        print (f"Ocurrio un error al nomenclar una parcela. ErrorMsg: {e}")
     nomenclatura = '-'.join(nomenclatura)
     return nomenclatura
 

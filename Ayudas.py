@@ -320,7 +320,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
     capa = iface.activeLayer()
-    campos = [f.name() for f in feature.fields()]
+    campos = [f.name() for f in capa.fields()]
     if rutaKml:
         pass
     else:
@@ -378,11 +378,15 @@ def GenerarKMZs(guardarEnL = False):
             tipos = ['PROPIETARIOS','POSEEDORES']
             for tipoTen in tipos:
                 capa = PathToLayer(ejido[tipoTen])
+                if not capa:
+                    print(f"No encontre la capa de {tipoTen} en {numeroEjido}")
+                    continue
+                CANVAS_AddLayer(capa, capa.name())
                 nombreKml = f"{numeroEjido}-{nombreEjido}-{tipoTen}.kml"
                 carpetaKml = os.path.join(carpeta , f"{numeroEjido}-{nombreEjido}")
                 os.makedirs(carpetaKml, exist_ok=True)
                 rutaKml = os.path.join(carpetaKml, nombreKml)
-                carpetas = KML_ContentBuilder({'NAME':f'{nombreKml}-Subset' ,'CONTENT':capa}, 
+                carpetas = KML_ContentBuilder(capa, 
                         CalcularNomenclatura, 
                         styleBy='CC', 
                         tabs=2, 
@@ -392,6 +396,7 @@ def GenerarKMZs(guardarEnL = False):
                     contenidoKml = contenidoKml.replace('<ContentPlaceholder>', carpetas)
                     kml.write(contenidoKml)
                 rutaKmz = KML_ToKMZ(rutaKml)
+                CANVAS_RemoveLayerByName(capa.name())
                 kmzs.append(rutaKmz)
     return kmzs
 kmzs = GenerarKMZs
