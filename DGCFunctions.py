@@ -43,7 +43,7 @@ def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     n = int(numeroDeEjido)
     if not reescribirDicEjidos:
         if n in DicEjidos.keys():
-            if 'PROPIETARIOS' in DicEjidos[n].keys():
+            if 'PROPIETARIOS' in DicEjidos[n].keys() or not DicEjidos[n]['RESPONSABLE']:
                 return DicEjidos[n]
     directorioPueblosCADGIS  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
     if not os.path.exists(directorioPueblosCADGIS):

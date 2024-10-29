@@ -699,7 +699,7 @@ def KML_PlacemarkBuilder(feature, nameBy, styleBy=False, tabs=2, showInTable=[])
     if callable(styleBy):
         styleName = styleBy(feature)
     elif type(styleBy) is str:
-        if styleBy in [f.name() for f in parcela.fields()]:
+        if styleBy in [f.name() for f in feature.fields()]:
             styleName = 'Style' + styleBy + feature[styleBy]
         else:
             styleName = styleBy

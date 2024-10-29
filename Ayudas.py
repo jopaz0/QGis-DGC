@@ -350,6 +350,53 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
 kmzdesdesel = GenerarKMZDesdeSeleccion
 KMZDESDESEL = GenerarKMZDesdeSeleccion
 
+def GenerarKMZs(guardarEnL = False):
+    """
+    Genera los archivos KMZ de todos los pueblos. Los guarda en la carpeta ../Mis Documentos/Borrar del usuario actual
+
+    PARAMETROS
+
+    RETORNO
+    """
+    fechaYHora = STR_GetTimestamp()
+    if guardarEnL:
+        carpeta = r'L:/Geodesia/Privado/Sig/PUEBLOS CAD-GIS/KMZs Localidades'
+    else:
+        carpeta = PATH_GetDefaultSaveFolder()
+    carpeta = os.path.join(carpeta, f"KMZs al dia {fechaYHora}")
+    nombrePlantilla = 'KMLBaseDGC'
+    archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
+    with open(archivoPlantilla, 'r', encoding='utf-8') as archivo:
+        plantilla = archivo.read()
+    CompletarDicEjidos()
+    dicEjidos = LeerDicEjidos()
+    kmzs = []
+    for ejido in dicEjidos:
+        if ejido['RESPONSABLE']:
+            numeroEjido = STR_FillWithChars(ejido['EJIDO'],3)
+            nombreEjido = ejido['NOMBRE']
+            tipos = ['PROPIETARIOS','POSEEDORES']
+            for tipoTen in tipos:
+                capa = PathToLayer(ejido[tipoTen])
+                nombreKml = f"{numeroEjido}-{nombreEjido}-{tipoTen}.kml"
+                carpetaKml = os.path.join(ruta , f"{numeroEjido}-{nombreEjido}")
+                os.makedirs(carpetaKml, exist_ok=True)
+                rutaKml = os.path.join(carpetaKml, nombreKml)
+                carpetas = KML_ContentBuilder({'NAME':f'{nombreKml}-Subset' ,'CONTENT':capa}, 
+                        CalcularNomenclatura, 
+                        styleBy='CC', 
+                        tabs=2, 
+                        showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+                with open(rutaKml, 'w', encoding='utf-8') as kml:
+                    contenidoKml = plantilla
+                    contenidoKml = contenidoKml.replace('<ContentPlaceholder>', carpetas)
+                    kml.write(contenidoKml)
+                rutaKmz = KML_ToKMZ(rutaKml)
+                kmzs.append(rutaKmz)
+    return kmzs
+kmzs = GenerarKMZs
+KMZS = GenerarKMZs
+
 def InfoEjido(ejido=False):
     """
     Imprime en consola la informacion existente sobre el ejido o los modulos.
