@@ -1,5 +1,5 @@
 """
-Legacy custom expressions for use in the field calculator. Automatically loaded on startup of DGC's qgz files. Docstrings, comments,etc are pending, I made this when I had not a clue about what to do or how.
+Custom expressions for use in the field calculator. Automatically loaded on startup of DGC's qgz files. Docstrings, comments,etc are pending, I made this when I had not a clue about what to do or how.
 """
 
 import qgis
@@ -7,6 +7,59 @@ from qgis.core import *
 from qgis.gui import *
 from qgis.utils import iface
 
+@qgsfunction(args='auto', group='DGC-Custom')
+def CSTMEXP_EtiquetaMzna(parcela):
+    nomenclatura = CalcularNomenclatura(parcela)
+    etiqueta = nomenclatura.split('-')[-1]
+    return etiqueta
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def DesagregarMedida(entidad, indiceLinea, separador='-'):
+    default = f'<{indiceLinea}>'
+    medidas = entidad['MEDIDAS'] if entidad['MEDIDAS'] is not None else ''
+    if not medidas:
+        return default
+    listaMedidas = medidas.split(separador)
+    if len(listaMedidas) < indiceLinea:
+        return default
+    else:
+        return listaMedidas[indiceLinea-1]
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def CiclarCadena(cadena, separador='-'):
+    lista = cadena.split(separador)
+    lista = lista[1:] + [lista[0]]
+    nuevaCadena = '-'.join(lista)
+    return nuevaCadena
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def VerificarMedida(
+        entidad, 
+        indiceLinea, 
+        longLinea, 
+        separador='-', 
+        toleranciaMin=0.01, 
+        toleranciaMax=0.05,
+        nombreCampo='MEDIDAS'):
+    colorMuchaDiferencia = '#FF0000'
+    colorPocaDiferencia = '#FFAA00'
+    colorOK = '#000000'
+    medidas = entidad[nombreCampo] if entidad[nombreCampo] is not None else ''
+    if not medidas:
+        return colorMuchaDiferencia
+    listaMedidas = medidas.split(separador)
+    try:
+        etiqueta = float(listaMedidas[indiceLinea-1])
+    except:
+        return colorMuchaDiferencia
+    if longLinea > etiqueta*(1+toleranciaMax) or longLinea < etiqueta*(1-toleranciaMax):
+        return colorMuchaDiferencia
+    if longLinea > etiqueta*(1+toleranciaMin) or longLinea < etiqueta*(1-toleranciaMin):
+        return colorPocaDiferencia
+    return colorOK
+
+#################BARRA SEPARADORA DE BAJO PRESUPUESTO###############################
+#De aca para abajo son todas funciones viejas
 @qgsfunction(args='auto', group='Custom')
 def CC123(cc, feature, parent):
     if cc == 1:

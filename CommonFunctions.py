@@ -916,6 +916,7 @@ def STR_CleanHtmlString(string):
         string = string.replace(char, replacement)
 
     return string
+
 def STR_FillWithChars(string, width, char='0', insertAtStart=True):
     """
     Fills a string with a specified character until it reaches the desired width.
