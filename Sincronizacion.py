@@ -161,16 +161,17 @@ def CompletarTabla(ejido, capa = False):
     diccionario = DICT_SetKey(diccionario, 'PARTIDA')
 
     # Blanqueo los valores de COD, DOCUMENTO, APELLIDO y REGISTRO de las entidades
-    with edit(capa):
-        for entidad in seleccion:
-            for campo in ['COD','DOCUMENTO','APELLIDO','REGISTRO']:
-                if not campo in [x.name() for x in capa.fields()]:
-                    print(f'La capa {capa.name()} no tenia el campo {campo}' )
-                else:
-                    entidad[campo] = None
-            if not capa.updateFeature(entidad):
-                print(f"Error al blanquear la capa. Revertiendo cambios.")
-                capa.rollBack()
+    if not layer.isEditable():
+        layer.startEditing()
+    for entidad in seleccion:
+        for campo in ['COD','DOCUMENTO','APELLIDO','REGISTRO']:
+            if not campo in [x.name() for x in capa.fields()]:
+                print(f'La capa {capa.name()} no tenia el campo {campo}' )
+            else:
+                entidad[campo] = None
+        if not capa.updateFeature(entidad):
+            print(f"Error al blanquear la capa. Revertiendo cambios.")
+            capa.rollBack()
     # Si no se encuentra la partida en el diccionario, es xq no existen
     SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
 completartabla = CompletarTabla
