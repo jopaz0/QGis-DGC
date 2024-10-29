@@ -371,7 +371,7 @@ def GenerarKMZs(guardarEnL = False):
     CompletarDicEjidos()
     dicEjidos = LeerDicEjidos()
     kmzs = []
-    for ejido in dicEjidos:
+    for _, ejido in dicEjidos.items():
         if ejido['RESPONSABLE']:
             numeroEjido = STR_FillWithChars(ejido['EJIDO'],3)
             nombreEjido = ejido['NOMBRE']
@@ -379,7 +379,7 @@ def GenerarKMZs(guardarEnL = False):
             for tipoTen in tipos:
                 capa = PathToLayer(ejido[tipoTen])
                 nombreKml = f"{numeroEjido}-{nombreEjido}-{tipoTen}.kml"
-                carpetaKml = os.path.join(ruta , f"{numeroEjido}-{nombreEjido}")
+                carpetaKml = os.path.join(carpeta , f"{numeroEjido}-{nombreEjido}")
                 os.makedirs(carpetaKml, exist_ok=True)
                 rutaKml = os.path.join(carpetaKml, nombreKml)
                 carpetas = KML_ContentBuilder({'NAME':f'{nombreKml}-Subset' ,'CONTENT':capa}, 
