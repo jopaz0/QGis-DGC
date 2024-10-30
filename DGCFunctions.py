@@ -164,6 +164,15 @@ def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLien
         capa = processing.run('native:buffer', {'INPUT': capa, 'DISSOLVE': False, 'DISTANCE': distanciaBuffer*-1, 'END_CAP_STYLE': 1, 'JOIN_STYLE': 1, 'MITER_LIMIT': 2, 'OUTPUT': 'TEMPORARY_OUTPUT', 'SEGMENTS' : 1 })['OUTPUT']
         capa = processing.run('qgis:deletecolumn', { 'COLUMN' : camposAEliminar, 'INPUT' : capa, 'OUTPUT' : 'TEMPORARY_OUTPUT' })['OUTPUT']
         capa.setName(f'{nombre}-MANZANAS-{STR_GetTimestamp()}')
+        camposNuevos = []
+        camposNuevos.append(QgsField('SECCION', QVariant.Int, len=2))
+        camposNuevos.append(QgsField('FRACCION', QVariant.String, len=1))
+        camposNuevos.append(QgsField('LOTE', QVariant.Int, len=2))
+        camposNuevos.append(QgsField('PARCELA', QVariant.Int, len=4))
+        capa.startEditing()
+        for campo in camposNuevos:
+            capa.addAttribute(campo)
+        capa.commitChanges()
         if agregarAlLienzo:
             CANVAS_AddLayer(capa)
         return capa
