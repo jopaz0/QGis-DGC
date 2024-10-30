@@ -6,17 +6,31 @@ import qgis
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import iface
+from CommonFunctions import *
 
 @qgsfunction(args='auto', group='DGC-Custom')
-def CSTMEXP_EtiquetaMzna(parcela):
+def STR_EtiquetaMzna(parcela):
+    """
+    Devuelve la etiqueta de manzana/quinta/chacra de la entidad.
+    """
     nomenclatura = CalcularNomenclatura(parcela)
     etiqueta = nomenclatura.split('-')[-1]
     return etiqueta
 
 @qgsfunction(args='auto', group='DGC-Custom')
-def DesagregarMedida(entidad, indiceLinea, separador='-'):
+def GEOM_NormalizarPrimerVertice(geometria):
+    """
+    Recibe una geometria de poligono, la devuelve con el primer vertice siendo aquel mas al oeste. En caso de conflicto, prioriza aquel mas al sur.
+    """
+    return GEOM_NormalizeFirstVertex(geometria)
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def STR_DesagregarMedida(entidad, indiceLinea, campo='MEDIDAS', separador='-'):
+    """
+    Recibe una entidad y un indice de linea. Devuelve la etiqueta de medida singular para ese indice.
+    """
     default = f'<{indiceLinea}>'
-    medidas = entidad['MEDIDAS'] if entidad['MEDIDAS'] is not None else ''
+    medidas = entidad[campo] if entidad[campo] is not None else ''
     if not medidas:
         return default
     listaMedidas = medidas.split(separador)
@@ -26,14 +40,17 @@ def DesagregarMedida(entidad, indiceLinea, separador='-'):
         return listaMedidas[indiceLinea-1]
 
 @qgsfunction(args='auto', group='DGC-Custom')
-def CiclarCadena(cadena, separador='-'):
+def STR_CiclarCadena(cadena, separador='-'):
+    """
+    Recibe una cadena, la trata como una lista usando separador='-', y la devuelve con el primer item pasado al ultimo lugar.
+    """
     lista = cadena.split(separador)
     lista = lista[1:] + [lista[0]]
     nuevaCadena = '-'.join(lista)
     return nuevaCadena
 
 @qgsfunction(args='auto', group='DGC-Custom')
-def VerificarMedida(
+def RGB_VerificarMedida(
         entidad, 
         indiceLinea, 
         longLinea, 
@@ -41,6 +58,9 @@ def VerificarMedida(
         toleranciaMin=0.01, 
         toleranciaMax=0.05,
         nombreCampo='MEDIDAS'):
+    """
+    Compara la longitud real de la linea en un indice del poligono, con la etiqueta de la misma. Devuelve colores segun que tanta diferencia haya entre ellas.
+    """
     colorMuchaDiferencia = '#FF0000'
     colorPocaDiferencia = '#FFAA00'
     colorOK = '#000000'

@@ -579,6 +579,33 @@ def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
         print(f'Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints. ErrorMSG: {e}')
         return geometry
 
+def GEOM_NormalizeFirstVertex(geom):
+    """
+    Reorders the vertices of a polygon to start from the westernmost point.
+    If the first and last points are identical, it removes the last one, ensures continuity,
+    and closes the polygon by duplicating the new first point at the end.
+
+    PARAMETERS
+    geometry: QgsGeometry
+        The polygon geometry to reorder.
+
+    RETURNS
+    QgsGeometry
+        A reordered and closed polygon geometry.
+    """
+    if not geom or geom.type() != QgsWkbTypes.PolygonGeometry:
+        print("Geometría no poligonal en GEOM_NormalizeFirstVertex.")
+        return geom
+    vertices = geom.asPolygon()[0]
+    if vertices[0] == vertices[-1]:
+        vertices.pop()
+    westernmostPoint = min(vertices, key=lambda p: (p.x(), p.y()))
+    index = vertices.index(westernmostPoint)
+    orderedVertexes = vertices[index:] + vertices[:index]
+    orderedVertexes.append(orderedVertexes[0])
+    wkt = 'Polygon ((' + ', '.join(f'{p.x()} {p.y()}' for p in orderedVertexes) + '))'
+    return QgsGeometry.fromWkt(wkt)
+
 def GEOM_ToMultiXY(geom):
     """
     Converts a QgsGeometry object into its XY coordinates based on geometry type.

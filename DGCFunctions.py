@@ -230,3 +230,38 @@ def LeerDicEjidos():
     """
     global DicEjidos
     return DicEjidos
+
+def AplicarFuncionACapasDePueblo(funcion, propsypose=True, exptes=False, radios=False, circ=False, calles=False, regs=False, mzs=False):
+    """
+    Aplica una funcion a todas las capas del tipo seleccionado en PUEBLOS CAD-GIS. Usar con precaucion, generar backup antes.
+    """
+    if not callable(funcion):
+        print("El parametro no era una funcion utilizable.")
+        return
+    capas = []
+    keys = []
+    if propsypose:
+        keys += ['PROPIETARIOS','POSEEDORES']
+    if exptes:
+        keys.append('EXPEDIENTES')
+    if radios:
+        keys.append('RADIOS')
+    if circ:
+        keys.append('CIRCUNSCRIPCIONES')
+    if calles:
+        keys.append('CALLES')
+    if regs:
+        keys.append('REGISTRADOS')
+    if mzs:
+        keys.append('MANZANAS')
+    ejidos = CompletarDicEjidos(True)
+    for _, ejido in ejidos.items():
+        for key in keys:
+            capas.append(ejido[key])
+    for capa in capas:
+        try:
+            funcion(capa)
+        except:
+            print(f"Ocurrio un error al aplicar la funcion a la capa {capa.name()}")
+
+    
