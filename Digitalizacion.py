@@ -9,6 +9,7 @@ Funciones:
  > CortarOchava() / ochava() / ochava(5)
 - Permite cortar rapidamente ochavas.
 - Por defecto toma puntos nuevos a 4 unidades (metros) de distancia hacia los vertices adyacentes al seleccionado, pero puede asignarse otra distancia como primer parametro.
+- Por defecto esta configurada para trabajar sobre capas en proyecciones planas. Si se detecta una capa en WGS84, debera asignar un codigo epsg como segundo parametro, para realizar una reproyeccion de la geometria antes de operar.
 
  > NumerarParcelas() / numerar() / numerar(50, 'PARCELA', False)
 - Permite numerar poligonos mediante una linea dibujada dinamicamente por el usuario. 
@@ -38,8 +39,7 @@ from NumberingTool import *
 
 def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
     """
-    Permite asignar rapidamente un valor en un campo a las parcelas
-    seleccionadas.
+    Permite asignar rapidamente un valor en un campo a las entidades seleccionadas.
 
     PARAMETROS
     valor: numero o cadena de caracteres
@@ -48,9 +48,7 @@ def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
         Nombre del campo/columna de la tabla donde se va a modificar
 
     COMENTARIOS
-    Hola, soy un comentario! Me resulta un poco mas rapido que usar la
-    calculadora de campos, pero es basicamente lo mismo. Es potente si 
-    combina con NumerarParcelas. Aplica SOLO a entidades seleccionadas
+    Hola, soy un comentario! Me resulta un poco mas rapido que usar la calculadora de campos, pero es basicamente lo mismo. Aplica SOLO a entidades seleccionadas
     
     RETORNO
     Nada
@@ -94,7 +92,10 @@ def CortarOchava(distancia=4, epsg=False):
         El codigo EPSG del sistema de coordenadas planas al que reproyectar la geometria antes de cortarla.
 
     COMENTARIOS
-    Invocar la herramienta permite seleccionar puntos cercanos a un vertice de una geometria. Calcula dos puntos hacia los vertices adyacentes a la distancia especificada (por defecto 4 metros), los inserta y elimina el vertice seleccionado.
+    - Invocar la herramienta permite seleccionar puntos cercanos a un vertice de una geometria. Calcula dos puntos hacia los vertices adyacentes a la distancia especificada (por defecto 4 metros), los inserta y elimina el vertice seleccionado.
+    - A veces, al seleccionar un punto, se crean los nuevos vertices pero no se elimina el anterior. Intentar eliminarlo manualmente ANTES de guardar los cambios en la capa, resulta en algunos comportamientos extraños por parte del poligono. No es grave, pero no se como solucionarlo sin forzar un guardado de la capa (no queremos eso, es proferible poder volver atras los cambios)
+
+    RETORNO
     Nada
     """
     epsgCapa = iface.activeLayer().crs()
@@ -126,18 +127,12 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     campoObjetivo: cadena de caracteres
         Nombre del campo/columna de la tabla donde se va a numerar.
     capa: QgsVectorLayer o cadena de caracteres
-        Capa, o nombre de capa, donde se quiere numerar. Por defecto
-        toma la capa activa actual
+        Capa, o nombre de capa, donde se quiere numerar. Por defecto toma la capa activa actual
     concatenar: bool
-        True o False. Por defecto en Falso, reemplaza el valor previo
-        del campo al guardar la numeracion. Si se invoca la funcion con
-        conatenar=True, el numero se va a agregar al final del valor
-        anterior del campo.
+        True o False. Por defecto en Falso, reemplaza el valor previo del campo al guardar la numeracion. Si se invoca la funcion concanatenar=True, el numero se va a agregar al final del valor anterior del campo.
 
     COMENTARIOS
-    Hola, soy un comentario! A veces, cuando ocurre un error, la linea
-    dibujada permanece en pantalla. Para quitarla, seleccionar alguna
-    otra herramienta de QGis, como Seleccionar Entidades o Editar.
+    Hola, soy un comentario! A veces, cuando ocurre un error, la linea dibujada permanece en pantalla. Para quitarla, seleccionar alguna otra herramienta de QGis, como Seleccionar Entidades o Editar.
 
     RETORNO
     Nada
