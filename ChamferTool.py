@@ -25,7 +25,7 @@ class ChamferTool(QgsMapToolEmitPoint):
         The tolerance used to simplify repeated points in the geometry. If set to False or similar, no simplification occurs.
     """
 
-    def __init__(self, distance, tolerance=0.01):
+    def __init__(self, distance, tolerance=0.01, epsgCode=False):
         """
         Initializes the map tool.
 
@@ -35,13 +35,20 @@ class ChamferTool(QgsMapToolEmitPoint):
         tolerance: float or False
             The tolerance used to simplify repeated points in the geometry. If set to False or similar, no simplification occurs.
         """
-        canvas = iface.mapCanvas()
-        super().__init__(canvas)
-        self.canvas = canvas
+        super().__init__(iface.mapCanvas())
+        self.canvas = iface.mapCanvas()
         self.distance = distance
         self.layer = iface.activeLayer()
         self.setCursor(Qt.CrossCursor)
         self.tolerance = tolerance
+        self.reproject = True if epsgCode else False
+        if epsgCode:
+            self.tolerance = 0.0000001
+            newCrs = QgsCoordinateReferenceSystem(epsgCode)
+            self.newCrs = newCrs
+            oldCrs = self.layer.crs()
+            self.transformToNewCRS = QgsCoordinateTransform(oldCrs, newCrs, QgsProject.instance())
+            self.transformToOldCRS = QgsCoordinateTransform(newCrs, oldCrs, QgsProject.instance())
 
     def canvasReleaseEvent(self, event):
         """
@@ -69,7 +76,8 @@ class ChamferTool(QgsMapToolEmitPoint):
             Mouse's released button (usually Qt.LeftButton).
         """
         if button == Qt.LeftButton:
-            rect = QgsRectangle(point.x() - 0.0001, point.y() - 0.0001, point.x() + 0.0001, point.y() + 0.0001)
+            rectDist = 0.000001
+            rect = QgsRectangle(point.x() - rectDist, point.y() - rectDist, point.x() + rectDist, point.y() + rectDist)
             self.layer.selectByRect(rect, Qgis.SelectBehavior.SetSelection)
             if self.layer.selectedFeatureCount() == 1:
                 feature = self.layer.selectedFeatures()[0]
@@ -78,7 +86,9 @@ class ChamferTool(QgsMapToolEmitPoint):
                     geom = GEOM_DeleteDuplicatePoints(feature.geometry(), self.tolerance) if self.tolerance else feature.geometry()
                 except:
                     geom = feature.geometry()
-
+                if self.reproject:
+                    geom.transform(self.transformToNewCRS)
+                    point = self.transformToNewCRS.transform(point)
                 nearestVertex = geom.closestVertex(point)
                 vertexIndex = nearestVertex[1]
                 vertexPrevIndex = nearestVertex[2]
@@ -103,15 +113,20 @@ class ChamferTool(QgsMapToolEmitPoint):
                 else:
                     wktType = 'Polygon '
                     vertices = geom.asPolygon()[0]
-                vertices[vertexIndex] = newPointPrev
+                vertices.pop(vertexIndex)
+                vertices.insert(vertexIndex, newPointPrev)
                 vertices.insert(vertexNextIndex, newPointNext)
 
                 wkt = wktType + ' (((' + ', '.join(f'{p.x()} {p.y()}' for p in vertices) + ')))'
                 newGeometry = QgsGeometry.fromWkt(wkt)
+                if self.reproject:
+                    newGeometry.transform(self.transformToOldCRS)
                 if not self.layer.isEditable():
                     self.layer.startEditing()
                 self.layer.changeGeometry(feature.id(), newGeometry)
                 self.canvas.refresh()
+            elif self.layer.selectedFeatureCount() < 1:
+                print('No se selecciono una entidad.')
             else:
                 print('Se seleccionó más de una entidad. Toca más lejos del borde del polígono!')
 
@@ -127,4 +142,18 @@ class ChamferTool(QgsMapToolEmitPoint):
         """
         if event.key() == Qt.Key_Escape:
             self.canvas.setMapTool(QgsMapTool())
+
+    def activate(self):
+        """
+        Activates the chamfer tool. Displays the mouse a cross.
+        """
+        self.setCursor(Qt.CrossCursor)
+        if self.reproject:
+            print(f"Reproyectando geometrias a {self.newCrs.userFriendlyIdentifier()}")
+
+    def deactivate(self):
+        """
+        Deactivates the chamfer tool.
+        """
+        self.setCursor(Qt.ArrowCursor)
    

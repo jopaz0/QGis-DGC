@@ -82,19 +82,32 @@ Nomenclar = AsignarValorACampo
 nomenclar = AsignarValorACampo
 NOMENCLAR = AsignarValorACampo
 
-def CortarOchava(distancia=4):
+
+def CortarOchava(distancia=4, epsg=False):
     """
     Permite cortar rapidamente ochavas.
 
     PARAMETROS
     distancia: numero
         Distancia que va a tomar a cada lado del vertice al cortar la ochava.
+    epsg: numero
+        El codigo EPSG del sistema de coordenadas planas al que reproyectar la geometria antes de cortarla.
 
     COMENTARIOS
     Invocar la herramienta permite seleccionar puntos cercanos a un vertice de una geometria. Calcula dos puntos hacia los vertices adyacentes a la distancia especificada (por defecto 4 metros), los inserta y elimina el vertice seleccionado.
     Nada
     """
-    herramienta = ChamferTool(distancia)
+    epsgCapa = iface.activeLayer().crs()
+    epsgProyecto = QgsProject.instance().crs()
+    if not epsg and epsgCapa.postgisSrid() == 4326:
+        print('El CRS actual del proyecto es WGS84 y no se indico un CRS de reproyeccion.')
+        print('Por ejemplo, utilizar ochava(epsg=5346) / ochava(4,5346)')
+        print('Faja2=5344, Faja3=5345, Faja4=5346')
+        return
+    if not epsgCapa.postgisSrid() == epsgProyecto.postgisSrid():
+        print('El CRS actual del proyecto y de la capa no coinciden.')
+        return
+    herramienta = ChamferTool(distancia, epsgCode=epsg)
     iface.mapCanvas().setMapTool(herramienta)
     iface._currentTool = herramienta
 cortarochava = CortarOchava
