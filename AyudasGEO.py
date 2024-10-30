@@ -1,6 +1,6 @@
 """
-Modulo: Ayudas (23 Oct 2024)
-Funciones varias para agilizar o automatizar el trabajo diario en DGC. Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
+Modulo: AyudasGEO (23 Oct 2024)
+Funciones varias para agilizar o automatizar el trabajo diario en Geodesia. Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
 Funciones: 
  > Abrir(registrado) / abrir(12345) / abrir('1234 25222 50789')
 - Abre los registrados solicitados.
