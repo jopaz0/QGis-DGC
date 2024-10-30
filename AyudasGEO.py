@@ -38,8 +38,6 @@ Funciones:
 
 Tipee help(funcion) en la consola para mas informacion.
 #################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
-
-:v Fomentando la vagancia responsable desde 2020!
 """
 import os
 import zipfile
