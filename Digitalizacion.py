@@ -48,7 +48,7 @@ def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
         Nombre del campo/columna de la tabla donde se va a modificar
 
     COMENTARIOS
-    Hola, soy un comentario! Me resulta un poco mas rapido que usar la calculadora de campos, pero es basicamente lo mismo. Aplica SOLO a entidades seleccionadas
+    Hola, soy un comentario! Me resulta un poco mas rapido que usar la calculadora de campos, pero es basicamente lo mismo.
     
     RETORNO
     Nada
@@ -129,10 +129,10 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     capa: QgsVectorLayer o cadena de caracteres
         Capa, o nombre de capa, donde se quiere numerar. Por defecto toma la capa activa actual
     concatenar: bool
-        True o False. Por defecto en Falso, reemplaza el valor previo del campo al guardar la numeracion. Si se invoca la funcion concanatenar=True, el numero se va a agregar al final del valor anterior del campo.
+        True o False. Por defecto en True, indica si la numeracion concatena con el valor previo del campo, o lo reemplaza.
 
     COMENTARIOS
-    Hola, soy un comentario! A veces, cuando ocurre un error, la linea dibujada permanece en pantalla. Para quitarla, seleccionar alguna otra herramienta de QGis, como Seleccionar Entidades o Editar.
+    Hola, soy un comentario! Esto aplica a TODAS las entidades en la capa actual, no solo a la seleccion.
 
     RETORNO
     Nada
