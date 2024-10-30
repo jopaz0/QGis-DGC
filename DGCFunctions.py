@@ -257,7 +257,10 @@ def AplicarFuncionACapasDePueblo(funcion, propsypose=True, exptes=False, radios=
     ejidos = CompletarDicEjidos(True)
     for _, ejido in ejidos.items():
         for key in keys:
-            capas.append(ejido[key])
+            if key in ejido.keys() and ejido[key]:
+                capas.append(ejido[key])
+            else:
+                print(f"No encontre la capa de {key} en {ejido['NOMBRE']}")
     for capa in capas:
         try:
             funcion(capa)
