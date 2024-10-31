@@ -7,7 +7,7 @@ import importlib.util
 
 tempFolder = tempfile.gettempdir()
 sys.path.append(tempFolder)
-depNames = ['CommonFunctions', 'DGCFunctions', 'ChamferTool', 'NumberingTool']
+depNames = ['CommonFunctions', 'DGCFunctions', 'ChamferTool', 'NumberingTool', 'DGCCustomExpressions']
 DGCModuleNames = ['Digitalizacion', 'Sincronizacion', 'AyudasGEO']
 for name in depNames + DGCModuleNames:
     filePath = os.path.join(tempFolder, f"{name}.py")

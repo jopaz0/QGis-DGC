@@ -316,7 +316,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
         str: La ruta al archivo KMZ generado.
     """
     nombrePlantilla = 'res/Geodesia/KMLBaseDGC'
-    archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
+    archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
     capa = iface.activeLayer()
     campos = [f.name() for f in capa.fields()]
     if rutaKml:
@@ -363,7 +363,7 @@ def GenerarKMZs(guardarEnL = False):
         carpeta = PATH_GetDefaultSaveFolder()
     carpeta = os.path.join(carpeta, f"KMZs al dia {fechaYHora}")
     nombrePlantilla = 'res/Geodesia/KMLBaseDGC'
-    archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
+    archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
     with open(archivoPlantilla, 'r', encoding='utf-8') as archivo:
         plantilla = archivo.read()
     CompletarDicEjidos()

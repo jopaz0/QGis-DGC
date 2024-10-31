@@ -890,7 +890,7 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
         print(f'Error while looking for {filter} in {subfolder}. ErrorMSG: {e}')
         return False
 
-def PATH_GetFileFromWeb(filename, urlRoot=f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/'):
+def PATH_GetFileFromWeb(githubFilePath, urlRoot=f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/'):
     """
     Tryes to retrieve a file from the web, by defaults searchs for it in this Github repo.
 
@@ -908,11 +908,11 @@ def PATH_GetFileFromWeb(filename, urlRoot=f'https://raw.githubusercontent.com/jo
     """
     try:
         tempFolder = tempfile.gettempdir()
-        filePath = os.path.join(tempFolder, filename)
-        url = urlRoot + urllib.parse.quote(filename)
-        if os.path.exists(filePath):
-            os.remove(filePath)
-        response = urllib.request.urlretrieve(url, filePath)
+        localFilePath = os.path.join(tempFolder, githubFilePath.split('\\')[-1])
+        url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\','/'))
+        if os.path.exists(localFilePath):
+            os.remove(localFilePath)
+        response = urllib.request.urlretrieve(url, localFilePath)
         if type(response) is tuple:
             return response[0]
         return response
