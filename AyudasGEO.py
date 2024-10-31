@@ -315,7 +315,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     Devuelve:
         str: La ruta al archivo KMZ generado.
     """
-    nombrePlantilla = 'KMLBaseDGC'
+    nombrePlantilla = 'res/Geodesia/KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
     capa = iface.activeLayer()
     campos = [f.name() for f in capa.fields()]
@@ -362,7 +362,7 @@ def GenerarKMZs(guardarEnL = False):
     else:
         carpeta = PATH_GetDefaultSaveFolder()
     carpeta = os.path.join(carpeta, f"KMZs al dia {fechaYHora}")
-    nombrePlantilla = 'KMLBaseDGC'
+    nombrePlantilla = 'res/Geodesia/KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(f'{nombrePlantilla}.kml')
     with open(archivoPlantilla, 'r', encoding='utf-8') as archivo:
         plantilla = archivo.read()

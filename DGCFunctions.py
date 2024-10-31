@@ -17,7 +17,7 @@ def InicializarDicEjidos():
     """
     global DicEjidos
     if not DicEjidos:
-        csvPath = PATH_GetFileFromWeb('InfoEjidos.csv')
+        csvPath = PATH_GetFileFromWeb('res/Geodesia/InfoEjidos.csv')
         ejidos = DICT_SetKey(CSV_ToDictList(csvPath, separator=';'), 'EJIDO')
         DicEjidos = { key: value[0] for key, value in ejidos.items()}
 InicializarDicEjidos()
@@ -118,7 +118,7 @@ def CompletarDicEjidos(reescribirDicEjidos=False):
     """
     global DicEjidos
     DicEjidos = {}
-    csvPath = PATH_GetFileFromWeb('InfoEjidos.csv')
+    csvPath = PATH_GetFileFromWeb('res/Geodesia/InfoEjidos.csv')
     ejidos = CSV_ToDictList(csvPath, separator=';')
     ejidos = DICT_SetKey(ejidos, 'EJIDO')
 
