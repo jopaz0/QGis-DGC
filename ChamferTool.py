@@ -75,10 +75,15 @@ class ChamferTool(QgsMapToolEmitPoint):
         button: int
             Mouse's released button (usually Qt.LeftButton).
         """
+        print('asd')
         if button == Qt.LeftButton:
             rectDist = 0.000001
             rect = QgsRectangle(point.x() - rectDist, point.y() - rectDist, point.x() + rectDist, point.y() + rectDist)
-            self.layer.selectByRect(rect, Qgis.SelectBehavior.SetSelection)
+            #Intento de que funcione en Qgis viejos 
+            try:
+                self.layer.selectByRect(rect, Qgis.SelectBehavior.SetSelection)
+            except:
+                self.layer.selectByRect(rect, QgsVectorLayer.SetSelection)
             if self.layer.selectedFeatureCount() == 1:
                 feature = self.layer.selectedFeatures()[0]
                 #this way, if used as standalone tool, it will fail GEOM_DeleteDuplicatePoints and default to the feature geometry
