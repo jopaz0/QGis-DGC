@@ -263,6 +263,21 @@ def CANVAS_RepathLayer(layerName, layerPath, filters={}, forceCRS=False):
         print (f'Error while changing datsource on layer {layerName} to {layerPath}. ErrorMSG: {e}')
         return False
 
+def CANVAS_ZoomToLayer(layer):
+    """
+    Zooms to the layer extent.
+
+    PARAMETERS
+    layere: QgsVectorLayer
+
+    COMMENTS
+
+    RETURNS
+    """
+    extent = layer.extent()
+    iface.mapCanvas().setExtent(extent)
+    iface.mapCanvas().refresh()
+
 def CANVAS_ZoomToSelectedFeatures(layer):
     """
     Zooms to selected features in layer, if any.
@@ -842,6 +857,32 @@ def KML_TranslateGeometry(feature, tabs=2):
     lines.append('\t'*(tabs+1) + "</MultiGeometry>")
     descriptor = '\n'.join(lines)
     return descriptor
+
+def NUM_GetNextScale(scale, zoom=1):
+    """
+    Receives the current map scale and a zoom percentage, and returns the next official DGC scale that is immediately higher.
+
+    The zoom factor acts as a buffer; values above 1 zoom out, while values below zoom in.
+
+    PARAMETERS
+    scale: float
+        The current scale of the map.
+    zoom: float | optional
+        The percentage to adjust the scale, where values above 1 zoom out (default is 1).
+
+    RETURNS
+    float
+        The next higher official DGC scale based on the current scale and zoom factor.
+    """
+
+    scale = scale * zoom
+    bases = [100,125,150,200,250,300,400,500,750]
+    mult = 1
+    while True:
+        for base in bases:
+            if scale <= base*mult:
+                return base * mult
+        mult = mult*10
 
 def PATH_GetDefaultSaveFolder():
     path = os.path.join(Path.home(), 'Documents','BORRAR')

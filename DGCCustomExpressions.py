@@ -8,14 +8,6 @@ from qgis.gui import *
 from qgis.utils import iface
 from CommonFunctions import *
 
-@qgsfunction(args='auto', group='DGC-Custom')
-def STR_EtiquetaMzna(parcela):
-    """
-    Devuelve la etiqueta de manzana/quinta/chacra de la entidad.
-    """
-    nomenclatura = CalcularNomenclatura(parcela)
-    etiqueta = nomenclatura.split('-')[-1]
-    return etiqueta
 
 @qgsfunction(args='auto', group='DGC-Custom')
 def GEOM_NormalizarPrimerVertice(geometria):
@@ -24,6 +16,15 @@ def GEOM_NormalizarPrimerVertice(geometria):
     """
     return GEOM_NormalizeFirstVertex(geometria)
 
+@qgsfunction(args='auto', group='DGC-Custom')
+def NUM_ObtenerEscalaProxima(escala, ampliacion=1):
+    """
+    Recibe la escala actual del mapa y un porcentaje de ampliacion, y devuelve la escala oficial de DGC inmediatamente superior.
+    
+    La ampliacion funciona como un buffer, a valores por encima de 1, aleja el zoom, por asi decir.
+    """
+    return NUM_GetNextScale(escala, ampliacion)
+            
 @qgsfunction(args='auto', group='DGC-Custom')
 def STR_DesagregarMedida(entidad, indiceLinea, campo='MEDIDAS', separador='-'):
     """
@@ -38,6 +39,31 @@ def STR_DesagregarMedida(entidad, indiceLinea, campo='MEDIDAS', separador='-'):
         return default
     else:
         return listaMedidas[indiceLinea-1]
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def STR_EtiquetaCC(parcela):
+    """
+    Devuelve la etiqueta de manzana/quinta/chacra de la entidad.
+    """
+    if cc==0:
+        return 'Parc.'
+    elif cc==1:
+        return 'Ch.'
+    elif cc==2 or cc==5:
+        return 'Qta.'
+    elif cc==3 or cc==4:
+        return 'Mz.'
+    else:
+        return ''
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def STR_EtiquetaManzana(parcela):
+    """
+    Devuelve la etiqueta de manzana/quinta/chacra de la entidad.
+    """
+    nomenclatura = CalcularNomenclatura(parcela)
+    etiqueta = nomenclatura.split('-')[-1]
+    return etiqueta
 
 @qgsfunction(args='auto', group='DGC-Custom')
 def STR_CiclarCadena(cadena, separador='-'):

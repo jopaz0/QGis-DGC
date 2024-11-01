@@ -155,8 +155,16 @@ def FiltrarParcelas(circ, radio, cc, mzna):
     capas += QgsProject.instance().mapLayersByName('Propietarios-PHs')
     capas += QgsProject.instance().mapLayersByName('Poseedores')
     capas += QgsProject.instance().mapLayersByName('Registrados')
+    conejilloDeIndias = capas[0]
+    filtroAnterior = conejilloDeIndias.subsetString()
+    conejilloDeIndias.setSubsetString(cadena)
+    if not any(conejilloDeIndias.getFeatures()):
+        conejilloDeIndias.setSubsetString(filtroAnterior)
+        print(f'Ninguna parcela coincidia con la nomenclatura provista.')
+        return False
     for capa in capas:
         capa.setSubsetString(cadena)
+    return True
 filtrar = FiltrarParcelas
 FILTRAR = FiltrarParcelas
 

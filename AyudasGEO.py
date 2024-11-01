@@ -400,6 +400,59 @@ def GenerarKMZs(guardarEnL = False):
 kmzs = GenerarKMZs
 KMZS = GenerarKMZs
 
+def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
+    """
+    Genera un manzanero en la nomenclatura especificada, si existe.
+
+    PARAMETROS
+    ejido: str
+        El nombre del ejido.
+    circ: int
+        Representa el número de la circunscripción.
+    radio: str
+        Representa la letra del radio.
+    cc: int
+        Representa el código catastral.
+    mzna: int | str
+        Representa la manzana.
+    plantilla: str | opcional
+        El nombre de la composición (por defecto es 'Manzanero A4').
+
+    COMENTARIOS
+    - Esto funciona sobre la plantilla de DGC solamente.
+        
+    RETORNOS
+    None
+        La función no devuelve ningún valor. En su lugar, genera una composición en QGIS
+        y ajusta el mapa según los parámetros proporcionados.
+    """
+    if not FiltrarParcelas(circ, radio, cc, mzna):
+        return
+    capa = QgsProject.instance().mapLayersByName('Propietarios-PHs')[0]
+    extension = capa.extent()
+    CANVAS_ZoomToLayer(capa)
+
+    manager = QgsProject.instance().layoutManager()
+    composicion = manager.layoutByName(plantilla)
+    if composicion is not None:
+        iface.openLayoutDesigner(composicion)
+    else:
+        print(f"No se encontró una composición con el nombre {plantilla}")
+
+    mapa = composicion.itemById('ventanaGrafica')
+    mapa.zoomToExtent(extension)
+    mapa.setScale(NUM_GetNextScale(mapa.scale(), 1.15))
+
+    if cc == 1:
+        nomencla = f"{STR_FillWithChars(ejido,3)}-{STR_IntToRoman(circ)}-Ch.{str(mzna)}"
+    elif cc == 2 or cc == 5:
+        nomencla = f"{STR_FillWithChars(ejido,3)}-{STR_IntToRoman(circ)}-{radio.lower()}-Qt.{str(mzna)}"
+    else:
+        nomencla = f"{STR_FillWithChars(ejido,3)}-{STR_IntToRoman(circ)}-{radio.lower()}-Mz.{str(mzna)}"
+    texto = composicion.itemById('Nombre')
+    texto.setText(nomencla)
+    texto.refresh()
+    
 def InfoEjido(ejido=False):
     """
     Imprime en consola la informacion existente sobre el ejido o los modulos.
