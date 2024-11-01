@@ -152,7 +152,7 @@ def CompletarTabla(ejido, capa = False):
         if csv:
             diccionario += csv
         else:
-            return False
+            continue
 
     #aplico algunas conversiones a los datos.. parece que solo necesite una
     for entidad in diccionario:
