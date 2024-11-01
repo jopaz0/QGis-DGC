@@ -66,7 +66,8 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
 
     entidades = CANVAS_CheckSelection(capa)
     if not entidades:
-        return
+        print(f'No habian parcelas seleccionadas.' )
+        return False
 
     #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
     for campo in ['NOMENCLA','PARTIDA', 'CC','TEN']:
@@ -84,14 +85,13 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
         csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
         diccionarios[cc] = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
         if not diccionarios[cc]:
-            return False
+            continue
         if poseedores:
             diccionarios[cc] = DICT_Filter(diccionarios[cc], matchFilters={'TEN':'S'})
         else:
             diccionarios[cc] = DICT_Filter(diccionarios[cc], unmatchFilters={'TEN':'S'})
-
         diccionarios[cc] = DICT_SetKey(diccionarios[cc], 'NOMENCLA')
-
+     
     #separo las parcelas por cc y matcheo por nomenclatura con el diccionario que le corresponda
     #de momento, esto no tiene en cuenta PHS
     for cc in [1,2,3]:
