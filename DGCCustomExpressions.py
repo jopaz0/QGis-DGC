@@ -50,6 +50,19 @@ def STR_CiclarCadena(cadena, separador='-'):
     return nuevaCadena
 
 @qgsfunction(args='auto', group='DGC-Custom')
+def RGB_ColorRegistrado(registrado, pastel=True):
+    regs = (reg for reg in str(registrado).split('-'))
+    reg = max(regs)
+    suma = 0
+    for n in reg:
+        if n.isdigit():
+            suma += int(n)
+        if suma > 25:
+            suma -= 25
+    color = f"REG{suma} PASTEL" if pastel else f"REG{suma}"
+    return color
+
+@qgsfunction(args='auto', group='DGC-Custom')
 def RGB_VerificarMedida(
         entidad, 
         indiceLinea, 
