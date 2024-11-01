@@ -24,7 +24,17 @@ def NUM_ObtenerEscalaProxima(escala, ampliacion=1):
     La ampliacion funciona como un buffer, a valores por encima de 1, aleja el zoom, por asi decir.
     """
     return NUM_GetNextScale(escala, ampliacion)
-            
+    
+@qgsfunction(args='auto', group='DGC-Custom')
+def STR_CiclarCadena(cadena, separador='-'):
+    """
+    Recibe una cadena, la trata como una lista usando separador='-', y la devuelve con el primer item pasado al ultimo lugar.
+    """
+    lista = cadena.split(separador)
+    lista = lista[1:] + [lista[0]]
+    nuevaCadena = '-'.join(lista)
+    return nuevaCadena
+
 @qgsfunction(args='auto', group='DGC-Custom')
 def STR_DesagregarMedida(entidad, indiceLinea, campo='MEDIDAS', separador='-'):
     """
@@ -66,14 +76,11 @@ def STR_EtiquetaManzana(parcela):
     return etiqueta
 
 @qgsfunction(args='auto', group='DGC-Custom')
-def STR_CiclarCadena(cadena, separador='-'):
+def STR_NumeroRomano(n):
     """
-    Recibe una cadena, la trata como una lista usando separador='-', y la devuelve con el primer item pasado al ultimo lugar.
+    Devuelve la version romana de un numero entero.
     """
-    lista = cadena.split(separador)
-    lista = lista[1:] + [lista[0]]
-    nuevaCadena = '-'.join(lista)
-    return nuevaCadena
+    return STR_IntToRoman(n)
 
 @qgsfunction(args='auto', group='DGC-Custom')
 def RGB_ColorRegistrado(registrado, pastel=True):
