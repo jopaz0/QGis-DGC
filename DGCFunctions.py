@@ -157,6 +157,8 @@ def FiltrarParcelas(circ, radio, cc, mzna):
     capas += QgsProject.instance().mapLayersByName('Registrados')
     for capa in capas:
         capa.setSubsetString(cadena)
+filtrar = FiltrarParcelas
+FILTRAR = FiltrarParcelas
 
 def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLienzo=True):
     """
