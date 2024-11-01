@@ -74,9 +74,9 @@ def RGB_VerificarMedida(
     """
     Compara la longitud real de la linea en un indice del poligono, con la etiqueta de la misma. Devuelve colores segun que tanta diferencia haya entre ellas.
     """
-    colorMuchaDiferencia = '#FF0000'
-    colorPocaDiferencia = '#FFAA00'
-    colorOK = '#000000'
+    colorMuchaDiferencia = 'MEDIDA MAL'
+    colorPocaDiferencia = 'MEDIDA MASOMENOS'
+    colorOK = 'MEDIDA BIEN'
     medidas = entidad[nombreCampo] if entidad[nombreCampo] is not None else ''
     if not medidas:
         return colorMuchaDiferencia
@@ -103,140 +103,6 @@ def CC123(cc, feature, parent):
         return 3
     return 0
 
-@qgsfunction(args='auto', group='Custom')
-def DatosEjidos(ejido, dato, feature, parent):
-    dicEjidos={
-        #EJIDO:NOMBRE,FAJA
-        1:['Realicó',4],
-        2:['A. Van Praet',4],
-        3:['Ojeda',4],
-        4:['Alta Italia',4],
-        5:['Embajador Martini',4],
-        6:['Ingeniero Luiggi',4],
-        7:['Maisonnave',4],
-        8:['',4],
-        9:['Falucho',4],
-        10:['Hilario Lagos',4],
-        11:['',4],
-        12:['Sarah',4],
-        13:['Bernardo Larroudé',4],
-        14:['Vertiz',4],
-        15:['Intendente Alvear',4],
-        16:['Ceballos',4],
-        17:['Speluzzi',4],
-        18:['Agustoni',4],
-        19:['Dorila',4],
-        20:['Trebolares',4],
-        21:['General Pico',4],
-        22:['Arata',4],
-        23:['Metileo',4],
-        24:['Monte Nievas',4],
-        25:['Trenel',4],
-        26:['Eduardo Castex',4],
-        27:['Mauricio Mayer',4],
-        28:['Winifreda',4],
-        29:['Bouef',4],
-        30:['',4],
-        31:['',4],
-        32:['Relmo',4],
-        33:['Colonia San Jose',4],
-        34:['Quemú Quemú',4],
-        35:['Miguel Cané',4],
-        36:['Colonia Barón',4],
-        37:['Villa Mirasol',4],
-        38:['Huelen',4],
-        39:['Catriló',4],
-        40:['',4],
-        41:['Uriburu',4],
-        42:['Lonquimay',4],
-        43:['La Gloria',4],
-        44:['Anguil',4],
-        45:['Cachirulo',4],
-        46:['Toay',4],
-        47:['Santa Rosa',4],
-        48:['Naicó',4],
-        49:['Doblas',4],
-        50:['Quehue',4],
-        51:['Ataliva Roca',4],
-        52:['',4],
-        53:['Rolón',4],
-        54:['Miguel Riglos',4],
-        55:['Tomas M. Anchorena',4],
-        56:['Hidalgo',4],
-        57:['',4],
-        58:['Macachín',4],
-        59:['Colonia Santa Teresa',4],
-        60:['Guatraché',4],
-        61:['',4],
-        62:['Alpachiri',4],
-        63:['',4],
-        64:['General Campos',4],
-        65:['Perú',4],
-        66:['',4],
-        67:['Colonia Santa Maria',4],
-        68:['',4],
-        69:['Unanue',4],
-        70:['',4],
-        71:['Hucal',4],
-        72:['Jacinto Arauz',4],
-        73:['Abramo',4],
-        74:['San Martín',4],
-        75:['Bernasconi',4],
-        76:['La Adela',4],
-        77:['',3],
-        78:['',3],
-        79:['Chamaicó',3],
-        80:['Rancul',3],
-        81:['Quetrequén',3],
-        82:['Parera',3],
-        83:['Caleufú',3],
-        84:['La Maruja',3],
-        85:['Pichi Huinca',3],
-        86:['Ingeniero Foster',3],
-        87:['Luan Toro',3],
-        88:['Telen',3],
-        89:['Victorica',3],
-        90:['Loventue',3],
-        91:['Conhello',3],
-        92:['',3],
-        93:['Ceriola',3],
-        94:['Rucanelo',3],
-        95:['Carro Quemado',3],
-        96:['',3],
-        97:['General Acha',3],
-        98:['Chacharramendi',3],
-        99:['Cuchillo Có',3],
-        100:['',3],
-        101:['',3],
-        102:['Puelches',3],
-        103:['Santa Isabel',3],
-        104:['',3],
-        105:['',3],
-        106:['',3],
-        107:['Limay Mahuida',3],
-        108:['La Reforma',3],
-        109:['Algarrobo Del Aguila',3],
-        110:['Puelen',2],
-        111:['',2],
-        112:['Colonia 25 De Mayo',2],
-        113:['',2],
-        114:['Gobernador Dubal',2],
-        115:['LaHumada',2],
-        116:['Colonia Chica',2],
-        117:['Casa De Piedra',2]
-    }
-    try:
-        ejido = int(ejido)
-        ejido = dicEjidos[ejido]
-        if dato.lower() == 'nombre':
-            return ejido[0]
-        elif dato.lower() == 'faja':
-            return ejido[1]
-        else:
-            return ['',0]
-    except:
-        return ['',0]
-    
 @qgsfunction(args='auto', group='Custom')
 def SelectCCColor(cc, feature, parent):
     ccColorDict={
