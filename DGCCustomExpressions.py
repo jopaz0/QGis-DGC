@@ -41,7 +41,7 @@ def STR_DesagregarMedida(entidad, indiceLinea, campo='MEDIDAS', separador='-'):
         return listaMedidas[indiceLinea-1]
 
 @qgsfunction(args='auto', group='DGC-Custom')
-def STR_EtiquetaCC(parcela):
+def STR_EtiquetaCC(cc):
     """
     Devuelve la etiqueta de manzana/quinta/chacra de la entidad.
     """
