@@ -127,6 +127,37 @@ def CompletarDicEjidos(reescribirDicEjidos=False):
         DicEjidos[key].update(BuscarCapasUrbanas(key,reescribirDicEjidos))
     return DicEjidos
 
+def FiltrarParcelas(circ, radio, cc, mzna):
+    """
+    Concatena la nomenclatura urbana recibida como un filtro sql y lo aplica a las capas'Propietarios-PHs', 'Poseedores' y 'Registrados'.
+
+    PARAMETROS
+    circ: numero entero
+        Representa el numero de la circunscripcion.
+    radio: caracter
+        Representa la letra del radio.
+    cc: numero entero
+        Representa el codigo catastral.
+    mzna: numero entero o cadena de caracteres
+        Representa la manzana.
+
+    COMENTARIOS
+
+    RETORNOS
+    """
+    filtros = []
+    filtros.append(f"CIRC = {circ}")
+    filtros.append(f"RADIO ilike '{radio}'")
+    filtros.append(f"CC = {cc}")
+    filtros.append(f"MZNA ilike '{str(mzna)}'")
+    cadena = ' and '.join(filtros)
+    capas = []
+    capas += QgsProject.instance().mapLayersByName('Propietarios-PHs')
+    capas += QgsProject.instance().mapLayersByName('Poseedores')
+    capas += QgsProject.instance().mapLayersByName('Registrados')
+    for capa in capas:
+        capa.setSubsetString(cadena)
+
 def GenerarShapeManzanas(capa, nombre=False, distanciaBuffer=0.05, agregarAlLienzo=True):
     """
     Genera un shape de Manzanas de la capa indicada. 
@@ -276,4 +307,3 @@ def AplicarFuncionACapasDePueblo(funcion, propsypose=True, exptes=False, radios=
         except:
             print(f"Ocurrio un error al aplicar la funcion a la capa {capa.name()}")
 
-    
