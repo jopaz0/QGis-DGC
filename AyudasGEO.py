@@ -362,7 +362,7 @@ def GenerarKMZs(guardarEnL = False):
     else:
         carpeta = PATH_GetDefaultSaveFolder()
     carpeta = os.path.join(carpeta, f"KMZs al dia {fechaYHora}")
-    nombrePlantilla = 'res/Geodesia/KMLBaseDGC'
+    nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
     with open(archivoPlantilla, 'r', encoding='utf-8') as archivo:
         plantilla = archivo.read()
