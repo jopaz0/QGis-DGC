@@ -315,7 +315,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     Devuelve:
         str: La ruta al archivo KMZ generado.
     """
-    nombrePlantilla = 'res/Geodesia/KMLBaseDGC'
+    nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
     capa = iface.activeLayer()
     campos = [f.name() for f in capa.fields()]
