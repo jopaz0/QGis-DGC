@@ -8,6 +8,45 @@ from qgis.gui import *
 from qgis.utils import iface
 from CommonFunctions import *
 
+@qgsfunction(args='auto', group='DGC-Custom')
+def GEOM_GetMeasuresString(geom):
+    """
+    Calculates the edge lengths of a polygon or multipolygon geometry and returns them as a string,
+    separated by hyphens, with three decimal places.
+
+    PARAMETERS
+    geom: QgsGeometry
+        The polygon or multipolygon geometry for which the measures are calculated.
+
+    RETURNS
+    str
+        A string containing the edge lengths of the polygon(s), separated by hyphens.
+        If it's a multipolygon, only the first polygon is processed.
+    """
+    if not geom or geom.wkbType() not in (QgsWkbTypes.Polygon, QgsWkbTypes.MultiPolygon):
+        print("Invalid or unsupported geometry type in GEOM_GetMeasuresString.")
+        return ''
+    
+    # Convert MultiPolygon to the first Polygon if necessary
+    if geom.isMultipart():
+        polygons = geom.asMultiPolygon()
+        if not polygons or not polygons[0]:
+            print("No valid polygons found in the multipolygon geometry.")
+            return ''
+        vertices = polygons[0][0]  # Take the first ring of the first polygon
+    else:
+        vertices = geom.asPolygon()[0]  # Take the first ring
+    
+    if len(vertices) < 2:
+        print("Geometry does not have enough vertices.")
+        return ''
+    
+    measures = []
+    for i in range(len(vertices) - 1):  # Iterate through consecutive vertex pairs
+        length = vertices[i].distance(vertices[i + 1])
+        measures.append(round(length, 3))
+    
+    return '-'.join(f'{m:.3f}' for m in measures)
 
 @qgsfunction(args='auto', group='DGC-Custom')
 def GEOM_NormalizarPrimerVertice(geometria):
@@ -74,6 +113,26 @@ def STR_EtiquetaManzana(parcela):
     nomenclatura = CalcularNomenclatura(parcela)
     etiqueta = nomenclatura.split('-')[-1]
     return etiqueta
+
+@qgsfunction(args='auto', group='DGC-Custom')
+def STR_NumAGMS(decimal_degree):
+    """
+    Converts a decimal degree value to degrees, minutes, and seconds (DMS).
+
+    PARAMETERS
+    decimal_degree: float
+        The value in decimal degrees to be converted.
+
+    RETURNS
+    str
+        A string representation of the value in DMS format (e.g., "45°30'15.5\"").
+    """
+    degrees = int(decimal_degree)
+    remainder = abs(decimal_degree - degrees) * 60
+    minutes = int(remainder)
+    seconds = (remainder - minutes) * 60
+
+    return f"{degrees}°{minutes}'{seconds:.2f}\""
 
 @qgsfunction(args='auto', group='DGC-Custom')
 def STR_NumeroRomano(n):
