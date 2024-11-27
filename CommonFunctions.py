@@ -56,6 +56,46 @@ def CANVAS_AddLayer(layer, name=False, delimiter=False):
         print(f'Exception while loading layer {str(layer)} to map canvas @ CANVAS_AddLayer. ErrorMSG: {e}')
         return False
 
+def CANVAS_AddLayerFromWFS(
+    name,
+    typename,
+    urlWFS='https://geoidelp.lapampa.gob.ar/geoserver/p_dirg_catastro/wfs',
+    epsg=4326):
+    """
+    Loads a layer from a WFS service and adds it to the QGIS project canvas.
+
+    PARAMETERS
+    name: str
+        The name to assign to the layer in the QGIS project.
+    typename: str
+        The typename of the layer in the WFS service (e.g., 'namespace:layer_name').
+    urlWFS: str
+        The URL of the WFS service providing the layer (default is 
+        'https://geoidelp.lapampa.gob.ar/geoserver/p_dirg_catastro/wfs').
+    epsg: int
+        The EPSG code of the coordinate reference system for the layer 
+        (default is 4326).
+
+    RETURNS
+    QgsVectorLayer
+        The loaded layer if successful, or None if the layer could not be loaded.
+    """
+    uri = f"pagingEnabled='default' " \
+          f"preferCoordinatesForWfsT11='false' " \
+          f"restrictToRequestBBOX='1' " \
+          f"srsname='EPSG:{epsg}' " \
+          f"typename='{typename}' " \
+          f"url='{urlWFS}' " \
+          f"version='auto'"
+    layer = QgsVectorLayer(uri, name, "WFS")
+    if layer.isValid():
+        QgsProject.instance().addMapLayer(layer)
+        print(f"Layer {name} added successfully.")
+        return layer
+    else:
+        print(f"Couldn't load layer' {name}.")
+        return None
+
 def CANVAS_CheckForLayer(layer):
     """
     Checks that the provided layer is loaded on the map canvas.
