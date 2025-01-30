@@ -329,9 +329,9 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
             nombre = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
         rutaKml = os.path.join(PATH_GetDefaultSaveFolder(), nombre)
     if 'SECCION' in campos:
-        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclatura, styleBy='StyleCC0', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','APELLIDO','TEN','HECTA','AS','CS'])
+        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclaturaInterna, styleBy='StyleCC0', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','APELLIDO','TEN','HECTA','AS','CS'])
     elif 'EJIDO' in campos:
-        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclatura, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclaturaInterna, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     else:
         print('Flaco que mierda me pasaste?')
         return
@@ -385,7 +385,7 @@ def GenerarKMZs(guardarEnL = False):
                 os.makedirs(carpetaKml, exist_ok=True)
                 rutaKml = os.path.join(carpetaKml, nombreKml)
                 carpetas = KML_ContentBuilder(capa, 
-                        CalcularNomenclatura, 
+                        CalcularNomenclaturaInterna, 
                         styleBy='CC', 
                         tabs=2, 
                         showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
