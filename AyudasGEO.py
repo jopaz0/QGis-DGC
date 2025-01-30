@@ -302,7 +302,7 @@ def GenerarRegistradosDesdeSeleccion():
 regsdesdesel = GenerarRegistradosDesdeSeleccion
 REGSDESDESEL = GenerarRegistradosDesdeSeleccion
 
-def GenerarKMZDesdeSeleccion(rutaKml=False):
+def GenerarKMZDesdeSeleccion(rutaKml=False, decorarNomencla = False):
     """
     Genera un archivo KMZ a partir de las características seleccionadas en la capa activa de QGIS.
 
@@ -315,6 +315,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
     Devuelve:
         str: La ruta al archivo KMZ generado.
     """
+    generadorNombres = CalcularNomenclatura if decorarNomencla else CalcularNomenclaturaInterna
     nombrePlantilla = 'KMLBaseDGC'
     archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
     capa = iface.activeLayer()
@@ -329,9 +330,9 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
             nombre = f'{capa.name()}-Subset-{STR_GetTimestamp()}.kml'
         rutaKml = os.path.join(PATH_GetDefaultSaveFolder(), nombre)
     if 'SECCION' in campos:
-        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclaturaInterna, styleBy='StyleCC0', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','APELLIDO','TEN','HECTA','AS','CS'])
+        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, generadorNombres, styleBy='StyleCC0', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','APELLIDO','TEN','HECTA','AS','CS'])
     elif 'EJIDO' in campos:
-        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, CalcularNomenclaturaInterna, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
+        carpetas = KML_ContentBuilder({'NAME':f'{nombre}-Subset' ,'CONTENT':capa}, generadorNombres, styleBy='CC', tabs=2, showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
     else:
         print('Flaco que mierda me pasaste?')
         return
@@ -348,7 +349,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False):
 kmzdesdesel = GenerarKMZDesdeSeleccion
 KMZDESDESEL = GenerarKMZDesdeSeleccion
 
-def GenerarKMZs(guardarEnL = False):
+def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
     """
     Genera los archivos KMZ de todos los pueblos. Los guarda en la carpeta ../Mis Documentos/Borrar del usuario actual
 
@@ -356,6 +357,7 @@ def GenerarKMZs(guardarEnL = False):
 
     RETORNO
     """
+    generadorNombres = CalcularNomenclatura if decorarNomencla else CalcularNomenclaturaInterna
     fechaYHora = STR_GetTimestamp()
     if guardarEnL:
         carpeta = r'L:/Geodesia/Privado/Sig/PUEBLOS CAD-GIS/KMZs Localidades'
@@ -385,7 +387,7 @@ def GenerarKMZs(guardarEnL = False):
                 os.makedirs(carpetaKml, exist_ok=True)
                 rutaKml = os.path.join(carpetaKml, nombreKml)
                 carpetas = KML_ContentBuilder(capa, 
-                        CalcularNomenclaturaInterna, 
+                        generadorNombres, 
                         styleBy='CC', 
                         tabs=2, 
                         showInTable=['NOMENCLA','PARTIDA','REGISTRADO','CC','APELLIDO','TEN','HECTA','AS','CS'])
