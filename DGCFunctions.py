@@ -104,6 +104,42 @@ def CalcularNomenclatura(parcela):
     nomenclatura = '-'.join(nomenclatura)
     return nomenclatura
 
+def CalcularNomenclaturaInterna(parcela):
+    """
+    Reconstruye la nomenclatura de una parcela o manzana a partir de la informacion en sus campos, sin formateos extra.
+
+    PARAMETROS
+    parcela: QgsFeature
+        Representa el numero del ejido. Se rellenará con ceros a la izquierda hasta tener 3 caracteres.
+    
+    COMENTARIOS
+
+    RETORNOS
+    Una cadena de caracteres bien bonita representando la nomenclatura de la parcela o manzana.
+    """
+    campos = [f.name() for f in parcela.fields()]
+    nomenclatura = []
+    try:
+        if 'SECCION' in campos:
+            nomenclatura.append(str(parcela['SECCION']))
+            nomenclatura.append(parcela['FRACCION'].upper())
+            nomenclatura.append(str(parcela['LOTE']))
+            nomenclatura.append(str(parcela['PARCELA']))
+        elif 'EJIDO' in campos:
+            nomenclatura.append(str(parcela['EJIDO']))
+            nomenclatura.append(str(parcela['CIRC']))
+            if parcela['CC'] > 1:
+                radio = parcela['RADIO'].lower() if isinstance(parcela['RADIO'], str) else '?'
+                nomenclatura.append(radio.upper())
+            nomenclatura.append(str(parcela['CC']))
+            nomenclatura.append(str(parcela['MZNA']).upper())
+            if 'PARCELA' in campos:
+                nomenclatura.append(str(parcela['PARCELA']))
+    except Exception as e:
+        print (f"Ocurrio un error al nomenclar una parcela. ErrorMsg: {e}")
+    nomenclatura = '-'.join(nomenclatura)
+    return nomenclatura
+
 def CompletarDicEjidos(reescribirDicEjidos=False):
     """
     Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
