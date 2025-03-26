@@ -478,6 +478,7 @@ def InfoEjido(ejido=False):
             elif not value:
                 print(f' > {key}: -')
             elif type(value) is str and 'CAD-GIS' in value:
+                continue
                 print(f" > {key}: .." + "\\" + value.split('\\')[-2] + "\\" + value.split('\\')[-1])
             else:
                 print(f' > {key}: {value}')
