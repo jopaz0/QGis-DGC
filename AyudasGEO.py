@@ -182,6 +182,7 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
         #improviso este dicc aca, despues puedo hacerlo mas prolijo importando un csv. O no, qsy
         nombres = {
             'PROPIETARIOS': 'Propietarios-PHs',
+            'PROPIETARIOS': 'PARCELAS',
             'POSEEDORES': 'Poseedores',
             'EXPEDIENTES': 'Expedientes',
             'MANZANAS': 'Manzanas',
