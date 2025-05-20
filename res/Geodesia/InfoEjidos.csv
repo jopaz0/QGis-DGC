@@ -1,118 +1,118 @@
 EJIDO;NOMBRE;FAJA;ESCPUEBLO;RESPONSABLE;EPSG;UBICACION;NOMBREIDE
-1;Realico;4;9000;OPAZO;5346;1-A-3;Realico
-2;A. Van Praet;4;3000;OPAZO;5346;1-A-5;AdolfoVanPraet
-3;Ojeda;4;3000;CALDERON;5346;1-A-16;Ojeda
-4;Alta Italia;4;6000;OPAZO;5346;1-A-17;AltaItalia
-5;Embajador Martini;4;6000;OPAZO;5346;1-A-22;EmbajadorMartini
-6;Ingeniero Luiggi;4;12000;OJEDA;5346;1-A-21;IngenieroLuiggi
-7;Maisonnave;4;2500;CALDERON;5346;1-A-1;Maisonnave
+1;Realico;4;9000;Jonatan;5346;1-A-3;Realico
+2;A. Van Praet;4;3000;Jonatan;5346;1-A-5;AdolfoVanPraet
+3;Ojeda;4;3000;Sofia;5346;1-A-16;Ojeda
+4;Alta Italia;4;6000;Jonatan;5346;1-A-17;AltaItalia
+5;Embajador Martini;4;6000;Jonatan;5346;1-A-22;EmbajadorMartini
+6;Ingeniero Luiggi;4;12000;Sofia;5346;1-A-21;IngenieroLuiggi
+7;Maisonnave;4;2500;Emanuel;5346;1-A-1;Maisonnave
 8;R. Lavalle;4;1;;5346;1-A-8;
-9;Falucho;4;5000;OPAZO;5346;1-A-14;Falucho
-10;Hilario Lagos;4;7500;CALDERON;5346;1-B-1;HilarioLagos
+9;Falucho;4;5000;Jonatan;5346;1-A-14;Falucho
+10;Hilario Lagos;4;7500;Emanuel;5346;1-B-1;HilarioLagos
 11;M. Miro;4;1;;5346;1-B-2;
-12;Sarah;4;14000;CALDERON;5346;1-B-3;Sarah
-13;Bernardo Larroude;4;14000;OPAZO;5346;1-B-4;BernardoLarroude
-14;Vertiz;4;9000;OPAZO;5346;1-B-21;Vertiz
-15;Intendente Alvear;4;21000;CALDERON;5346;1-B-14;IntendenteAlvear
-16;Ceballos;4;7000;CALDERON;5346;1-B-19;Ceballos
-17;Speluzzi;4;12500;OPAZO;5346;1-C-9;Speluzzi
-18;Agustoni;4;11000;OPAZO;5346;1-C-16;Agustoni
-19;Dorila;4;11000;OJEDA;5346;1-C-18;Dorila
-20;Trebolares;4;1750;OPAZO;5346;1-C-7;Trebolares
-21;General Pico;4;16000;OJEDA;5346;1-C-12;GeneralPico
-22;Arata;4;6500;CALDERON;5346;1-D-12;Arata
-23;Metileo;4;6000;OPAZO;5346;1-D-16;Metileo
-24;Monte Nievas;4;7000;OPAZO;5346;1-D-24;MonteNievas
-25;Trenel;4;9000;CALDERON;5346;1-D-14;Trenel
-26;Eduardo Castex;4;12500;OJEDA;5346;2-A-2;EduardoCastex
-27;Mauricio Mayer;4;25000;CALDERON;5346;2-A-16;MauricioMayer
-28;Winifreda;4;6500;OPAZO;5346;2-A-18;Winifreda
-29;Bouef;4;1500;CALDERON;5346;2-A-1;Bouef
+12;Sarah;4;14000;Emanuel;5346;1-B-3;Sarah
+13;Bernardo Larroude;4;14000;Jonatan;5346;1-B-4;BernardoLarroude
+14;Vertiz;4;9000;Jonatan;5346;1-B-21;Vertiz
+15;Intendente Alvear;4;21000;Sofia;5346;1-B-14;IntendenteAlvear
+16;Ceballos;4;7000;Emanuel;5346;1-B-19;Ceballos
+17;Speluzzi;4;12500;Jonatan;5346;1-C-9;Speluzzi
+18;Agustoni;4;11000;Jonatan;5346;1-C-16;Agustoni
+19;Dorila;4;11000;Sofia;5346;1-C-18;Dorila
+20;Trebolares;4;1750;Jonatan;5346;1-C-7;Trebolares
+21;General Pico;4;16000;Sofia;5346;1-C-12;GeneralPico
+22;Arata;4;6500;Sofia;5346;1-D-12;Arata
+23;Metileo;4;6000;Jonatan;5346;1-D-16;Metileo
+24;Monte Nievas;4;7000;Jonatan;5346;1-D-24;MonteNievas
+25;Trenel;4;9000;Sofia;5346;1-D-14;Trenel
+26;Eduardo Castex;4;12500;Sofia;5346;2-A-2;EduardoCastex
+27;Mauricio Mayer;4;25000;Emanuel;5346;2-A-16;MauricioMayer
+28;Winifreda;4;6500;Jonatan;5346;2-A-18;Winifreda
+29;Bouef;4;1500;Emanuel;5346;2-A-1;Bouef
 30;Trili;4;1;;5346;2-B-3;
-31;Alfredo Pe�a;4;1;;5346;2-B-4;
-32;Relmo;4;6500;OPAZO;5346;2-B-16;Relmo
-33;Colonia San Jose;4;2250;OPAZO;5346;2-B-11;ColoniaSanJose
-34;Quemu Quemu;4;9000;CALDERON;5346;2-B-7;QuemuQuemu
-35;Miguel Cane;4;6000;OPAZO;5346;2-B-14;MiguelCane
-36;Colonia Baron;4;6500;OJEDA;5346;2-B-11;ColoniaBaron
-37;Villa Mirasol;4;5000;OPAZO;5346;2-B-10;VillaMirasol
-38;Huelen;4;2000;CALDERON;5346;2-B-13;Huelen
-39;Catrilo;4;11000;CALDERON;5346;2-C-5;Catrilo
+31;Alfredo Peña;4;1;;5346;2-B-4;
+32;Relmo;4;6500;Jonatan;5346;2-B-16;Relmo
+33;Colonia San Jose;4;2250;Jonatan;5346;2-B-11;ColoniaSanJose
+34;Quemu Quemu;4;9000;Emanuel;5346;2-B-7;QuemuQuemu
+35;Miguel Cane;4;6000;Jonatan;5346;2-B-14;MiguelCane
+36;Colonia Baron;4;6500;Sofia;5346;2-B-11;ColoniaBaron
+37;Villa Mirasol;4;5000;Jonatan;5346;2-B-10;VillaMirasol
+38;Huelen;4;2000;Jonatan;5346;2-B-13;Huelen
+39;Catrilo;4;11000;Sofia;5346;2-C-5;Catrilo
 40;Ivanowsky;4;1;;5346;2-C-15;
-41;Uriburu;4;8000;OPAZO;5346;2-C-10;Uriburu
-42;Lonquimay;4;6000;CALDERON;5346;2-C-7 2-C-8;Lonquimay
-43;La Gloria;4;11000;OPAZO;5346;2-C-9;LaGloria
-44;Anguil;4;14000;CALDERON;5346;2-D-6;Anguil
-45;Cachirulo;4;2250;CALDERON;5346;2-D-22;Cachirulo
-46;Toay;4;29000;OPAZO;5346;2-D-19 2-D-20;Toay
-47;Santa Rosa;4;29000;OPAZO;5346;2-D-12 2-D-13 2-D-18 2-D-19;SantaRosa
-48;Naico;4;7000;CALDERON;5346;3-A-10;Naico
-49;Doblas;4;3000;OPAZO;5346;3-A-16;Doblas
-50;Quehue;4;4000;CALDERON;5346;3-A-20 9-B-16;Quehue
-51;Ataliva Roca;4;8500;OJEDA;5346;3-A-12 3-A-13;AtalivaRoca
+41;Uriburu;4;8000;Jonatan;5346;2-C-10;Uriburu
+42;Lonquimay;4;6000;Sofia;5346;2-C-7 2-C-8;Lonquimay
+43;La Gloria;4;11000;Jonatan;5346;2-C-9;LaGloria
+44;Anguil;4;14000;Emanuel;5346;2-D-6;Anguil
+45;Cachirulo;4;2250;Jonatan;5346;2-D-22;Cachirulo
+46;Toay;4;29000;Jonatan;5346;2-D-19 2-D-20;Toay
+47;Santa Rosa;4;29000;Jonatan;5346;2-D-12 2-D-13 2-D-18 2-D-19;SantaRosa
+48;Naico;4;7000;Jonatan;5346;3-A-10;Naico
+49;Doblas;4;3000;Jonatan;5346;3-A-16;Doblas
+50;Quehue;4;4000;Emanuel;5346;3-A-20 9-B-16;Quehue
+51;Ataliva Roca;4;8500;Sofia;5346;3-A-12 3-A-13;AtalivaRoca
 52;Cereales;4;1;;5346;3-B-1;
-53;Rolon;4;5000;CALDERON;5346;3-B-16;Rolon
-54;Miguel Riglos;4;5000;CALDERON;5346;3-B-3;MiguelRiglos
-55;Tomas M. Anchorena;4;2000;OPAZO;5346;3-B-4;TomasMAnchorena
-56;Hidalgo;4;1750;OPAZO;5346;3-B-17;Hidalgo
+53;Rolon;4;5000;Emanuel;5346;3-B-16;Rolon
+54;Miguel Riglos;4;5000;Sofia;5346;3-B-3;MiguelRiglos
+55;Tomas M. Anchorena;4;2000;Jonatan;5346;3-B-4;TomasMAnchorena
+56;Hidalgo;4;1750;Jonatan;5346;3-B-17;Hidalgo
 57;Atreuco;4;1;;5346;3-B-19;
-58;Macachin;4;14500;OJEDA;5346;3-B-18;Macachin
-59;Colonia Santa Teresa;4;7500;CALDERON;5346;3-B-16;ColoniaSantaTeresa
-60;Guatrache;4;9000;OJEDA;5346;3-B-24;Guatrache
+58;Macachin;4;14500;Sofia;5346;3-B-18;Macachin
+59;Colonia Santa Teresa;4;7500;Emanuel;5346;3-B-16;ColoniaSantaTeresa
+60;Guatrache;4;9000;Sofia;5346;3-B-24;Guatrache
 61;Remeco;4;1;;5346;3-B-23;
-62;Alpachiri;4;8500;OPAZO;5346;3-C-9;Alpachiri
+62;Alpachiri;4;8500;Jonatan;5346;3-C-9;Alpachiri
 63;Apuyaco;4;1;;5346;3-C-8;
-64;General Campos;4;4000;OPAZO;5346;3-C-7 3-C-14;GeneralCampos
-65;Peru;4;1500;CALDERON;5346;3-D-24;Peru
+64;General Campos;4;4000;Jonatan;5346;3-C-7 3-C-14;GeneralCampos
+65;Peru;4;1500;Emanuel;5346;3-D-24;Peru
 66;Gamay;4;1;;5346;3-D-12;
-67;Colonia Santa Maria;4;2500;CALDERON;5346;3-D-13;ColoniaSantaMaria
+67;Colonia Santa Maria;4;2500;Emanuel;5346;3-D-13;ColoniaSantaMaria
 68;Epupel;4;1;;5346;3-D-18 3-D-19;
-69;Unanue;4;4500;CALDERON;5346;3-D-19;Unanue
+69;Unanue;4;4500;Emanuel;5346;3-D-19;Unanue
 70;Cotita;4;1;;5346;4-A-5;
-71;Hucal;4;2000;OPAZO;5346;4-A-5;Hucal
-72;Jacinto Arauz;4;7500;OJEDA;5346;4-B-16 4-B-25;JacintoArauz
-73;Abramo;4;3000;OJEDA;5346;4-B-11;Abramo
-74;San Martin;4;4500;OJEDA;5346;4-B-14 4-B-17;SanMartin
-75;Bernasconi;4;4500;CALDERON;5346;4-B-12;Bernasconi
-76;La Adela;4;7500;OPAZO;5346;5-A-24;LaAdela
+71;Hucal;4;2000;Jonatan;5346;4-A-5;Hucal
+72;Jacinto Arauz;4;7500;Sofia;5346;4-B-16 4-B-25;JacintoArauz
+73;Abramo;4;3000;Sofia;5346;4-B-11;Abramo
+74;San Martin;4;4500;Sofia;5346;4-B-14 4-B-17;SanMartin
+75;Bernasconi;4;4500;Sofia;5346;4-B-12;Bernasconi
+76;La Adela;4;7500;Jonatan;5346;5-A-24;LaAdela
 77;Anzoategui;4;1;;5346;5-B-19 5-B-20;
 78;Gaviotas;4;1;;5346;5-B-18;
-79;Chamaico;3;500;CALDERON;5345;7-B-1;Chamaico
-80;Rancul;3;7500;OPAZO;5345;7-B-4;Rancul
-81;Quetrequen;3;3500;CALDERON;5345;7-B-5;Quetrequen
-82;Parera;3;12500;CALDERON;5345;7-B-6;Parera
-83;Caleufu;3;5000;OPAZO;5345;7-C-6;Caleufu
-84;La Maruja;3;4000;OPAZO;5345;7-C-11;LaMaruja
-85;Pichi Huinca;3;4000;OPAZO;5345;7-C-13;PichiHuinca
-86;Ingeniero Foster;3;2500;OPAZO;5345;7-D-15;IngenieroFoster
-87;Luan Toro;3;5500;CALDERON;5345;8-A-16;LuanToro
-88;Telen;3;4000;CALDERON;5345;8-A-21;Telen
-89;Victorica;3;24000;OPAZO;5345;8-A-19;Victorica
-90;Loventue;3;20000;OPAZO;5345;8-A-18;Loventue
-91;Conhello;3;5000;CALDERON;5345;8-B-6;Conhello
+79;Chamaico;3;500;Jonatan;5345;7-B-1;Chamaico
+80;Rancul;3;7500;Jonatan;5345;7-B-4;Rancul
+81;Quetrequen;3;3500;Jonatan;5345;7-B-5;Quetrequen
+82;Parera;3;12500;Jonatan;5345;7-B-6;Parera
+83;Caleufu;3;5000;Jonatan;5345;7-C-6;Caleufu
+84;La Maruja;3;4000;Jonatan;5345;7-C-11;LaMaruja
+85;Pichi Huinca;3;4000;Jonatan;5345;7-C-13;PichiHuinca
+86;Ingeniero Foster;3;2500;Jonatan;5345;7-D-15;IngenieroFoster
+87;Luan Toro;3;5500;Sofia;5345;8-A-16;LuanToro
+88;Telen;3;4000;Emanuel;5345;8-A-21;Telen
+89;Victorica;3;24000;Jonatan;5345;8-A-19;Victorica
+90;Loventue;3;20000;Jonatan;5345;8-A-18;Loventue
+91;Conhello;3;5000;Sofia;5345;8-B-6;Conhello
 92;Teniente General Emilio Mitre;3;1;;5345;8-B-11;
-93;Ceriola;3;3500;CALDERON;5345;8-B-7;Ceriola
-94;Rucanelo;3;2500;OPAZO;5345;8-D-9;Rucanelo
-95;Carro Quemado;3;60000;OPAZO;5345;8-D-8;CarroQuemado
+93;Ceriola;3;3500;Jonatan;5345;8-B-7;Ceriola
+94;Rucanelo;3;2500;Jonatan;5345;8-D-9;Rucanelo
+95;Carro Quemado;3;60000;Jonatan;5345;8-D-8;CarroQuemado
 96;Utracan;3;1;;5345;9-C-5;
-97;General Acha;3;22500;CALDERON;5345;9-C-6;GeneralAcha
-98;Chacharramendi;3;1250;OPAZO;5345;14-D-8;Chacharramendi
-99;Cuchillo Co;3;2250;CALDERON;5345;10-C-6 10-C-15;CuchilloCo
+97;General Acha;3;22500;Emanuel;5345;9-C-6;GeneralAcha
+98;Chacharramendi;3;1250;Jonatan;5345;14-D-8;Chacharramendi
+99;Cuchillo Co;3;2250;Emanuel;5345;10-C-6 10-C-15;CuchilloCo
 100;Pichi Mahuida;3;1;;5345;10-F-12;
 101;Graneros;3;1;;5345;15-A-8;
-102;Puelches;3;2500;OPAZO;5345;15-D-1;Puelches
-103;Santa Isabel;3;7500;OPAZO;5345;18-A-19;SantaIsabel
-104;La Pastoril;3;1;OPAZO;5345;18-C-4;
+102;Puelches;3;2500;Jonatan;5345;15-D-1;Puelches
+103;Santa Isabel;3;7500;Jonatan;5345;18-A-19;SantaIsabel
+104;La Pastoril;3;1;Jonatan;5345;18-C-4;
 105;Colonia Emilio Mitre;3;1;;5345;18-C-10;
 106;Paso de los Algarrobos;3;1;;5345;18-D-19;
-107;Limay Mahuida;3;1250;CALDERON;5345;19-A-24;LimayMahuida
-108;La Reforma;3;1000;CALDERON;5345;19-C-18;LaReforma
-109;Algarrobo Del Aguila;3;2500;CALDERON;5345;23-C-5;AlgarroboDelAguila
-110;Puelen;2;3000;CALDERON;5344;24-C-1 24-C-10;Puelen
+107;Limay Mahuida;3;1250;Jonatan;5345;19-A-24;LimayMahuida
+108;La Reforma;3;1000;Sofia;5345;19-C-18;LaReforma
+109;Algarrobo Del Aguila;3;2500;Emanuel;5345;23-C-5;AlgarroboDelAguila
+110;Puelen;2;3000;Emanuel;5344;24-C-1 24-C-10;Puelen
 111;Gobernador Ayala;2;1;;5344;24-D-19;
-112;Colonia 25 De Mayo;2;65000;CALDERON;5344;25-A-5;
+112;Colonia 25 De Mayo;2;65000;Emanuel;5344;25-A-5;
 113;Arbol Solo;2;1;;5344;18-C-20;
-114;Gobernador Dubal;2;3500;OPAZO;5344;21-B-10;GobernadorDubal
-115;LaHumada;2;2250;OPAZO;5344;23-A-23;LaHumada
-116;Colonia Chica;2;30000;CALDERON;5344;25-A-14;ColoniaChica
-117;Casa De Piedra;2;15000;OPAZO;5344;25-B-25 25-C-5;CasaDePiedra
+114;Gobernador Dubal;2;3500;Jonatan;5344;21-B-10;GobernadorDubal
+115;LaHumada;2;2250;Jonatan;5344;23-A-23;LaHumada
+116;Colonia Chica;2;30000;Emanuel;5344;25-A-14;ColoniaChica
+117;Casa De Piedra;2;15000;Jonatan;5344;25-B-25 25-C-5;CasaDePiedra
