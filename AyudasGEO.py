@@ -92,6 +92,8 @@ def Abrir(regs):
             print(f'Error al abrir el registrado {reg}. ErrorMSG: {e}')
 abrir = Abrir
 ABRIR = Abrir
+ab = Abrir
+AB = Abrir
 
 def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, sustituirCapas=True):
     """
@@ -224,6 +226,8 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
         print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
 cambiarejido = CambiarEjido
 CAMBIAREJIDO = CambiarEjido
+ce = CambiarEjido
+CE = CambiarEjido
 
 def GenerarBackupUrbanoCompleto():
     """
@@ -496,3 +500,4 @@ def RecargarInfoEjidos():
     CompletarDicEjidos(True)
 
 recargarinfoejidos = RecargarInfoEjidos
+
