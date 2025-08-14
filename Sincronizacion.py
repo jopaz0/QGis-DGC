@@ -99,6 +99,8 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
         SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
 completarpartidas = CompletarPartidas
 COMPLETARPARTIDAS = CompletarPartidas
+ce = CompletarPartidas
+CE = CompletarPartidas
 
 def CompletarTabla(ejido, capa = False):
     """
@@ -176,6 +178,8 @@ def CompletarTabla(ejido, capa = False):
     SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
 completartabla = CompletarTabla
 COMPLETARTABLA = CompletarTabla
+ct = CompletarTabla
+CT = CompletarTabla
 
 def GenerarEjidoSincronizado(ejido):
     """
@@ -280,3 +284,4 @@ def GenerarEjidoSincronizado(ejido):
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
 generarejidosincronizado = GenerarEjidoSincronizado
 GENERAREJIDOSINCRONIZADO = GenerarEjidoSincronizado
+
