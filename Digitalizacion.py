@@ -79,7 +79,8 @@ ASIGNARVALORACAMPO = AsignarValorACampo
 Nomenclar = AsignarValorACampo
 nomenclar = AsignarValorACampo
 NOMENCLAR = AsignarValorACampo
-
+nm = AsignarValorACampo
+NM = AsignarValorACampo
 
 def CortarOchava(distancia=4, epsg=False):
     """
@@ -116,6 +117,8 @@ CORTAROCHAVA = CortarOchava
 Ochava = CortarOchava
 ochava = CortarOchava
 OCHAVA = CortarOchava
+co = CortarOchava
+CO = CortarOchava
 
 def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     """
@@ -145,3 +148,5 @@ NUMERARPARCELAS = NumerarParcelas
 Numerar = NumerarParcelas
 numerar = NumerarParcelas
 NUMERAR = NumerarParcelas
+np = NumerarParcelas
+NP = NumerarParcelas
