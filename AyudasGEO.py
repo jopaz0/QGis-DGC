@@ -107,8 +107,13 @@ def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
     if capa.selectedFeatureCount() == 0:
         raise Exception("No hay objetos seleccionados")
     # Obtenemos valores del campo
-    valores = [str(f[campo]) for f in capa.selectedFeatures() if f[campo] is not None]
-    valores.sort()
+    for f in capa.selectedFeatures():
+        valor = f[campo]
+        if valor:
+            # Dividimos por "-" y convertimos a enteros
+            partes = [int(x) for x in str(valor).split("-") if x.strip().isdigit()]
+            valores.extend(partes)
+    valores = sorted(set(valores))
     abrir("-".join(str(v) for v in valores))
 abrirs = AbrirDesdeSeleccion
 ABRIRS = AbrirDesdeSeleccion
@@ -520,6 +525,7 @@ def RecargarInfoEjidos():
     CompletarDicEjidos(True)
 
 recargarinfoejidos = RecargarInfoEjidos
+
 
 
 
