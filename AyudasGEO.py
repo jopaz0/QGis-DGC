@@ -95,6 +95,25 @@ ABRIR = Abrir
 ab = Abrir
 AB = Abrir
 
+def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
+    """
+    Recorre los objetos seleccionados en la capa indicada (o en la activa si no se pasa),
+    toma los valores del campo especificado y devuelve un string concatenado con '-'.
+    """
+    if capa is None:
+        capa = iface.activeLayer()
+    if not capa:
+        raise Exception("No hay capa activa")
+    if capa.selectedFeatureCount() == 0:
+        raise Exception("No hay objetos seleccionados")
+    # Obtenemos valores del campo
+    valores = [str(f[campo]) for f in capa.selectedFeatures() if f[campo] is not None]
+    abrir("-".join(valores))
+abrirs = AbrirDesdeSeleccion
+ABRIRS = AbrirDesdeSeleccion
+abs = AbrirDesdeSeleccion
+ABS = AbrirDesdeSeleccion
+
 def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, sustituirCapas=True):
     """
     Genera los shapes de Manzanas y Registrados de un ejido a partir de sus parcelas.
@@ -500,4 +519,5 @@ def RecargarInfoEjidos():
     CompletarDicEjidos(True)
 
 recargarinfoejidos = RecargarInfoEjidos
+
 
