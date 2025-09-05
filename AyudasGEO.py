@@ -108,7 +108,8 @@ def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
         raise Exception("No hay objetos seleccionados")
     # Obtenemos valores del campo
     valores = [str(f[campo]) for f in capa.selectedFeatures() if f[campo] is not None]
-    abrir("-".join(valores))
+    valores.sort()
+    abrir("-".join(str(v) for v in valores))
 abrirs = AbrirDesdeSeleccion
 ABRIRS = AbrirDesdeSeleccion
 abs = AbrirDesdeSeleccion
@@ -519,5 +520,6 @@ def RecargarInfoEjidos():
     CompletarDicEjidos(True)
 
 recargarinfoejidos = RecargarInfoEjidos
+
 
 
