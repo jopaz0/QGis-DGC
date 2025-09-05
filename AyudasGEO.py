@@ -97,8 +97,17 @@ AB = Abrir
 
 def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
     """
-    Recorre los objetos seleccionados en la capa indicada (o en la activa si no se pasa),
-    toma los valores del campo especificado y devuelve un string concatenado con '-'.
+    Abre los registrados de las parcelas (?) seleccionadas en la capa actual.
+
+    PARAMETROS
+    campo: nombre del campo donde estan almacenados los registrados, pasado como cadena. Por defecto, usa 'REGISTRADO'.
+    capa: la capa desde la cual leer los registrados, pasada como QgsVectorLayer. Por defecto, usa la actual.
+    
+    COMENTARIOS
+    - La función invoca a Abrir() con la lista de registrados como parametro.
+
+    RETORNO
+    Nada
     """
     if capa is None:
         capa = iface.activeLayer()
@@ -106,11 +115,10 @@ def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
         raise Exception("No hay capa activa")
     if capa.selectedFeatureCount() == 0:
         raise Exception("No hay objetos seleccionados")
-    # Obtenemos valores del campo
+    valores = []
     for f in capa.selectedFeatures():
         valor = f[campo]
         if valor:
-            # Dividimos por "-" y convertimos a enteros
             partes = [int(x) for x in str(valor).split("-") if x.strip().isdigit()]
             valores.extend(partes)
     valores = sorted(set(valores))
@@ -525,6 +533,7 @@ def RecargarInfoEjidos():
     CompletarDicEjidos(True)
 
 recargarinfoejidos = RecargarInfoEjidos
+
 
 
 
