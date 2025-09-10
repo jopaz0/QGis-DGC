@@ -262,6 +262,30 @@ CAMBIAREJIDO = CambiarEjido
 ce = CambiarEjido
 CE = CambiarEjido
 
+def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coordenadas agregadas"]):
+    layer = iface.activeLayer()
+    if not layer:
+        raise Exception("No hay capa activa.")
+    selected = layer.selectedFeatures()
+    if not selected:
+        raise Exception("No hay elementos seleccionados en la capa activa.")
+    feat = selected[0]
+    registrado_val = feat["REGISTRADO"]
+    for name  in layerNames:
+        coords_layer = QgsProject.instance().mapLayersByName(name)
+        if not coords_layer:
+            raise Exception("No se encontró la capa '" + name + "'.")
+        coords_layer = coords_layer[0]
+        if registrado_val is None:
+            filtro = '"REGISTRADO" is null'
+        else:
+            filtro = f'"REGISTRADO" is null OR "REGISTRADO" = {registrado_val}'
+        coords_layer.setSubsetString(filtro)
+    abrir(registrado_val)
+    print(f"Filtro aplicado: {filtro}")
+fcs = FiltrarCoordenadasPorSeleccion
+FCS = FiltrarCoordenadasPorSeleccion
+
 def GenerarBackupUrbanoCompleto():
     """
     Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
@@ -533,6 +557,7 @@ def RecargarInfoEjidos():
     CompletarDicEjidos(True)
 
 recargarinfoejidos = RecargarInfoEjidos
+
 
 
 
