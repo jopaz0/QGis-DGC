@@ -26,7 +26,7 @@ def RegisterFunction(*aliases):
         return func
     return wrapper
     
-@RegisterFunction(FUNCIONES, "abrir", "ABRIR", "ab", "AB")
+@RegisterFunction("abrir", "ABRIR", "ab", "AB")
 def Abrir(regs):
     """
     Abre los registrados solicitados.
@@ -68,7 +68,7 @@ def Abrir(regs):
         except Exception as e:
             print(f'Error al abrir el registrado {reg}. ErrorMSG: {e}')
 
-@RegisterFunction(FUNCIONES, "abrirs", "ABRIRS", "abrs", "ABRS")
+@RegisterFunction("abrirs", "ABRIRS", "abrs", "ABRS")
 def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
     """
     Abre los registrados de las parcelas (?) seleccionadas en la capa actual.
@@ -98,7 +98,7 @@ def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
     valores = sorted(set(valores))
     abrir("-".join(str(v) for v in valores))
 
-@RegisterFunction(FUNCIONES, "RehacerMzsYRegs", "rehacermzsyregs", "REHACERMZSYREGS")
+@RegisterFunction("RehacerMzsYRegs", "rehacermzsyregs", "REHACERMZSYREGS")
 def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, sustituirCapas=True):
     """
     Genera los shapes de Manzanas y Registrados de un ejido a partir de sus parcelas.
@@ -152,7 +152,7 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
     except:
         print(f'No pude guardar la capa {capa.name()}. ErrorMSG: {e}')
 
-@RegisterFunction(FUNCIONES, "cambiarejido", "CAMBIAREJIDO", "ce", "CE")
+@RegisterFunction("cambiarejido", "CAMBIAREJIDO", "ce", "CE")
 def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
     """
     Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca. 
@@ -227,7 +227,7 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
     except Exception as e:
         print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
 
-@RegisterFunction(FUNCIONES, "fcs", "FCS")
+@RegisterFunction("fcs", "FCS")
 def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coordenadas agregadas"]):
     layer = iface.activeLayer()
     if not layer:
@@ -250,7 +250,7 @@ def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coo
     abrir(registrado_val)
     print(f"Filtro aplicado: {filtro}")
 
-@RegisterFunction(FUNCIONES, "Backup", "backup", "BACKUP")
+@RegisterFunction("Backup", "backup", "BACKUP")
 def GenerarBackupUrbanoCompleto():
     """
     Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
@@ -288,7 +288,7 @@ def GenerarBackupUrbanoCompleto():
         for file in files:
             package.write(file, file) 
 
-@RegisterFunction(FUNCIONES, "mzsdesdesel", "MZSDESDESEL")
+@RegisterFunction("mzsdesdesel", "MZSDESDESEL")
 def GenerarManzanasDesdeSeleccion():
     """
     Genera un shapefile de manzanas parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
@@ -306,7 +306,7 @@ def GenerarManzanasDesdeSeleccion():
     capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
     GenerarShapeManzanas(capa, 'temp')
 
-@RegisterFunction(FUNCIONES, "regsdesdesel", "REGSDESDESEL")
+@RegisterFunction("regsdesdesel", "REGSDESDESEL")
 def GenerarRegistradosDesdeSeleccion():
     """
     Genera un shapefile de registrados parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
@@ -324,7 +324,7 @@ def GenerarRegistradosDesdeSeleccion():
     capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
     GenerarShapeRegistrados([capa], 'temp')
 
-@RegisterFunction(FUNCIONES, "kmzdesdesel", "KMZDESDESEL")
+@RegisterFunction("kmzdesdesel", "KMZDESDESEL")
 def GenerarKMZDesdeSeleccion(rutaKml=False, decorarNomencla = False):
     """
     Genera un archivo KMZ a partir de las características seleccionadas en la capa activa de QGIS.
@@ -370,7 +370,7 @@ def GenerarKMZDesdeSeleccion(rutaKml=False, decorarNomencla = False):
     rutaKmz = KML_ToKMZ(rutaKml)
     return rutaKmz
 
-@RegisterFunction(FUNCIONES, "kmzs", "KMZS", "generarkmzs", "GENERARKMZS")
+@RegisterFunction("kmzs", "KMZS", "generarkmzs", "GENERARKMZS")
 def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
     """
     Genera los archivos KMZ de todos los pueblos. Los guarda en la carpeta ../Mis Documentos/Borrar del usuario actual
@@ -422,7 +422,7 @@ def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
                 kmzs.append(rutaKmz)
     return kmzs
 
-@RegisterFunction(FUNCIONES, "generarmanzanero", "GENERARMANZANERO", "gmz", "GMZ")
+@RegisterFunction("generarmanzanero", "GENERARMANZANERO", "gmz", "GMZ")
 def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
     """
     Genera un manzanero en la nomenclatura especificada, si existe.
@@ -476,7 +476,7 @@ def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
     texto.setText(nomencla)
     texto.refresh()
 
-@RegisterFunction(FUNCIONES, "info", "Info", "INFO", "infoejido", "INFOEJIDO")
+@RegisterFunction("info", "Info", "INFO", "infoejido", "INFOEJIDO")
 def InfoEjido(ejido=False):
     """
     Imprime en consola la informacion existente sobre el ejido o los modulos.
@@ -505,12 +505,13 @@ def InfoEjido(ejido=False):
             else:
                 print(f' > {key}: {value}')
 
-@RegisterFunction(FUNCIONES, "recargarinfoejidos", "RECARGARINFOEJIDOS")
+@RegisterFunction("recargarinfoejidos", "RECARGARINFOEJIDOS")
 def RecargarInfoEjidos():
     """
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 
 
 
