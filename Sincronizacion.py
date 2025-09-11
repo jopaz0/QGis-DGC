@@ -38,8 +38,22 @@ from qgis.PyQt.QtCore import QVariant
 from CommonFunctions import *
 from DGCFunctions import *
 
+FUNCIONES = {}
+def RegisterFunction(*aliases):
+    """
+    Decorador para registrar una función y sus alias.
+    """
+    def wrapper(func):
+        nombres = [func.__name__] + list(aliases)
+        for nombre in nombres:
+            FUNCIONES[nombre] = func
+            globals()[nombre] = func  # opcional: crea los alias directamente
+        return func
+    return wrapper
+
 ### BARRA SEPARADORA DE BAJO PRESUPUESTO ###
 #Funciones destinadas a uso interno en DGC. O sea, estan en castellano
+@RegisterFunction("completarpartidas", "COMPLETARPARTIDAS", "cp", "CP")
 def CompletarPartidas(ejido, capa=False, poseedores=False):
     """
     Completa el campo 'PARTIDA' de las parcelas seleccionadas en la capa actual usando 'NOMENCLA' para comparar con los datos de archivos CSV correspondientes a un ejido especificado.
@@ -97,11 +111,8 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
     for cc in [1,2,3]:
         subconjunto = [x for x in entidades if x['CC']==cc]
         SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
-completarpartidas = CompletarPartidas
-COMPLETARPARTIDAS = CompletarPartidas
-cp = CompletarPartidas
-CP = CompletarPartidas
 
+@RegisterFunction("completartabla", "COMPLETARTABLA", "ct", "CT")
 def CompletarTabla(ejido, capa = False):
     """
     Completa los valores de atributos de las parcelas seleccionadas en la capa actual, basándose en la información obtenida de archivos CSV correspondientes a un ejido.
@@ -176,11 +187,8 @@ def CompletarTabla(ejido, capa = False):
             capa.rollBack()
     # Si no se encuentra la partida en el diccionario, es xq no existen
     SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
-completartabla = CompletarTabla
-COMPLETARTABLA = CompletarTabla
-ct = CompletarTabla
-CT = CompletarTabla
 
+@RegisterFunction("generarejidosincronizado", "GENERAREJIDOSINCRONIZADO")
 def GenerarEjidoSincronizado(ejido):
     """
     Genera capas sincronizadas para el ejido especificado combinando la geometria de los shapefiles y la información de archivos CSV descargados de Progress. 
@@ -282,7 +290,7 @@ def GenerarEjidoSincronizado(ejido):
 
     except Exception as e:
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
-generarejidosincronizado = GenerarEjidoSincronizado
-GENERAREJIDOSINCRONIZADO = GenerarEjidoSincronizado
+
+
 
 
