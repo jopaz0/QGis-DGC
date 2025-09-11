@@ -516,4 +516,3 @@ def RecargarInfoEjidos():
     """
     CompletarDicEjidos(True)
 
-return FUNCIONES
