@@ -16,6 +16,7 @@ import zipfile
 import urllib.request
 import importlib.util
 import pandas as pd
+import inspect
 from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
@@ -32,7 +33,7 @@ def RegisterFunction(dic, *aliases):
             "aliases": list(aliases)
         }
         # Obtener el módulo donde se define la función
-        mod = sys.modules[func.__module__]
+        mod = inspect.getmodule(func)
         for alias in aliases:
             setattr(mod, alias, func)
         return func
@@ -1366,6 +1367,7 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
 
 
