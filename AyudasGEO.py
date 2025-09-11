@@ -13,21 +13,6 @@ from qgis.core import *
 
 FUNCIONES = {}
 
-def RegisterFunction(dic, *aliases):
-    """
-    Decorador para registrar una función y sus alias.
-    """
-    def wrapper(func):
-        dic[func.__name__] = {
-            "func": func,
-            "aliases": list(aliases)
-        }
-        # Creamos los alias en el módulo
-        for alias in aliases:
-            globals()[alias] = func
-        return func
-    return wrapper
-
 @RegisterFunction(FUNCIONES, "abrir", "ABRIR", "ab", "AB")
 def Abrir(regs):
     """
@@ -513,5 +498,6 @@ def RecargarInfoEjidos():
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 
 
