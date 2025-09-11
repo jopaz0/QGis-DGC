@@ -22,6 +22,21 @@ from qgis.gui import *
 from qgis.core import *
 from PyQt5.QtCore import QVariant, QDate, QDateTime, QTime
 
+def RegisterFunction(dic, *aliases):
+    """
+    Decorador para registrar una función y sus alias.
+    """
+    def wrapper(func):
+        dic[func.__name__] = {
+            "func": func,
+            "aliases": list(aliases)
+        }
+        # Creamos los alias en el módulo
+        for alias in aliases:
+            globals()[alias] = func
+        return func
+    return wrapper
+
 #FUNCTIONS stariting with CANVAS usually require an open QGis map because they take parameters from active layer and selected features.
 
 def CANVAS_AddLayer(layer, name=False, delimiter=False):
@@ -1350,4 +1365,5 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
