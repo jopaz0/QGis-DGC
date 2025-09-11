@@ -10,12 +10,22 @@ from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
-from CommonFunctions import RegisterFunction
 from CommonFunctions import *
 from DGCFunctions import *
 
 FUNCIONES = {}
-
+def RegisterFunction(*aliases):
+    """
+    Decorador para registrar una función y sus alias.
+    """
+    def wrapper(func):
+        nombres = [func.__name__] + list(aliases)
+        for nombre in nombres:
+            FUNCIONES[nombre] = func
+            globals()[nombre] = func  # opcional: crea los alias directamente
+        return func
+    return wrapper
+    
 @RegisterFunction(FUNCIONES, "abrir", "ABRIR", "ab", "AB")
 def Abrir(regs):
     """
@@ -501,6 +511,7 @@ def RecargarInfoEjidos():
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 
 
 
