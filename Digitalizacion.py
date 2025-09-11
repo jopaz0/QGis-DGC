@@ -1,42 +1,27 @@
 """
 Modulo: Digitalizacion (22 Oct 2024)
 Funciones destinadas a digitalizar parcelas.
-Funciones: 
- > AsignarValorACampo(valor) / nomenclar(valor) / nomenclar(valor, campo)
-- Permite asignar rapidamente un valor en un campo a las parcelas seleccionadas. 
-- Por defecto lo asigna en NOMENCLA, pero puede indicarse un campo distinto como segundo parametro.
 
- > CortarOchava() / ochava() / ochava(5)
-- Permite cortar rapidamente ochavas.
-- Por defecto toma puntos nuevos a 4 unidades (metros) de distancia hacia los vertices adyacentes al seleccionado, pero puede asignarse otra distancia como primer parametro.
-- Por defecto esta configurada para trabajar sobre capas en proyecciones planas. Si se detecta una capa en WGS84, debera asignar un codigo epsg como segundo parametro, para realizar una reproyeccion de la geometria antes de operar.
-
- > NumerarParcelas() / numerar() / numerar(50, 'PARCELA', False)
-- Permite numerar poligonos mediante una linea dibujada dinamicamente por el usuario. 
-- Por defecto comienza desde el 1, pero se le puede indicar otro numero inicial como primer parametro.   
-- Por defecto opera sobre el campo NOMENCLA, pero se le puede indicar otro campo como segundo parametro.
-- Por defecto concatena el numero al valor anterior del campo, pero puede indicarsele que reemplace valores como tercer parametro (usar False o 0).
-
-Tipee help(funcion) en la consola para mas informacion.
-#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
-"""
-"""
 Permite un flujo de trabajo acortado para dibujar las parcelas de los expedientes:
- - Dibujo las parcelas originales, sin las ochavas en caso de que me sea mas siemple (generalmente lo es)
+ - Dibujo las parcelas originales, sin las ochavas en caso de que me sea mas simple (generalmente lo es)
  - Uso OCHAVA() y voy tocando las esquinas donde quiero generarlas. 
    - Si quiero una ochava de mas o menos que 4 metros, uso OCHAVA(#), con # siendo la distancia en metros.
  - Selecciono las parcelas y uso NOMENCLAR('25-1-A-32-') para llenar la parte de la nomenclatura q todas comparten.
    - Si quiero completar otro campo, por ejemplo a PROF ponerle GARCIA, uso NOMENCLAR('GARCIA','PROF')
- - Uso NUMERAR(), lo que me permite trazar una multilinea. La hago cruzando las parcelas en el orden en que se numeran, y presiono Enter.
+ - Uso NUMERAR(), lo que me permite trazar una linea. La hago cruzando las parcelas en el orden en que se numeran, y presiono Enter.
    - Si la primera parcela de la serie tiene un numero distinto de uno, pongamosle 5, usaria NUMERAR(5)
 """
 from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
+from CommonFunctions import RegisterFunction
 from CommonFunctions import *
 from ChamferTool import *
 from NumberingTool import *
 
+FUNCIONES = {}
+
+@RegisterFunction(FUNCIONES, "asignarvaloracampo", "ASIGNARVALORACAMPO", "Nomenclar", "nomenclar", "NOMENCLAR", "nm", "NM")
 def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
     """
     Permite asignar rapidamente un valor en un campo a las entidades seleccionadas.
@@ -74,14 +59,8 @@ def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
     else: 
         print(f'El tipo de valor ({fieldType}) proporcionado no era compatible con {campoObjetivo}.')
         return False
-asignarvaloracampo = AsignarValorACampo
-ASIGNARVALORACAMPO = AsignarValorACampo
-Nomenclar = AsignarValorACampo
-nomenclar = AsignarValorACampo
-NOMENCLAR = AsignarValorACampo
-nm = AsignarValorACampo
-NM = AsignarValorACampo
 
+@RegisterFunction(FUNCIONES, "cortarochava", "CORTAROCHAVA", "Ochava", "ochava", "OCHAVA", "co", "CO")
 def CortarOchava(distancia=4, epsg=False):
     """
     Permite cortar rapidamente ochavas.
@@ -112,14 +91,8 @@ def CortarOchava(distancia=4, epsg=False):
     herramienta = ChamferTool(distancia, epsgCode=epsg)
     iface.mapCanvas().setMapTool(herramienta)
     iface._currentTool = herramienta
-cortarochava = CortarOchava
-CORTAROCHAVA = CortarOchava
-Ochava = CortarOchava
-ochava = CortarOchava
-OCHAVA = CortarOchava
-co = CortarOchava
-CO = CortarOchava
 
+@RegisterFunction(FUNCIONES, "numerarparcelas", "NUMERARPARCELAS", "Numerar", "numerar", "NUMERAR", "np", "NP")
 def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     """
     Permite numerar poligonos mediante una linea dibujada dinamicamente por el usuario.
@@ -143,10 +116,3 @@ def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     herramienta = NumberingTool(numeroInicial, campoObjetivo, concatenar)
     iface.mapCanvas().setMapTool(herramienta)
     iface._currentTool = herramienta
-numerarparcelas = NumerarParcelas
-NUMERARPARCELAS = NumerarParcelas
-Numerar = NumerarParcelas
-numerar = NumerarParcelas
-NUMERAR = NumerarParcelas
-np = NumerarParcelas
-NP = NumerarParcelas
