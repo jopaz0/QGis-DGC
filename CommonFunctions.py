@@ -31,9 +31,10 @@ def RegisterFunction(dic, *aliases):
             "func": func,
             "aliases": list(aliases)
         }
-        # Creamos los alias en el módulo
+        # Obtener el módulo donde se define la función
+        mod = sys.modules[func.__module__]
         for alias in aliases:
-            globals()[alias] = func
+            setattr(mod, alias, func)
         return func
     return wrapper
 
@@ -1365,5 +1366,6 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
 
