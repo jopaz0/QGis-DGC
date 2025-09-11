@@ -1,43 +1,6 @@
 """
 Modulo: AyudasGEO (23 Oct 2024)
-Funciones varias para agilizar o automatizar el trabajo diario en Geodesia. Todas las funciones que uso casi a diario, que no supe como encapsular en un modulo con bonito nombre, fueron a parar aca. Cualquier cosa preguntame.
-Funciones: 
- > Abrir(registrado) / abrir(12345) / abrir('1234 25222 50789')
-- Abre los registrados solicitados.
-- Permite abrir un solo registrado o varios en una misma operacion
-
- > ActualizarShapesPueblo(ejido) / rehacermzsyregs(ejido, 0.05, True, False)
-- Genera los shapes de Manzanas y Registrados de un ejido a partir de sus parcelas.
-- Por defecto elimina cuñas y anillos mediante buffers a 0.05 unidades (metros), pero se puede cambiar en el primer parametro.
-- Por defecto agrega las capas generadas al lienzo, pero puede indicarsele lo contrario asignando False al segundo parametro.
-- Por defecto reemplaza las capas de PUEBLOS CAD-GIS con las nuevas, pero puede indicarsele lo contrario asignando False al tercer parametro.
-
- > CambiarEjido(ejido) / cambiarejido(47, 1, 'q', 3, 51) / 
-- Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca.
-- Requiere que las capas esten nombradas de la misma forma que la plantilla.
-- Los parametros siguientes al ejido son opcionales, permiten construir la nomenclatura de una manzana. El script enfoca al pueblo, luego intenta enfocar a la nomenclatura indicada; puede ser una manzana, radio, etc.
-- Por ejemplo, usar cambiarejido(47, 3, 'a') enfocaria al radio A de la circunscripcion III de Santa Rosa.
-
- > GenerarBackupUrbanoCompleto() / backup()
-- Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
-- El archivo .rar generado queda guardado en la carpeta ../Mis Documentos/BACKUPS del usuario actual.
-
- > GenerarKMZDesdeSeleccion() / kmzdesdesel()
-- Genera un archivo KMZ a partir de las parcelas seleccionadas en la capa activa de QGIS.
-- El estilo utilizado es el normal de Catastro, es decir, colores segun CC (amarillo, celeste, rojo, verde), sin rellenos, tabla de atributos basicos para el sector Economico.
-- El archivo .rar generado queda guardado en la carpeta ../Mis Documentos/BORRAR del usuario actual.
-
- > GenerarManzanasDesdeSeleccion() / regsdesdesel()
-- Genera un shapefile de manzanas parcial como archivo temporal a partir de las parcelas seleccionadas en la capa activa, y lo carga al lienzo.
-
- > GenerarRegistradosDesdeSeleccion() / mzsdesdesel()
-- Genera un shapefile de registrados parcial como archivo temporal a partir de las parcelas seleccionadas en la capa activa, y lo carga al lienzo.
-
- > InfoEjido(ejido) / info(47)
-- Imprime en consola la informacion existente sobre el ejido.
-
-Tipee help(funcion) en la consola para mas informacion.
-#################BARRA SEPARADORA DE BAJO PRESUPUESTO#################
+Funciones varias para agilizar o automatizar el trabajo diario en Geodesia.
 """
 import os
 import zipfile
@@ -50,6 +13,24 @@ from qgis.core import *
 from CommonFunctions import *
 from DGCFunctions import *
 
+FUNCIONES = {}
+
+def RegistrarFuncion(*aliases):
+    """
+    Decorador para registrar una función y sus alias.
+    """
+    def wrapper(func):
+        FUNCIONES[func.__name__] = {
+            "func": func,
+            "aliases": list(aliases)
+        }
+        # Creamos los alias en el módulo
+        for alias in aliases:
+            globals()[alias] = func
+        return func
+    return wrapper
+
+@RegistrarFuncion("abrir", "ABRIR", "ab", "AB")
 def Abrir(regs):
     """
     Abre los registrados solicitados.
@@ -90,11 +71,8 @@ def Abrir(regs):
                 #iface.messageBar().pushMessage("Advertencia", f'No se encontro la carpeta {path}', level=Qgis.Warning)
         except Exception as e:
             print(f'Error al abrir el registrado {reg}. ErrorMSG: {e}')
-abrir = Abrir
-ABRIR = Abrir
-ab = Abrir
-AB = Abrir
 
+@RegistrarFuncion("abrirs", "ABRIRS", "abs", "ABS")
 def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
     """
     Abre los registrados de las parcelas (?) seleccionadas en la capa actual.
@@ -123,11 +101,8 @@ def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
             valores.extend(partes)
     valores = sorted(set(valores))
     abrir("-".join(str(v) for v in valores))
-abrirs = AbrirDesdeSeleccion
-ABRIRS = AbrirDesdeSeleccion
-abs = AbrirDesdeSeleccion
-ABS = AbrirDesdeSeleccion
 
+@RegistrarFuncion("RehacerMzsYRegs", "rehacermzsyregs", "REHACERMZSYREGS")
 def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, sustituirCapas=True):
     """
     Genera los shapes de Manzanas y Registrados de un ejido a partir de sus parcelas.
@@ -180,10 +155,8 @@ def ActualizarShapesPueblo(ejido, distanciaBuffer=0.05, agregarAlLienzo=True, su
         DicEjidos[int(ejido)]['REGISTRADOS'] = archivoRegistrados
     except:
         print(f'No pude guardar la capa {capa.name()}. ErrorMSG: {e}')
-RehacerMzsYRegs = ActualizarShapesPueblo
-rehacermzsyregs = ActualizarShapesPueblo
-REHACERMZSYREGS = ActualizarShapesPueblo
 
+@RegistrarFuncion("cambiarejido", "CAMBIAREJIDO", "ce", "CE")
 def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
     """
     Cambia las capas del mapa de trabajo predeterminado al pueblo indicado y lo enfoca. 
@@ -257,11 +230,8 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
 
     except Exception as e:
         print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
-cambiarejido = CambiarEjido
-CAMBIAREJIDO = CambiarEjido
-ce = CambiarEjido
-CE = CambiarEjido
 
+@RegistrarFuncion("fcs", "FCS")
 def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coordenadas agregadas"]):
     layer = iface.activeLayer()
     if not layer:
@@ -283,9 +253,8 @@ def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coo
         coords_layer.setSubsetString(filtro)
     abrir(registrado_val)
     print(f"Filtro aplicado: {filtro}")
-fcs = FiltrarCoordenadasPorSeleccion
-FCS = FiltrarCoordenadasPorSeleccion
 
+@RegistrarFuncion("Backup", "backup", "BACKUP")
 def GenerarBackupUrbanoCompleto():
     """
     Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
@@ -322,10 +291,8 @@ def GenerarBackupUrbanoCompleto():
     with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
         for file in files:
             package.write(file, file) 
-Backup = GenerarBackupUrbanoCompleto
-backup = GenerarBackupUrbanoCompleto
-BACKUP = GenerarBackupUrbanoCompleto
 
+@RegistrarFuncion("mzsdesdesel", "MZSDESDESEL")
 def GenerarManzanasDesdeSeleccion():
     """
     Genera un shapefile de manzanas parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
@@ -342,9 +309,8 @@ def GenerarManzanasDesdeSeleccion():
         return
     capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
     GenerarShapeManzanas(capa, 'temp')
-mzsdesdesel = GenerarManzanasDesdeSeleccion
-MZSDESDESEL = GenerarManzanasDesdeSeleccion
 
+@RegistrarFuncion("regsdesdesel", "REGSDESDESEL")
 def GenerarRegistradosDesdeSeleccion():
     """
     Genera un shapefile de registrados parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
@@ -361,9 +327,8 @@ def GenerarRegistradosDesdeSeleccion():
         return
     capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
     GenerarShapeRegistrados([capa], 'temp')
-regsdesdesel = GenerarRegistradosDesdeSeleccion
-REGSDESDESEL = GenerarRegistradosDesdeSeleccion
 
+@RegistrarFuncion("kmzdesdesel", "KMZDESDESEL")
 def GenerarKMZDesdeSeleccion(rutaKml=False, decorarNomencla = False):
     """
     Genera un archivo KMZ a partir de las características seleccionadas en la capa activa de QGIS.
@@ -408,9 +373,8 @@ def GenerarKMZDesdeSeleccion(rutaKml=False, decorarNomencla = False):
         kmz.write(contenido)
     rutaKmz = KML_ToKMZ(rutaKml)
     return rutaKmz
-kmzdesdesel = GenerarKMZDesdeSeleccion
-KMZDESDESEL = GenerarKMZDesdeSeleccion
 
+@RegistrarFuncion("kmzs", "KMZS", "generarkmzs", "GENERARKMZS")
 def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
     """
     Genera los archivos KMZ de todos los pueblos. Los guarda en la carpeta ../Mis Documentos/Borrar del usuario actual
@@ -461,9 +425,8 @@ def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
                 CANVAS_RemoveLayerByName(capa.name())
                 kmzs.append(rutaKmz)
     return kmzs
-kmzs = GenerarKMZs
-KMZS = GenerarKMZs
 
+@RegistrarFuncion("generarmanzanero", "GENERARMANZANERO", "gmz", "GMZ")
 def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
     """
     Genera un manzanero en la nomenclatura especificada, si existe.
@@ -516,7 +479,8 @@ def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
     texto = composicion.itemById('Nombre')
     texto.setText(nomencla)
     texto.refresh()
-    
+
+@RegistrarFuncion("info", "Info", "INFO", "infoejido", "INFOEJIDO")
 def InfoEjido(ejido=False):
     """
     Imprime en consola la informacion existente sobre el ejido o los modulos.
@@ -544,22 +508,12 @@ def InfoEjido(ejido=False):
                 print(f" > {key}: .." + "\\" + value.split('\\')[-2] + "\\" + value.split('\\')[-1])
             else:
                 print(f' > {key}: {value}')
-info = InfoEjido
-Info = InfoEjido
-INFO = InfoEjido
-infoejido = InfoEjido
-INFOEJIDO = InfoEjido
 
+@RegistrarFuncion("recargarinfoejidos", "RECARGARINFOEJIDOS")
 def RecargarInfoEjidos():
     """
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
 
-recargarinfoejidos = RecargarInfoEjidos
-
-
-
-
-
-
+return FUNCIONES
