@@ -44,10 +44,12 @@ def RegisterFunction(*aliases):
     Decorador para registrar una función y sus alias.
     """
     def wrapper(func):
-        nombres = [func.__name__] + list(aliases)
-        for nombre in nombres:
-            FUNCIONES[nombre] = func
-            globals()[nombre] = func  # opcional: crea los alias directamente
+        FUNCIONES[func.__name__] = {
+            "func": func,
+            "aliases": list(aliases)
+        }
+        for alias in aliases:
+            globals()[alias] = func
         return func
     return wrapper
 
@@ -290,6 +292,7 @@ def GenerarEjidoSincronizado(ejido):
 
     except Exception as e:
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
+
 
 
 
