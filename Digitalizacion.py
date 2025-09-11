@@ -14,14 +14,24 @@ Permite un flujo de trabajo acortado para dibujar las parcelas de los expediente
 from qgis.core import *
 from qgis.utils import *
 from qgis.gui import *
-from CommonFunctions import RegisterFunction
 from CommonFunctions import *
 from ChamferTool import *
 from NumberingTool import *
 
 FUNCIONES = {}
+def RegisterFunction(*aliases):
+    """
+    Decorador para registrar una función y sus alias.
+    """
+    def wrapper(func):
+        nombres = [func.__name__] + list(aliases)
+        for nombre in nombres:
+            FUNCIONES[nombre] = func
+            globals()[nombre] = func  # opcional: crea los alias directamente
+        return func
+    return wrapper
 
-@RegisterFunction(FUNCIONES, "asignarvaloracampo", "ASIGNARVALORACAMPO", "Nomenclar", "nomenclar", "NOMENCLAR", "nm", "NM")
+@RegisterFunction("asignarvaloracampo", "ASIGNARVALORACAMPO", "Nomenclar", "nomenclar", "NOMENCLAR", "nm", "NM")
 def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
     """
     Permite asignar rapidamente un valor en un campo a las entidades seleccionadas.
@@ -60,7 +70,7 @@ def AsignarValorACampo(valor, campoObjetivo='NOMENCLA'):
         print(f'El tipo de valor ({fieldType}) proporcionado no era compatible con {campoObjetivo}.')
         return False
 
-@RegisterFunction(FUNCIONES, "cortarochava", "CORTAROCHAVA", "Ochava", "ochava", "OCHAVA", "co", "CO")
+@RegisterFunction("cortarochava", "CORTAROCHAVA", "Ochava", "ochava", "OCHAVA", "co", "CO")
 def CortarOchava(distancia=4, epsg=False):
     """
     Permite cortar rapidamente ochavas.
@@ -92,7 +102,7 @@ def CortarOchava(distancia=4, epsg=False):
     iface.mapCanvas().setMapTool(herramienta)
     iface._currentTool = herramienta
 
-@RegisterFunction(FUNCIONES, "numerarparcelas", "NUMERARPARCELAS", "Numerar", "numerar", "NUMERAR", "np", "NP")
+@RegisterFunction("numerarparcelas", "NUMERARPARCELAS", "Numerar", "numerar", "NUMERAR", "np", "NP")
 def NumerarParcelas(numeroInicial=1, campoObjetivo='NOMENCLA', concatenar=True):
     """
     Permite numerar poligonos mediante una linea dibujada dinamicamente por el usuario.
