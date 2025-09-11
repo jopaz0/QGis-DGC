@@ -58,7 +58,7 @@ def Abrir(regs):
         except Exception as e:
             print(f'Error al abrir el registrado {reg}. ErrorMSG: {e}')
 
-@RegisterFunction(FUNCIONES, "abrirs", "ABRIRS", "abs", "ABS")
+@RegisterFunction(FUNCIONES, "abrirs", "ABRIRS", "abrs", "ABRS")
 def AbrirDesdeSeleccion(campo="REGISTRADO", capa=None):
     """
     Abre los registrados de las parcelas (?) seleccionadas en la capa actual.
@@ -501,6 +501,7 @@ def RecargarInfoEjidos():
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 
 
 
