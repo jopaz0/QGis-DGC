@@ -51,14 +51,10 @@ agrupado = defaultdict(list)
 for nombre, info in FUNCIONES.items():
     agrupado[info["modulo"]].append((nombre, info["aliases"]))
 
-def ayuda():
-    print("\nFunciones registradas:")
-    for modulo in allModules:  # respeta el orden de carga
-        if modulo in agrupado:
-            print(f"\n[{modulo}]")
-            for principal, aliases in sorted(agrupado[modulo], key=lambda x: x[0].lower()):
-                alias_txt = f" (aliases: {', '.join(aliases)})" if aliases else ""
-                print(f"  - {principal}{alias_txt}")
-    print("\nTipee 'help(funcion)' para obtener mas informacion.")
-    print("Tipee 'ayuda()' para volver a ver este mensaje.")
-ayuda()
+print("\nFunciones registradas:")
+for modulo in allModules:  # respeta el orden de carga
+    if modulo in agrupado:
+        print(f"\n[{modulo}]")
+        for principal, aliases in sorted(agrupado[modulo], key=lambda x: x[0].lower()):
+            alias_txt = f" (aliases: {', '.join(aliases)})" if aliases else ""
+            print(f"  - {principal}{alias_txt}")
