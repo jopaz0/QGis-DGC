@@ -10,6 +10,8 @@ from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
+from CommonFunctions import *
+from DGCFunctions import *
 
 FUNCIONES = {}
 
@@ -498,6 +500,7 @@ def RecargarInfoEjidos():
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 
 
 
