@@ -97,22 +97,27 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
     camposDecimales = ['PORCEN','V2','V3','V4']
     camposBorrarAprox = ['EXPTE','ANIO']
     conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
-    for cc in [1,2,3]:
+    for cc in [1, 2, 3]:
         csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
-        diccionarios[cc] = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
-        if not diccionarios[cc]:
-            continue
-        if poseedores:
-            diccionarios[cc] = DICT_Filter(diccionarios[cc], matchFilters={'TEN':'S'})
+        dic = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
+        if dic:
+            if poseedores:
+                dic = DICT_Filter(dic, matchFilters={'TEN':'S'})
+            else:
+                dic = DICT_Filter(dic, unmatchFilters={'TEN':'S'})
+            dic = DICT_SetKey(dic, 'NOMENCLA')
+            diccionarios[cc] = dic
         else:
-            diccionarios[cc] = DICT_Filter(diccionarios[cc], unmatchFilters={'TEN':'S'})
-        diccionarios[cc] = DICT_SetKey(diccionarios[cc], 'NOMENCLA')
+            print(f"Archivo CSV no encontrado o vacío: {csvPath}")
+            diccionarios[cc] = False
      
     #separo las parcelas por cc y matcheo por nomenclatura con el diccionario que le corresponda
     #de momento, esto no tiene en cuenta PHS
-    for cc in [1,2,3]:
-        subconjunto = [x for x in entidades if x['CC']==cc]
-        SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
+    for cc in [1, 2, 3]:
+        if diccionarios[cc]:
+            subconjunto = [x for x in entidades if x['CC'] == cc]
+            if subconjunto:
+                SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
 
 @RegisterFunction("completartabla", "COMPLETARTABLA", "ct", "CT")
 def CompletarTabla(ejido, capa = False):
@@ -161,13 +166,13 @@ def CompletarTabla(ejido, capa = False):
     camposDecimales = ['PORCEN','V2','V3','V4']
     camposBorrarAprox = ['EXPTE','ANIO']
     conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO','NOMENCLATURA':'NOMENCLA','APELLIDO Y NOMBRE':'APELLIDO'}
-    for cc in [1,2,3]:
+    for cc in [1, 2, 3]:
         csvPath = f'C:\\MaxlocV11\\{nombrecc[cc]}{ejido}.xls'
         csv = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
         if csv:
             diccionario += csv
         else:
-            continue
+            print(f"Archivo CSV no encontrado o vacío: {csvPath}")
 
     #aplico algunas conversiones a los datos.. parece que solo necesite una
     for entidad in diccionario:
@@ -292,6 +297,7 @@ def GenerarEjidoSincronizado(ejido):
 
     except Exception as e:
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
+
 
 
 
