@@ -6,6 +6,7 @@ import os
 import zipfile
 import re
 import processing
+import time
 from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
@@ -422,6 +423,7 @@ def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
                 rutaKmz = KML_ToKMZ(rutaKml)
                 CANVAS_RemoveLayerByName(capa.name())
                 kmzs.append(rutaKmz)
+        time.sleep(60)
     return kmzs
 
 @RegisterFunction("generarmanzanero", "GENERARMANZANERO", "gmz", "GMZ")
@@ -513,6 +515,7 @@ def RecargarInfoEjidos():
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
+
 
 
 
