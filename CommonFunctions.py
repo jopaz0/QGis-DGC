@@ -970,34 +970,87 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
         print(f'Error while looking for {filter} in {subfolder}. ErrorMSG: {e}')
         return False
 
-def PATH_GetFileFromWeb(githubFilePath, urlRoot=f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/'):
+# def PATH_GetFileFromWeb(githubFilePath, urlRoot=f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/'):
+#     """
+#     Tryes to retrieve a file from the web, by defaults searchs for it in this Github repo.
+
+#     PARAMETROS
+#     filename: String 
+#         Self explanatory
+#     urlRoot: String
+#         The part of the URL that is not the filename (duh)
+
+#     COMMENTS
+
+#     RETURNS
+#         - String containing the filepath of the downloaded file
+#         - False if failed to get the file
+#     """
+#     try:
+#         tempFolder = tempfile.gettempdir()
+#         localFilePath = os.path.join(tempFolder, githubFilePath.split('\\')[-1])
+#         url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\','/'))
+#         if os.path.exists(localFilePath):
+#             os.remove(localFilePath)
+#         response = urllib.request.urlretrieve(url, localFilePath)
+#         if type(response) is tuple:
+#             return response[0]
+#         return response
+#     except Exception as e:
+#         print(f"Error al descargar {githubFilePath}: {e}")
+#         return False
+
+#VERSION DE CHATGPT
+def PATH_GetFileFromWeb(githubFilePath, 
+                        urlRoot="https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/",
+                        localRoot=r"L:\Geodesia\Privado\Opazo\Weas Operativas\Scripts",
+                        maxCacheAge= 3 * 30 * 24 * 3600):
     """
-    Tryes to retrieve a file from the web, by defaults searchs for it in this Github repo.
+    Intenta obtener un archivo primero desde el repositorio local, luego desde caché temporal,
+    y finalmente desde GitHub si no hay copia disponible.
 
-    PARAMETROS
-    filename: String 
-        Self explanatory
-    urlRoot: String
-        The part of the URL that is not the filename (duh)
+    PARÁMETROS
+    githubFilePath : str
+        Ruta del archivo dentro del repo (por ejemplo 'resGeodesia/ejemplo.kml')
+    urlRoot : str
+        URL base del repositorio GitHub.
+    localRoot : str
+        Carpeta local donde buscar primero.
+    maxCacheAge : int
+        Edad máxima permitida para usar caché (por defecto 1 año).
 
-    COMMENTS
-
-    RETURNS
-        - String containing the filepath of the downloaded file
-        - False if failed to get the file
+    RETORNA
+        - Ruta del archivo local (str)
+        - False si no se pudo obtener
     """
+    import os, tempfile, time, urllib.request, urllib.parse
+
     try:
+        fileName = os.path.basename(githubFilePath)
+        localCandidate = os.path.join(localRoot, githubFilePath)
         tempFolder = tempfile.gettempdir()
-        localFilePath = os.path.join(tempFolder, githubFilePath.split('\\')[-1])
-        url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\','/'))
-        if os.path.exists(localFilePath):
-            os.remove(localFilePath)
-        response = urllib.request.urlretrieve(url, localFilePath)
-        if type(response) is tuple:
-            return response[0]
-        return response
+        cacheFile = os.path.join(tempFolder, fileName)
+        url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\', '/'))
+
+        # --- 1️⃣ Buscar en repositorio local ---
+        if os.path.exists(localCandidate):
+            print(f"Usando copia local: {fileName}")
+            return localCandidate
+
+        # --- 2️⃣ Buscar en caché temporal ---
+        if os.path.exists(cacheFile):
+            age = time.time() - os.path.getmtime(cacheFile)
+            if age < maxCacheAge:
+                print(f"Usando caché local: {fileName}")
+                return cacheFile
+
+        # --- 3️⃣ Descargar desde GitHub ---
+        print(f"Descargando desde GitHub: {fileName}")
+        urllib.request.urlretrieve(url, cacheFile)
+        return cacheFile
+
     except Exception as e:
-        print(f"Error al descargar {filename}: {e}")
+        print(f"Error al obtener {githubFilePath}: {e}")
         return False
 
 def STR_CleanHtmlString(string):
@@ -1349,6 +1402,7 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
 
 
