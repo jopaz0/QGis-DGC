@@ -21,6 +21,7 @@ from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
+from qgis.PyQt.QtGui import QColor
 from PyQt5.QtCore import QVariant, QDate, QDateTime, QTime
 
 def CANVAS_AddLayer(layer, name=False, delimiter=False):
@@ -1053,6 +1054,42 @@ def PATH_GetFileFromWeb(githubFilePath,
         print(f"Error al obtener {githubFilePath}: {e}")
         return False
 
+def PROJ_ImportGPL(path_gpl: str):
+    """
+    Imports a GPL file into current project's colors. Courtesy of CHATGPT
+    """
+    colores = []
+    with open(path_gpl, 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if not line or line.startswith("GIMP") or line.startswith("Name") or \
+                line.startswith("Columns") or line.startswith("#"):
+                    continue
+            parts = line.split()
+            try:
+                r, g, b = map(int, parts[:3])
+            except ValueError:
+                continue
+            name = " ".join(parts[3:]) if len(parts) > 3 else None
+            qcolor = QColor(r, g, b)
+            colores.append((qcolor, name))
+    QgsProject.instance().setProjectColors(colores)
+    return colores
+
+def PROJ_ImportLayout(templateFilePath, name=False):
+    """
+    Imports a layout qml file into current project.
+    """
+    if not name:
+        name='Temp Layout'
+    proyecto = QgsProject.instance()
+    manager = proyecto.layoutManager()
+    layout = QgsPrintLayout(proyecto)
+    layout.setName(name)
+    layout.loadFromTemplate(QDomDocument(templateFilePath), QgsReadWriteContext())
+    manager.addLayout(layout)
+    return layout
+
 def STR_CleanHtmlString(string):
     """
     Replaces special caracters in a string for them to be safe to use in HTML or XML.
@@ -1402,6 +1439,7 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
 
 
