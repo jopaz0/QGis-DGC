@@ -1076,17 +1076,20 @@ def PROJ_ImportGPL(path_gpl: str):
     QgsProject.instance().setProjectColors(colores)
     return colores
 
-def PROJ_ImportLayout(templateFilePath, name=False):
+def PROJ_ImportLayout(templateFilePath, name="Temp Layout"):
     """
-    Imports a layout qml file into current project.
+    Imports a layout .qpt template into the current QGIS project.
     """
-    if not name:
-        name='Temp Layout'
     proyecto = QgsProject.instance()
-    manager = proyecto.layoutManager()
     layout = QgsPrintLayout(proyecto)
+    layout.initializeDefaults()
     layout.setName(name)
-    layout.loadFromTemplate(QDomDocument(templateFilePath), QgsReadWriteContext())
+    doc = QDomDocument()
+    with open(templateFilePath, "r", encoding="utf-8") as f:
+        xml = f.read()
+        doc.setContent(xml)
+    context = QgsReadWriteContext()
+    layout.loadFromTemplate(doc, context)
     manager.addLayout(layout)
     return layout
 
@@ -1439,6 +1442,7 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
 
 
