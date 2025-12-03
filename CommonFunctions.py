@@ -22,6 +22,7 @@ from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtXml import QDomDocument
 from PyQt5.QtCore import QVariant, QDate, QDateTime, QTime
 
 def CANVAS_AddLayer(layer, name=False, delimiter=False):
@@ -1442,6 +1443,7 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
 
 
