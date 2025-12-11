@@ -17,6 +17,7 @@ import urllib.request
 import importlib.util
 import pandas as pd
 import inspect
+import math
 from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
@@ -315,7 +316,7 @@ def CANVAS_ZoomToLayer(layer):
 
     RETURNS
     """
-    extent = layer.extent()
+    extent = layer.dataProvider().extent()
     iface.mapCanvas().setExtent(extent)
     iface.mapCanvas().refresh()
 
@@ -635,6 +636,45 @@ def GEOM_DeleteDuplicatePoints(geometry, tolerance=0.01):
         print(f'Warning, geometry could not be cleaned @GEOM_DeleteDuplicatePoints. ErrorMSG: {e}')
         return geometry
 
+def GEOM_GetMeasuresString(geom):
+    """
+    Calculates the edge lengths of a polygon or multipolygon geometry and returns them as a string,
+    separated by hyphens, with three decimal places.
+
+    PARAMETERS
+    geom: QgsGeometry
+        The polygon or multipolygon geometry for which the measures are calculated.
+
+    RETURNS
+    str
+        A string containing the edge lengths of the polygon(s), separated by hyphens.
+        If it's a multipolygon, only the first polygon is processed.
+    """
+    if not geom or geom.wkbType() not in (QgsWkbTypes.Polygon, QgsWkbTypes.MultiPolygon):
+        print("Invalid or unsupported geometry type in GEOM_GetMeasuresString.")
+        return ''
+    
+    # Convert MultiPolygon to the first Polygon if necessary
+    if geom.isMultipart():
+        polygons = geom.asMultiPolygon()
+        if not polygons or not polygons[0]:
+            print("No valid polygons found in the multipolygon geometry.")
+            return ''
+        vertices = polygons[0][0]  # Take the first ring of the first polygon
+    else:
+        vertices = geom.asPolygon()[0]  # Take the first ring
+    
+    if len(vertices) < 2:
+        print("Geometry does not have enough vertices.")
+        return ''
+    
+    measures = []
+    for i in range(len(vertices) - 1):  # Iterate through consecutive vertex pairs
+        length = vertices[i].distance(vertices[i + 1])
+        measures.append(round(length, 3))
+    
+    return '-'.join(f'{m:.2f}' for m in measures)
+
 def GEOM_NormalizeFirstVertex(geom):
     """
     Reorders the vertices of a polygon to start from the westernmost point.
@@ -692,6 +732,28 @@ def GEOM_ToMultiXY(geom):
             return [geom.asPolygon()]
     else:
         return None
+
+def GEOM_Reproject(geom, origin, target=4326):
+    """
+    Reprojects a QgsGeometry.
+
+    PARAMETERS
+    geom: QgsGeometry
+        The geometry to be converted.
+    origin: integer
+        The epsg code for the origin CRS.
+    target: integer | optional
+        The epsg code for the target CRS. Defaults to 4326 (WGS 84)
+    RETURNS
+    - Reprojected geometry
+    """
+    if geom.isEmpty():
+        return geom
+    origin = QgsCoordinateReferenceSystem(origin)
+    target = QgsCoordinateReferenceSystem(target)
+    transf = QgsCoordinateTransform(origin, target, QgsProject.instance())
+    geom.transform(transf)
+    return geom
 
 def KML_ContentBuilder(input, nameBy, styleBy=False, tabs=1, showInTable=[], folderName=False):
     """
@@ -899,6 +961,64 @@ def KML_TranslateGeometry(feature, tabs=2):
     descriptor = '\n'.join(lines)
     return descriptor
 
+def LAY_ForceRHR(layer):
+    """
+    Forces right hand rule on a layer. Used for calculating a measures string
+    
+    PARAMETERS
+    layer: QgsVectorLayer
+    
+    RETURNS
+    QgsVectorLayer
+    """
+    params = {'INPUT':layer, 'OUTPUT':'TEMPORARY_OUTPUT'}
+    layer = processing.run('native:forcerhr', params)['OUTPUT']
+    return layer
+
+def LAY_GetOMBBAngle(layer):
+    """
+    Calculates the rotation angle of the oriented minumum bounding box for the layer.
+    
+    PARAMETERS
+    layer: QgsVectorLayer
+    
+    RETURNS
+    int
+    """
+    try:
+        params = {'INPUT':layer, 'OUTPUT':'TEMPORARY_OUTPUT'}
+        layer = processing.run('native:orientedminimumboundingbox', params)['OUTPUT']
+        ombb = next(layer.getFeatures()).geometry()
+        counter = 0
+        minv = 0
+        while not ombb.vertexAt(counter).isEmpty():
+            if ombb.vertexAt(counter).x() < ombb.vertexAt(minv).x():
+                minv = counter
+            counter += 1
+        vprev = ombb.vertexAt(minv-1) if minv>0 else ombb.vertexAt(4)
+        vnext = ombb.vertexAt(minv+1) if minv<4 else ombb.vertexAt(0)
+        minv = ombb.vertexAt(minv)
+        vlong = vprev if minv.distance(vprev)>minv.distance(vnext) else vnext
+        angle = math.degrees(math.atan2(vlong.y()-minv.y(), vlong.x()-minv.x()))
+        return angle
+    except Exception as e:
+        print(f'Error while computing layout angle, returning default value (0). Errormsg: {e}')
+        return 0
+
+def LAY_Simplify(layer, coef, method=0):
+    """
+    Simplifies a layer. Used for calculating a measures string
+    
+    PARAMETERS
+    layer: QgsVectorLayer
+    
+    RETURNS
+    QgsVectorLayer
+    """
+    params = {'INPUT':layer, 'METHOD':method, 'TOLERANCE':coef, 'OUTPUT':'TEMPORARY_OUTPUT'}
+    layer = processing.run('native:simplifygeometries', params)['OUTPUT']
+    return layer
+
 def NUM_GetNextScale(scale, zoom=1):
     """
     Receives the current map scale and a zoom percentage, and returns the next official DGC scale that is immediately higher.
@@ -930,7 +1050,7 @@ def PATH_GetDefaultSaveFolder():
     os.makedirs(path, exist_ok=True)
     return path
 
-def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
+def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp', silent=True):
     """
     Navigates a folder following the given filters, returns any file matching the last filter and the given extension.
 
@@ -952,10 +1072,12 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
         for filter in filters[:-1]:
             subfolder = [os.path.join(subfolder, d) for d in os.listdir(subfolder) if os.path.isdir(os.path.join(subfolder, d)) and filter in d.upper()]
             if not subfolder:
-                print(f'Alert, there is no folder in {subfolder} that matches {filter}.')
+                if not silent:
+                    print(f'Alert, there is no folder in {subfolder} that matches {filter}.')
                 return False
             if len(subfolder) > 1:
-                print(f'Alert, there is more than one folder in {subfolder} that matches {filter}.')
+                if not silent:
+                    print(f'Alert, there is more than one folder in {subfolder} that matches {filter}.')
             subfolder = subfolder[0]
         match = [os.path.join(subfolder, d) 
                 for d in os.listdir(subfolder) 
@@ -963,60 +1085,33 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp'):
                 filters[-1] in d.upper() and 
                 d.lower().endswith(ext)]
         if not match:
-            print(f'Alert, there is no file in {subfolder} that matches {filter}.')
+            if not silent:
+                print(f'Alert, there is no file in {subfolder} that matches {filter}.')
             return False
         elif len(match) > 1:
-            print(f'Alert, there is more than one file on {subfolder} that matches {filters[-1]}.')
+            if not silent:
+                print(f'Alert, there is more than one file on {subfolder} that matches {filters[-1]}.')
         return match[0]
     except Exception as e:
         print(f'Error while looking for {filter} in {subfolder}. ErrorMSG: {e}')
         return False
 
-# def PATH_GetFileFromWeb(githubFilePath, urlRoot=f'https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/'):
-#     """
-#     Tryes to retrieve a file from the web, by defaults searchs for it in this Github repo.
-
-#     PARAMETROS
-#     filename: String 
-#         Self explanatory
-#     urlRoot: String
-#         The part of the URL that is not the filename (duh)
-
-#     COMMENTS
-
-#     RETURNS
-#         - String containing the filepath of the downloaded file
-#         - False if failed to get the file
-#     """
-#     try:
-#         tempFolder = tempfile.gettempdir()
-#         localFilePath = os.path.join(tempFolder, githubFilePath.split('\\')[-1])
-#         url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\','/'))
-#         if os.path.exists(localFilePath):
-#             os.remove(localFilePath)
-#         response = urllib.request.urlretrieve(url, localFilePath)
-#         if type(response) is tuple:
-#             return response[0]
-#         return response
-#     except Exception as e:
-#         print(f"Error al descargar {githubFilePath}: {e}")
-#         return False
-
-#VERSION DE CHATGPT
 def PATH_GetFileFromWeb(githubFilePath, 
-                        urlRoot="https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/",
-                        localRoot=r"L:\Geodesia\Privado\Opazo\Weas Operativas\Scripts",
+                        urlRoot=r"https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/",
+                        localRepo=r"L:/Geodesia/Privado/Opazo/Weas Operativas/Scripts/",
                         maxCacheAge= 3 * 30 * 24 * 3600):
     """
     Intenta obtener un archivo primero desde el repositorio local, luego desde caché temporal,
     y finalmente desde GitHub si no hay copia disponible.
 
     PARÁMETROS
-    githubFilePath : str
-        Ruta del archivo dentro del repo (por ejemplo 'resGeodesia/ejemplo.kml')
+    githubFilePath : str | list
+        Nombre o ruta del archivo dentro del repositorio. En caso de estar en una subcarpeta, esta 
+        se puede expresar como ruta o especificar mediante una lista de subcarpetas finalizada por 
+        el nombre del archivo (por ejemplo ['resGeodesia', 'ejemplo.kml'] = 'resGeodesia/ejemplo.kml')
     urlRoot : str
         URL base del repositorio GitHub.
-    localRoot : str
+    localRepo : str
         Carpeta local donde buscar primero.
     maxCacheAge : int
         Edad máxima permitida para usar caché (por defecto 1 año).
@@ -1026,30 +1121,31 @@ def PATH_GetFileFromWeb(githubFilePath,
         - False si no se pudo obtener
     """
     import os, tempfile, time, urllib.request, urllib.parse
-
+    if type(githubFilePath) is list:
+        for sub in githubFilePath[0:-1]:
+            urlRoot = urlRoot + sub + "/"
+            localRepo = localRepo + sub + "/"
+        githubFilePath = githubFilePath[-1]
     try:
         fileName = os.path.basename(githubFilePath)
-        localCandidate = os.path.join(localRoot, githubFilePath)
-        tempFolder = tempfile.gettempdir()
-        cacheFile = os.path.join(tempFolder, fileName)
-        url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\', '/'))
 
-        # --- 1️⃣ Buscar en repositorio local ---
+        #Lo busco en el L
+        localCandidate = os.path.join(localRepo, githubFilePath)
         if os.path.exists(localCandidate):
+            fileTime = os.path.getmtime(localCandidate)
+            currentTime = time.time()
+            fileAge = currentTime - fileTime #in seconds
+            if fileAge > maxCacheAge:
+                os.remove(localCandidate)
+        else:
             print(f"Usando copia local: {fileName}")
             return localCandidate
-
-        # --- 2️⃣ Buscar en caché temporal ---
-        if os.path.exists(cacheFile):
-            age = time.time() - os.path.getmtime(cacheFile)
-            if age < maxCacheAge:
-                print(f"Usando caché local: {fileName}")
-                return cacheFile
-
-        # --- 3️⃣ Descargar desde GitHub ---
+        
+        #Si no esta, lo descargo
+        url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\', '/'))
         print(f"Descargando desde GitHub: {fileName}")
-        urllib.request.urlretrieve(url, cacheFile)
-        return cacheFile
+        urllib.request.urlretrieve(url, localCandidate)
+        return localCandidate
 
     except Exception as e:
         print(f"Error al obtener {githubFilePath}: {e}")
@@ -1082,6 +1178,7 @@ def PROJ_ImportLayout(templateFilePath, name="Temp Layout"):
     Imports a layout .qpt template into the current QGIS project.
     """
     proyecto = QgsProject.instance()
+    manager = proyecto.layoutManager()
     layout = QgsPrintLayout(proyecto)
     layout.initializeDefaults()
     layout.setName(name)
@@ -1443,12 +1540,3 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
-
-
-
-
-
-
-
-
-
