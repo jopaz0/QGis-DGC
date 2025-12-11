@@ -22,7 +22,148 @@ def InicializarDicEjidos():
         DicEjidos = { key: value[0] for key, value in ejidos.items()}
 InicializarDicEjidos()
 
-def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
+def BackupCapasUrbanas(backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')):
+    """
+    Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
+
+    PARAMETROS
+    backup_dir: string
+        La ruta donde se guardara la copia de las capas.
+
+    COMENTARIOS
+    - La función lee el contenido de las carpetas directamente desde el disco L; guarda todo lo que encuentre.
+    - Crea un archivo zip en el directorio de documentos del usuario (Documentos/BACKUPS/), que contiene los archivos.
+    - El archivo de salida es alrededor del doble de pesado que usando BackupLigero
+    - No genera backup de parcelas rurales.
+
+    RETORNO
+    Nada
+    """
+    directory  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
+    if not os.path.exists(directory):
+        directory  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
+    files = []
+    for folder in os.listdir(directory):
+        if os.path.isdir(os.path.join(directory, folder)) and folder[:3].isdigit() and folder[3] == '-':
+            townFolder = os.path.join(directory, folder)
+            for subfolder in os.listdir(townFolder):
+                if os.path.isdir(os.path.join(townFolder, subfolder)) and (
+                     'POLIGONO' in subfolder.upper() or 
+                     'PUEBLO' in subfolder.upper() or 
+                     'EXPEDIENTE' in subfolder.upper()):
+                    files += [os.path.join(townFolder, subfolder, x) for x in os.listdir(os.path.join(townFolder, subfolder)) if not x.endswith('.lock')]
+    backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    zipFile = os.path.join(backup_dir, 'BACKUP PUEBLOS COMPLETO ' + STR_GetTimestamp() + '.zip')
+    with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
+        for file in files:
+            package.write(file, file)
+    
+def BackupMedidasYRegistradosUrbanos(rutaBackup=os.path.join(Path.home(), 'Documents', 'BACKUPS'), nombreBackup='Backup Medidas y Registrados.shp'):
+    """
+    Realiza una copia de seguridad de las parcelas urbanas con medidas o mas de un registrado.
+
+    PARAMETROS
+    rutaBackup: string
+        La ruta a la capa donde se guardaran las parcelas. Debe contener los campos PARTIDA, MEDIDAS, REGISTRADOS y EJIDO.
+
+    COMENTARIOS
+    - La función lee el contenido de las carpetas directamente desde el disco L; guarda todo lo que encuentre.
+    - Las parcelas encontradas se anexan a la capa en rutaBackup si no existen, se mantienen las anteriores.
+    - No genera backup de parcelas rurales.
+
+    RETORNO
+    Nada
+    """
+    if QgsProject.instance().mapLayers():
+        print('Hay capas cargadas en el proyecto!')
+        print('Intente de nuevo en un proyecto vacio.')
+        return False
+    if not os.path.exists(rutaBackup):
+        os.makedirs(rutaBackup)
+    rutaBackup = os.path.join(rutaBackup, nombreBackup)
+    if not os.path.exists(rutaBackup):
+        #reemplazar por creacion de la capa si no existe. aunque es medio al pedo porque despues habria que juntar multiples capas...
+        print(f'No se encontro la carpeta de backups en {rutaBackup}.')
+        return False
+    capaBackup = PathToLayer(rutaBackup)
+    dicEjidos = CompletarDicEjidos(False, True)
+    capas = []
+    parcelasParaGuardar = {}
+    camposBackup = capaBackup.fields()
+    for ejido, datos in dicEjidos.items():
+        if datos['POSEEDORES']:
+            capas.append(PathToLayer(datos['PROPIETARIOS']))
+        if datos['POSEEDORES']:
+            capas.append(PathToLayer(datos['POSEEDORES']))
+    for capa in capas:
+        campos = [f.name() for f in  capa.fields()]
+        if not 'MEDIDAS' in campos:
+            print(f'La capa {capa.name()} no tenia el campo MEDIDAS.')
+            continue
+        if not 'REGISTRADO' in campos:
+            print(f'La capa {capa.name()} no tenia el campo REGISTRADO.')
+            continue
+        if capa.featureCount()<1:
+            print(f'La capa {capa.name()} no tenia parcelas.')
+            continue
+        epsg = dicEjidos[next(capa.getFeatures())['EJIDO']]['EPSG']
+        for obj in capa.getFeatures():
+            
+            #compruebo que el objeto realmente tenga una geometria
+            if obj.geometry().isEmpty():
+                continue
+                
+            guardar = False
+            #compruebo en MEDIDAS si hay algo, que no sea un 0, y que no sean solo guiones
+            medidas = str(obj['MEDIDAS']).lower()
+            if medidas=='null' or medidas=='0' or len(medidas.replace('-',''))==0:
+                continue
+            else:
+                guardar = True
+                
+            #compruebo en REGISTRADOS si hay algo, que no sea una x, y que haya mas de un registrado
+            registrados = str(obj['REGISTRADO']).lower().replace('x','')
+            if not guardar:
+                if registrados=='null' or registrados=='' or len(registrados.split('-'))==1:
+                    continue
+
+            nuevoObjeto = QgsFeature()
+            nuevoObjeto.setGeometry(GEOM_Reproject(obj.geometry(), epsg))
+            nuevoObjeto.setFields(camposBackup)
+            nuevoObjeto['PARTIDA'] = obj['PARTIDA']
+            nuevoObjeto['REGISTRADO'] = obj['REGISTRADO']
+            nuevoObjeto['MEDIDAS'] = obj['MEDIDAS']
+            nuevoObjeto['EJIDO'] = obj['EJIDO']
+            parcelasParaGuardar[obj['PARTIDA']] = nuevoObjeto
+    for obj in capaBackup.getFeatures():
+        partida = obj['PARTIDA']
+        if not partida in parcelasParaGuardar:
+            parcelasParaGuardar[partida] = obj
+        else:
+            #Aca se modifica la logica para elegir si guardar el 
+            #registrado nuevo o conservar el del backup anterior
+            #en este momento junta los dos en uno solo.
+            registrados = str(parcelasParaGuardar[partida]['REGISTRADO']).lower().replace('x','')
+            if registrados=='null' or registrados=='':
+                parcelasParaGuardar[partida]['REGISTRADO'] = obj['REGISTRADO']
+            else:
+                registrados = obj['REGISTRADO'] + '-' + registrados
+                registrados = list(set(registrados.split('-')))
+                queEsEsto = [str(i) for i in registrados if not i.isnumeric()]
+                registrados = [int(i) for i in registrados if i.isnumeric()]
+                registrados.sort()
+                registrados += queEsEsto
+                registrados = '-'.join([str(i) for i in registrados])
+                parcelasParaGuardar[partida]['REGISTRADO'] = registrados
+    capaBackup.dataProvider().truncate()
+    with edit(capaBackup):
+        capaBackup.addFeatures(list(parcelasParaGuardar.values()))
+    print(f'Sincronizadas {capaBackup.featureCount()} parcelas al backup en {rutaBackup}.')
+    return True
+
+def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False, silent=True):
     """
     Busca y devuelve las rutas de las capas urbanas en el sistema de archivos. Intenta primero buscarlas en el diccionario de ejidos.
 
@@ -49,16 +190,16 @@ def BuscarCapasUrbanas(numeroDeEjido, reescribirDicEjidos=False):
     if not os.path.exists(directorioPueblosCADGIS):
         directorioPueblosCADGIS  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
     numeroDeEjido = STR_FillWithChars(numeroDeEjido, 3, '0')
-    DicEjidos[n]['PROPIETARIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'PROP'])
-    DicEjidos[n]['POSEEDORES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'POSE'])
-    DicEjidos[n]['EXPEDIENTES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'EXP', 'EXP'])
-    DicEjidos[n]['MANZANAS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'MANZ'])
-    DicEjidos[n]['RADIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'RADIO'])
-    DicEjidos[n]['CIRCUNSCRIPCIONES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CIRC'])
-    DicEjidos[n]['CALLES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CALLE'])
-    DicEjidos[n]['MEDIDAS-REG'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGS'])
-    DicEjidos[n]['MEDIDAS-TITULOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'TIT'])
-    DicEjidos[n]['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'])
+    DicEjidos[n]['PROPIETARIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'PROP'], '.shp', silent)
+    DicEjidos[n]['POSEEDORES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'POLIGONO', 'POSE'], '.shp', silent)
+    DicEjidos[n]['EXPEDIENTES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'EXP', 'EXP'], '.shp', silent)
+    DicEjidos[n]['MANZANAS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'MANZ'], '.shp', silent)
+    DicEjidos[n]['RADIOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'RADIO'], '.shp', silent)
+    DicEjidos[n]['CIRCUNSCRIPCIONES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CIRC'], '.shp', silent)
+    DicEjidos[n]['CALLES'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'CALLE'], '.shp', silent)
+    DicEjidos[n]['MEDIDAS-REG'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGS'], '.shp', silent)
+    DicEjidos[n]['MEDIDAS-TITULOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'TIT'], '.shp', silent)
+    DicEjidos[n]['REGISTRADOS'] = PATH_FindFileInSubfolders(directorioPueblosCADGIS, [numeroDeEjido, 'PUEBLO', 'REGIST'], '.shp', silent)
     return DicEjidos[n]
 
 def CalcularNomenclatura(parcela):
@@ -140,7 +281,7 @@ def CalcularNomenclaturaInterna(parcela):
     nomenclatura = '-'.join(nomenclatura)
     return nomenclatura
 
-def CompletarDicEjidos(reescribirDicEjidos=False):
+def CompletarDicEjidos(reescribirDicEjidos=False, silent=True):
     """
     Lee el csv con la informacion de los ejidos desde Github, genera un diccionario y lo enriquece con las direcciones de los archivos shape.
 
@@ -160,7 +301,7 @@ def CompletarDicEjidos(reescribirDicEjidos=False):
 
     for key, value in ejidos.items():
         DicEjidos[key] = value[0]
-        DicEjidos[key].update(BuscarCapasUrbanas(key,reescribirDicEjidos))
+        DicEjidos[key].update(BuscarCapasUrbanas(key,reescribirDicEjidos,silent))
     return DicEjidos
 
 def FiltrarParcelas(circ, radio, cc, mzna):
