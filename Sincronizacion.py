@@ -7,18 +7,14 @@ Funciones:
 - Requiere haber descargado los CSV del pueblo en Progress.
 
  > CompletarTabla(numero de ejido)
-- Recupera los valores de todos los campos de las parcelas seleccionadas, en base a PARTIDA.
+- Recupera los valores de todos los campos, en base a PARTIDA.
 - Requiere haber descargado los CSV del pueblo en Progress.
 
  > GenerarEjidoSincronizado(numero de ejido)
 - Calcula y carga en el lienzo el resultado de sincronizar todas las parcelas de un ejido. 
 - Las parcelas cuya partida no figure en tabla conservan sus datos anteriores, excepto COD, APELLIDO y TEN. 
 - No tiene en cuenta parcelas que existan en la tabla pero no en los shapefiles.
-- Requiere haber descargado los CSV del pueblo en Progress.
-
-> SincronizarSeccion()
-- Recupera los valores de todos los campos de las parcelas seleccionadas, en base a PARTIDA.
-- Requiere haber descargado el CSV de la seccion en Progress.
+- Requiere haber descargado los CSV del pueblo en Progress. 
 
 Seleccionar todo el pueblo y usar COMPLETARPARTIDAS(#) y/o COMPLETARTABLA(#) tecnicamente funciona, pero puede llegar a demorar mucho y corromper los datos de las parcelas que usamos todos.
 
@@ -124,7 +120,7 @@ def CompletarPartidas(ejido, capa=False, poseedores=False):
                 SyncFieldsFromDict(capa, subconjunto, diccionarios[cc], 'NOMENCLA', ['PARTIDA'])
 
 @RegisterFunction("completartabla", "COMPLETARTABLA", "ct", "CT")
-def CompletarTabla(ejido, capa = False):
+def CompletarTabla(ejido, capa = False, sincronizarTodo = False):
     """
     Completa los valores de atributos de las parcelas seleccionadas en la capa actual, basándose en la información obtenida de archivos CSV correspondientes a un ejido.
 
@@ -153,10 +149,11 @@ def CompletarTabla(ejido, capa = False):
         capa = CANVAS_CheckForLayer(capa)
     else:
         capa = iface.activeLayer()
-
-    seleccion = CANVAS_CheckSelection(capa)
-    if not seleccion:
-        return
+    
+    if not sincronizarTodo:
+        seleccion = CANVAS_CheckSelection(capa)
+        if not seleccion:
+            return
 
     #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
     for campo in ['PARTIDA', 'CC']:
@@ -199,13 +196,14 @@ def CompletarTabla(ejido, capa = False):
     # Si no se encuentra la partida en el diccionario, es xq no existen
     SyncFieldsFromDict(capa, seleccion, diccionario, 'PARTIDA')
 
-@RegisterFunction("generarejidosincronizado", "GENERAREJIDOSINCRONIZADO")
+@RegisterFunction("generarejidosincronizado", "GENERAREJIDOSINCRONIZADO","ges","GES")
 def GenerarEjidoSincronizado(ejido):
     """
-    Genera capas sincronizadas para el ejido especificado combinando la geometria de los shapefiles y la información de archivos CSV descargados de Progress. 
+    Genera capas sincronizadas para el ejido especificado usando PARTIDA como comparacion.
+    Requiere las capas de pueblo en el L y los CSV del pueblo descargados desde progress
 
     PARAMETROS
-    ejido: Cadena de texto o numero entero que representa el código del ejido a procesar. Se ajustará para tener un formato de tres caracteres usando ceros a la izquierda si es necesario.
+    ejido: Cadena de texto o numero entero que representa el código del ejido a procesar
 
     COMENTARIOS
     - Se presupone que los CSV estan ya descargados desde la app CatastroV11 y guardados en C:\MaxlocV11\, o sea la ubicacion por defecto. La funcion se encarga de normalizar los datos y encabezados que vienen por defecto.
@@ -221,6 +219,7 @@ def GenerarEjidoSincronizado(ejido):
     - Cualquier excepción se imprime en la consola para diagnóstico.
     
     """
+    plantillas=r'L:\Geodesia\Privado\Opazo\Weas Operativas\Scripts\res\Geodesia'
     #Todos estos son los parametros de entrada para CSV_MergeFiles
     try:
         directoriosCSVs = r'C:\MaxlocV11'
@@ -235,11 +234,11 @@ def GenerarEjidoSincronizado(ejido):
         nombreCsvUnido = 'MergedCSVs'
         csvUnido = CSV_MergeFiles(directoriosCSVs, listaCsvs, codificacionCsv, separador, camposNumericosDecimales, sustitucionesDeEncabezados, encabezadosAMayusculas, eliminarColumnasParecidas, eliminarColumnas, nombreCsvUnido)
         if not csvUnido:
+            print(f'No pude generar el CSV del pueblo.')
             return False
         ejido = STR_FillWithChars(ejido, 3, '0')
         csvs = CSV_DivideByFieldValue(csvUnido, 'TEN', 'S', enc='latin-1', separator=';')
         csvs = {'PROPIETARIOS': csvs['OTHERS'], 'POSEEDORES': csvs['MATCH']}
-        
         capas = BuscarCapasUrbanas(ejido)
         for ten in ['PROPIETARIOS','POSEEDORES']:
             try:
@@ -292,7 +291,32 @@ def GenerarEjidoSincronizado(ejido):
                     union.updateFields()
                 nombreCapa = f'{ejido}-{ten}-Sincronizado'
                 CANVAS_RemoveLayerByName(nombreCapa)
+                aux = CANVAS_AddLayer(union, nombreCapa)
+                aux2 = f'Sinc-{ten}.qml'
+                aux.loadNamedStyle(os.path.join(plantillas,aux2))
+                
+                #Aca genero el csv (temporal) con las entradas que faltan en la capa de poligonos
+                prefijo = 'POL_'
+                parametros = {  'DISCARD_NONMATCHING' : False, 
+                    'FIELD' : 'PARTIDA', 
+                    'FIELDS_TO_COPY' : [], 
+                    'FIELD_2' : 'PARTIDA', 
+                    'INPUT' : csv, 
+                    'INPUT_2' : capa, 
+                    'METHOD' : 0, 
+                    'OUTPUT' : 'TEMPORARY_OUTPUT', 
+                    'PREFIX' : prefijo }
+                union = processing.run("native:joinattributestable", parametros)
+                union = union['OUTPUT']
+                with edit(union):
+                    eliminar = []
+                    for feature in union.getFeatures():
+                        if feature[f'{prefijo}PARTIDA']:
+                            eliminar.append(feature.id())
+                    union.dataProvider().deleteFeatures(eliminar)
+                nombreCapa = f'Faltantes en {ejido}-{ten}'
                 CANVAS_AddLayer(union, nombreCapa)
+                
             except Exception as e:
                 print(f"Error en la sincronización de la capa {ten}. ErrorMSG: {e}")
                 continue
@@ -301,68 +325,6 @@ def GenerarEjidoSincronizado(ejido):
 
     except Exception as e:
         print(f"Error general en la sincronización del ejido {ejido}. ErrorMSG: {e}")
-
-@RegisterFunction("SincronizarSeccion", "SINCRONIZARSECCION","ss","SS")
-def SincronizarSeccion(campo='PARTIDA', seccion=False):
-    """
-    Sincroniza la tabla de las parcelas seleccionadas en la capa actual usando 'campo' para comparar con los datos de archivos CSV correspondientes a una seccion, obtenida desde el archivo.
-
-    PARÁMETROS
-    campo: Texto que indica la columna con la cual ejecutar la sincronizacion. Por defecto usa 'PARTIDA'.
-    seccion: Numero entero que indica la seccion a sincronizar. Por defecto lee desde la primera entidad en la capa.
-
-    COMENTARIOS
-
-    RETORNO
-    No retorna ningún valor.
-    """
-    #Defino la capa y las entidades sobre las cuales actualizar
-    capa = iface.activeLayer()
-    if not capa:
-      print(f'No habia una capa seleccionada.' )
-      return False
-    subconjunto = CANVAS_CheckSelection(capa)
-    if not subconjunto:
-        print(f'No habian parcelas seleccionadas.' )
-        return False
-
-    #controlo que existan los campos que necesito en la capa. asumo que los que vienen de csv estan bien
-    if not 'SECCION' in [x.name() for x in capa.fields()]:
-        print(f'La capa {capa.name()} no tenia el campo SECCION' )
-        return False
-    if not campo in [x.name() for x in capa.fields()]:
-        print(f'La capa {capa.name()} no tenia el campo {campo}' )
-        return False
-
-    #obtengo la seccion desde la capa
-    seccion = subconjunto[0]['SECCION']
-    
-    #obtengo los diccionarios desde disco
-    camposDecimales = ['PORCEN','V2','V3','V4']
-    camposBorrarAprox = ['EXPTE','ANIO']
-    conversiones = {'REGISTRO DE PROP. INMUEBLE':'REGISTRO',
-                    'NOMENCLATURA':'NOMENCLA',
-                    'APELLIDO Y NOMBRE':'APELLIDO',
-                    'REGISTRADO/S':'REGISTRADO',
-                    'Registro de Prop. Inmueble':'REGISTRO_D',
-                    ''}
-    csvPath = f'C:\\MaxlocV11\\Rural{seccion}.xls'
-    dic = CSV_ToDictList(csvPath, floatFields=camposDecimales, dropFields_aprox=camposBorrarAprox, fieldNameTranslations=conversiones)
-    if dic:
-        #Esto filtraria los poseedores fuera del diccionario de parcelas
-        #dic = DICT_Filter(dic, unmatchFilters={'TEN':'S'})
-        if campo=='PARTIDA':
-            for item in dic:
-                try:
-                    item['PARTIDA'] = int(item['PARTIDA'])
-                except ValueError:
-                    pass
-        dic = DICT_SetKey(dic, campo)
-    else:
-        print(f"Archivo CSV no encontrado o vacío: {csvPath}")
-        return False
-        
-    SyncFieldsFromDict(capa, subconjunto, dic, campo)
 
 
 
