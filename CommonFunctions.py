@@ -1137,6 +1137,9 @@ def PATH_GetFileFromWeb(githubFilePath,
             fileAge = currentTime - fileTime #in seconds
             if fileAge > maxCacheAge:
                 os.remove(localCandidate)
+            else:
+                print(f"Usando copia local: {githubFilePath}")
+                return localCandidate
         else:
             print(f"Usando copia local: {fileName}")
             return localCandidate
@@ -1540,3 +1543,4 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
