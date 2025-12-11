@@ -1098,7 +1098,7 @@ def PATH_FindFileInSubfolders(rootFolder, filters, ext='.shp', silent=True):
 
 def PATH_GetFileFromWeb(githubFilePath, 
                         urlRoot=r"https://raw.githubusercontent.com/jopaz0/QGis-DGC/refs/heads/main/",
-                        localRepo=r"L:/Geodesia/Privado/Opazo/Weas Operativas/Scripts/",
+                        localRepo=r"L:/Geodesia/Privado/Opazo/QGis-DGC/",
                         maxCacheAge= 3 * 30 * 24 * 3600):
     """
     Intenta obtener un archivo primero desde el repositorio local, luego desde caché temporal,
@@ -1543,4 +1543,5 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
+
 
