@@ -1,5 +1,5 @@
 """
-Modulo: AyudasGEO (23 Oct 2024)
+Modulo: AyudasGEO
 Funciones varias para agilizar o automatizar el trabajo diario en Geodesia.
 """
 import os
@@ -11,6 +11,7 @@ from pathlib import Path
 from qgis.utils import *
 from qgis.gui import *
 from qgis.core import *
+from qgis.PyQt.QtCore import QTimer
 from CommonFunctions import *
 from DGCFunctions import *
 
@@ -230,6 +231,73 @@ def CambiarEjido (ejido, circ=False, radio=False, cc=False, mzna=False):
     except Exception as e:
         print(f'Ocurrio un error al cambiar al ejido {ejido}. ErrorMSG: {e}')
 
+@RegisterFunction("completarcampomedidas", "COMPLETARCAMPOMEDIDAS", "ccm", "CCM")
+def CompletarCampoMedidas(sobreescribir=False, campoMedidas='MEDIDAS', campoId='PARTIDA', textoAdvertencia=False):
+    """
+    Completa el campo de medidas en los objetos seleccionados de la capa activa.
+
+    PARAMETROS
+    sobreescribir: booleano
+        Opcional, determina si sobreescribir las medidas existentes o ignorar esos poligonos. Por defecto los ignora.
+    campoMedidas: cadena de caracteres
+        Opcional, el nombre del campo donde guardar las medidas. Por defecto guarda en MEDIDAS
+    campoId: cadena de caracteres
+        Opcional, el nombre del campo que identifica a cada objeto. Por defecto usa PARTIDA
+    textoAdvertencia: cadena de caracteres
+        Opcional, inserta ese texto al inicio de la primer medida, para recordar que las medidas estan sin corroborar con el plano. Por defecto no inserta nada.
+    
+    COMENTARIOS
+
+    RETORNO
+    Nada
+    """
+    
+    #compruebo el input, por las dudas
+    capa = iface.activeLayer()
+    if not capa:
+        print('No se selecciono una capa.')
+        return
+    if not capa.selectedFeatures():
+        print(f'No habia objetos seleccionados en {capa.name()}.')
+        return
+    camposCapa = [f.name() for f in capa.fields()]
+    if not campoMedidas in camposCapa:
+        print(f'El campo {campoMedidas} no existe en {capa.name()}.')
+        return
+    if not campoId in camposCapa:
+        print(f'El campo {campoId} no existe en {capa.name()}.')
+        return
+        
+    #me hago un diccionario con los objetos seleccionados
+    objetos = {}
+    for objeto in capa.selectedFeatures():
+        objetos[objeto[campoId]] = objeto
+    if not sobreescribir:
+        ignorados = 0
+        for key, objeto in objetos.items():
+            if str(objeto[campoMedidas])!='NULL':
+                objetos[key] = False
+                ignorados += 1
+    
+    #separo lo seleccionado en una capa temporal y la uso para calcular las medidas
+    params = {  'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 
+                'OUTPUT':'TEMPORARY_OUTPUT'}
+    capaClonada = processing.run('native:fixgeometries', params)['OUTPUT']
+    capaClonada = LAY_Simplify(LAY_ForceRHR(capaClonada), 0.02)
+    for clon in capaClonada.getFeatures():
+        geom = GEOM_NormalizeFirstVertex(clon.geometry())
+        medidas = GEOM_GetMeasuresString(geom)
+        medidas = medidas.replace('.00','')
+        if textoAdvertencia:
+            medidas = textoAdvertencia + medidas
+        with edit(capa):
+            if objetos[clon[campoId]]:
+                objetos[clon[campoId]][campoMedidas] = medidas
+                capa.updateFeature(objetos[clon[campoId]])
+    if ignorados:
+        print(f'Ignorados {ignorados} objetos que ya tenian medidas cargadas.')
+    return
+
 @RegisterFunction("fcs", "FCS")
 def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coordenadas agregadas"]):
     layer = iface.activeLayer()
@@ -254,45 +322,19 @@ def FiltrarCoordenadasPorSeleccion(layerNames=["Coordenadas de Registrados","Coo
     print(f"Filtro aplicado: {filtro}")
 
 @RegisterFunction("Backup", "backup", "BACKUP")
-def GenerarBackupUrbanoCompleto():
+def Backups(rutaBackup=False):
     """
-    Realiza una copia de seguridad completa de los archivos en las carpetas POLIGONOS, PLANO PUEBLO y EXPEDIENTES de cada ejido.
-
-    PARAMETROS
-    Ninguno
-
-    COMENTARIOS
-    - La función lee el contenido de las carpetas directamente desde el disco L; guarda todo lo que encuentre.
-    - Crea un archivo zip en el directorio de documentos del usuario (Documentos/BACKUPS/), que contiene los archivos.
-    - El archivo de salida es alrededor del doble de pesado que usando BackupLigero
-    - No genera backup de parcelas rurales.
-
-    RETORNO
-    Nada
+    Realiza una copia de seguridad de las parcelas urbanas  y de las parcelas con medidas o mas de un registrado.
     """
-    directory  = r'L:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
-    if not os.path.exists(directory):
-        directory  = r'C:\Geodesia\Privado\Sig\PUEBLOS CAD-GIS'
-    files = []
-    for folder in os.listdir(directory):
-        if os.path.isdir(os.path.join(directory, folder)) and folder[:3].isdigit() and folder[3] == '-':
-            townFolder = os.path.join(directory, folder)
-            for subfolder in os.listdir(townFolder):
-                if os.path.isdir(os.path.join(townFolder, subfolder)) and (
-                     'POLIGONO' in subfolder.upper() or 
-                     'PUEBLO' in subfolder.upper() or 
-                     'EXPEDIENTE' in subfolder.upper()):
-                    files += [os.path.join(townFolder, subfolder, x) for x in os.listdir(os.path.join(townFolder, subfolder))]
-    backup_dir = os.path.join(Path.home(), 'Documents', 'BACKUPS')
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
-    zipFile = os.path.join(backup_dir, 'BACKUP PUEBLOS COMPLETO ' + STR_GetTimestamp() + '.zip')
-    with zipfile.ZipFile(zipFile, 'w', zipfile.ZIP_DEFLATED) as package:
-        for file in files:
-            package.write(file, file) 
-
+    if not rutaBackup:
+        BackupCapasUrbanas()
+        BackupMedidasYRegistradosUrbanos()
+    else:
+        BackupCapasUrbanas(rutaBackup)
+        BackupMedidasYRegistradosUrbanos(rutaBackup)
+    
 @RegisterFunction("mzsdesdesel", "MZSDESDESEL")
-def GenerarManzanasDesdeSeleccion():
+def GenerarManzanasDesdeSeleccion(capa=False):
     """
     Genera un shapefile de manzanas parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
 
@@ -302,15 +344,14 @@ def GenerarManzanasDesdeSeleccion():
 
     RETORNO
     """
-    capa = iface.activeLayer()
-    if not capa.selectedFeatures():
-        print(f'No habia parcelas seleccionadas en {capa.name()}')
-        return
-    capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+    if not capa:
+        capa = iface.activeLayer()
+    if capa.selectedFeatures():
+        capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
     GenerarShapeManzanas(capa, 'temp')
 
 @RegisterFunction("regsdesdesel", "REGSDESDESEL")
-def GenerarRegistradosDesdeSeleccion():
+def GenerarRegistradosDesdeSeleccion(capa=False):
     """
     Genera un shapefile de registrados parcial como archivo temporal, a partir de las parcelas seleccionadas en la capa activa.
 
@@ -320,11 +361,10 @@ def GenerarRegistradosDesdeSeleccion():
 
     RETORNO
     """
-    capa = iface.activeLayer()
-    if not capa.selectedFeatures():
-        print(f'No habia parcelas seleccionadas en {capa.name()}')
-        return
-    capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
+    if not capa:
+        capa = iface.activeLayer()
+    if capa.selectedFeatures():
+        capa = processing.run('native:fixgeometries', {'INPUT': QgsProcessingFeatureSourceDefinition(capa.id(), selectedFeaturesOnly=True, featureLimit=-1, geometryCheck=QgsFeatureRequest.GeometryAbortOnInvalid), 'OUTPUT':'TEMPORARY_OUTPUT'})['OUTPUT']
     GenerarShapeRegistrados([capa], 'temp')
 
 @RegisterFunction("kmzdesdesel", "KMZDESDESEL")
@@ -390,7 +430,8 @@ def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
         carpeta = PATH_GetDefaultSaveFolder()
     carpeta = os.path.join(carpeta, f"KMZs al dia {fechaYHora}")
     nombrePlantilla = 'KMLBaseDGC'
-    archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
+    #archivoPlantilla = PATH_GetFileFromWeb(os.path.join('res','Geodesia',f'{nombrePlantilla}.kml'))
+    archivoPlantilla = r'L:/Geodesia/Privado/Opazo/Weas Operativas/Scripts/res/Geodesia/KMLBaseDGC.kml'
     with open(archivoPlantilla, 'r', encoding='utf-8') as archivo:
         plantilla = archivo.read()
     CompletarDicEjidos()
@@ -423,11 +464,10 @@ def GenerarKMZs(guardarEnL = False, decorarNomencla = False):
                 rutaKmz = KML_ToKMZ(rutaKml)
                 CANVAS_RemoveLayerByName(capa.name())
                 kmzs.append(rutaKmz)
-        time.sleep(60)
     return kmzs
 
 @RegisterFunction("generarmanzanero", "GENERARMANZANERO", "gmz", "GMZ")
-def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
+def GenerarManzanero(ejido, circ, radio, cc, mzna, rotarMapa=False, plantilla='Manzanero A4'):
     """
     Genera un manzanero en la nomenclatura especificada, si existe.
 
@@ -442,6 +482,9 @@ def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
         Representa el código catastral.
     mzna: int | str
         Representa la manzana.
+    rotarMapa: bool | opcional
+        Indica si rotar la vista del mapa en la composicion.
+        Aun tiene algunos problemas con la visualizacion de las etiquetas.
     plantilla: str | opcional
         El nombre de la composición (por defecto es 'Manzanero A4').
 
@@ -453,23 +496,97 @@ def GenerarManzanero(ejido, circ, radio, cc, mzna, plantilla='Manzanero A4'):
         La función no devuelve ningún valor. En su lugar, genera una composición en QGIS
         y ajusta el mapa según los parámetros proporcionados.
     """
-    if not FiltrarParcelas(circ, radio, cc, mzna):
+    if QgsProject.instance().mapLayers():
+        print('Hay capas cargadas en el proyecto!')
+        print('Intente de nuevo en un proyecto vacio.')
         return
-    capa = QgsProject.instance().mapLayersByName('Propietarios-PHs')[0]
-    extension = capa.extent()
-    CANVAS_ZoomToLayer(capa)
+    
+    plantillas=r'L:\Geodesia\Privado\Opazo\Weas Operativas\Scripts\res\Geodesia'
+    plantillaComposicion = os.path.join(plantillas, plantilla+'.qpt')
+    PROJ_ImportGPL(os.path.join(plantillas,'Colores Qgis.gpl'))
+    filtro = f'"CIRC"={circ} AND "RADIO" ILIKE \'{radio}\' AND "CC"={cc} AND "MZNA" ilike \'{str(mzna)}\''
+    capas = BuscarCapasUrbanas(ejido)
+    
+    #Borro las capas anteriores para que no explote qgis
+    CANVAS_RemoveLayersContaining('')
+    
+    #Cargo las capas en el orden que las necesito
+    macizos = GenerarShapeManzanas(PathToLayer(capas['PROPIETARIOS']), 'temp')
+    registrados = GenerarShapeRegistrados([PathToLayer(capas['PROPIETARIOS']),PathToLayer(capas['POSEEDORES'])], 'temp')
+    propietarios = CANVAS_AddLayer(capas['PROPIETARIOS'])
+    poseedores = CANVAS_AddLayer(capas['POSEEDORES'])
+    clonPropietarios = CANVAS_AddLayer(processing.run('native:fixgeometries', {'INPUT' : propietarios, 'METHOD' : 1, 'OUTPUT' : 'TEMPORARY_OUTPUT'})['OUTPUT'])
+    clonPoseedores = CANVAS_AddLayer(processing.run('native:fixgeometries', {'INPUT' : poseedores, 'METHOD' : 1, 'OUTPUT' : 'TEMPORARY_OUTPUT'})['OUTPUT'])
+    radios = CANVAS_AddLayer(capas['RADIOS'])
+    circs = CANVAS_AddLayer(capas['CIRCUNSCRIPCIONES'])
+    calles = CANVAS_AddLayer(capas['CALLES'])
 
+    #renombro las capas
+    macizos.setName('TEMP Macizos')
+    registrados.setName('TEMP Registrados')
+    propietarios.setName('ORIGINAL!!! Propietarios')
+    clonPropietarios.setName('TEMP Propietarios')
+    poseedores.setName('ORIGINAL!!! Poseedores')
+    clonPoseedores.setName('TEMP Poseedores')
+    radios.setName('ORIGINAL!!! Radios')
+    circs.setName('ORIGINAL!!! Circs')
+    calles.setName('ORIGINAL!!! Calles')
+    
+    #Apago las originales de propietarios y poseedores
+    arbolCapas = QgsProject.instance().layerTreeRoot()
+    arbolCapas.findLayer(propietarios.id()).setItemVisibilityChecked(False)
+    arbolCapas.findLayer(poseedores.id()).setItemVisibilityChecked(False)
+    
+    #Aplico filtros a parcelas y registrados
+    propietarios.setSubsetString(filtro)
+    poseedores.setSubsetString(filtro)
+    clonPropietarios.setSubsetString(filtro)
+    clonPoseedores.setSubsetString(filtro)
+    registrados.setSubsetString(filtro)
+    
+    #Aplico estilos predefinidos
+    propietarios.loadNamedStyle(os.path.join(plantillas,'Manz-Propietarios.qml'))
+    clonPropietarios.loadNamedStyle(os.path.join(plantillas,'Manz-Propietarios.qml'))
+    poseedores.loadNamedStyle(os.path.join(plantillas,'Manz-Poseedores.qml'))
+    clonPoseedores.loadNamedStyle(os.path.join(plantillas,'Manz-Poseedores.qml'))
+    radios.loadNamedStyle(os.path.join(plantillas,'Manz-Radios.qml'))
+    circs.loadNamedStyle(os.path.join(plantillas,'Manz-Circunscripciones.qml'))
+    calles.loadNamedStyle(os.path.join(plantillas,'Manz-Calles.qml'))
+    macizos.loadNamedStyle(os.path.join(plantillas,'Manz-Macizos.qml'))
+    registrados.loadNamedStyle(os.path.join(plantillas,'Manz-Registrados.qml'))
+    
+    #pequeña espera a que qgis cargue las capas en lienzo
+    QTimer.singleShot(200, lambda: CANVAS_ZoomToLayer(propietarios))
+    
+    #Atando con alambre para que no se repitan tanto los colores...
+    with edit(registrados):
+        counter = 1
+        for f in registrados.getFeatures():
+            f['COLOR'] = counter%25+1
+            registrados.updateFeature(f)
+            counter += 1
+    
+    #Roto la visa de mapa...
+    if rotarMapa:
+        angulo = LAY_GetOMBBAngle(clonPropietarios)
+        iface.mapCanvas().setRotation(angulo)
+    
+    #busco la plantilla de manzanero
+    if os.path.exists(plantillaComposicion):
+        PROJ_ImportLayout(plantillaComposicion, plantilla)
+    else:
+        print(f'No se encontro {plantillaComposicion}.')
+        return
+    
+    #configuro la vista del mapa y renombro la nomenclatura
     manager = QgsProject.instance().layoutManager()
     composicion = manager.layoutByName(plantilla)
-    if composicion is not None:
-        iface.openLayoutDesigner(composicion)
-    else:
-        print(f"No se encontró una composición con el nombre {plantilla}")
-
+    iface.openLayoutDesigner(composicion)
     mapa = composicion.itemById('ventanaGrafica')
-    mapa.zoomToExtent(extension)
-    mapa.setScale(NUM_GetNextScale(mapa.scale(), 1.15))
-
+    mapa.zoomToExtent(propietarios.extent())
+    mapa.setScale(NUM_GetNextScale(mapa.scale(), 1.2))
+    if rotarMapa:
+        mapa.setMapRotation(angulo)
     if cc == 1:
         nomencla = f"{STR_FillWithChars(ejido,3)}-{STR_IntToRoman(circ)}-Ch.{str(mzna)}"
     elif cc == 2 or cc == 5:
@@ -515,13 +632,3 @@ def RecargarInfoEjidos():
     Llena el diccionario con las capas de todos los ejidos.
     """
     CompletarDicEjidos(True)
-
-
-
-
-
-
-
-
-
-
