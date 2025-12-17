@@ -219,7 +219,7 @@ def GenerarEjidoSincronizado(ejido):
     - Cualquier excepción se imprime en la consola para diagnóstico.
     
     """
-    plantillas=r'L:\Geodesia\Privado\Opazo\Weas Operativas\Scripts\res\Geodesia'
+    plantillas=r'L:\Geodesia\Privado\Opazo\QGis-DGC\res\Geodesia'
     #Todos estos son los parametros de entrada para CSV_MergeFiles
     try:
         directoriosCSVs = r'C:\MaxlocV11'
@@ -291,9 +291,8 @@ def GenerarEjidoSincronizado(ejido):
                     union.updateFields()
                 nombreCapa = f'{ejido}-{ten}-Sincronizado'
                 CANVAS_RemoveLayerByName(nombreCapa)
-                aux = CANVAS_AddLayer(union, nombreCapa)
-                aux2 = f'Sinc-{ten}.qml'
-                aux.loadNamedStyle(os.path.join(plantillas,aux2))
+                aux = CANVAS_AddLayer(union, nombreCapa)  
+                aux.loadNamedStyle(PATH_GetFileFromWeb(['res','Geodesia',f'Sinc-{ten}.qml']))
                 
                 #Aca genero el csv (temporal) con las entradas que faltan en la capa de poligonos
                 prefijo = 'POL_'
@@ -308,12 +307,22 @@ def GenerarEjidoSincronizado(ejido):
                     'PREFIX' : prefijo }
                 union = processing.run("native:joinattributestable", parametros)
                 union = union['OUTPUT']
+                #elimino las que enlazan o las parcelas con fines unicamente impositivos (a partir de 100000)
                 with edit(union):
                     eliminar = []
                     for feature in union.getFeatures():
-                        if feature[f'{prefijo}PARTIDA']:
+                        if feature[f'{prefijo}PARTIDA'] or str(feature['PARTIDA'])[0:3]=='100':
                             eliminar.append(feature.id())
                     union.dataProvider().deleteFeatures(eliminar)
+                
+                #elimino los campos que sobran y cambio de lugar el de registrados
+                with edit(union):
+                    campos = union.fields()
+                    eliminar = [campos.indexFromName(c.name())for c in campos if c.name().startswith('POL_')]
+                    union.dataProvider().deleteAttributes(eliminar)
+                    union.updateFields()
+                union = LAY_MoveField(union, 'NOMENCLA', 1)
+                union = LAY_MoveField(union, 'REGISTRADO', 3)
                 nombreCapa = f'Faltantes en {ejido}-{ten}'
                 CANVAS_AddLayer(union, nombreCapa)
                 
