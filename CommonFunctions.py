@@ -402,7 +402,7 @@ def CSV_ToDictList(csvPath,
         csvList = data.to_dict(orient='records')
         return csvList
     except Exception as e:
-        print(f'Error al leer el CSV (no existe {csvPath}?). ErrorMSG: {e}')
+        print("Error al leer el CSV (no existe " + csvPath + "?). ErrorMSG: " + e)
         return False
 
 def CSV_DivideByFieldValue(csvPath, field, value, enc='latin-1', separator=';'):
@@ -1019,7 +1019,50 @@ def LAY_Simplify(layer, coef, method=0):
     layer = processing.run('native:simplifygeometries', params)['OUTPUT']
     return layer
 
-def NUM_GetNextScale(scale, zoom=1):
+#comment on this are pending. made by chatgpt
+def LAY_MoveField(layer, fieldName, index):
+    crs = layer.crs()
+    geom_type = layer.wkbType()
+
+    campos = layer.fields()
+
+    # construir nuevo orden
+    idx_reg = campos.indexFromName(fieldName)
+    nuevo_orden = list(range(len(campos)))
+
+    if idx_reg != -1:
+        nuevo_orden.remove(idx_reg)
+        nuevo_orden.insert(index-1, idx_reg)
+
+    # crear definición de campos nueva
+    campos_nuevos = QgsFields()
+    for i in nuevo_orden:
+        campos_nuevos.append(campos[i])
+
+    # crear capa temporal
+    layer_nueva = QgsVectorLayer(
+        QgsWkbTypes.displayString(geom_type),
+        f"{layer.name()}_ordenada",
+        "memory"
+    )
+    layer_nueva.setCrs(crs)
+
+    prov = layer_nueva.dataProvider()
+    prov.addAttributes(campos_nuevos)
+    layer_nueva.updateFields()
+
+    # copiar features
+    features = []
+    for f in layer.getFeatures():
+        f_new = QgsFeature()
+        f_new.setGeometry(f.geometry())
+        f_new.setAttributes([f[i] for i in nuevo_orden])
+        features.append(f_new)
+    prov.addFeatures(features)
+    return layer_nueva
+
+
+def NUM_GetNextScale(scale, zoomIn=1):
     """
     Receives the current map scale and a zoom percentage, and returns the next official DGC scale that is immediately higher.
 
@@ -1028,22 +1071,20 @@ def NUM_GetNextScale(scale, zoom=1):
     PARAMETERS
     scale: float
         The current scale of the map.
-    zoom: float | optional
+    zoomIn: float | optional
         The percentage to adjust the scale, where values above 1 zoom out (default is 1).
 
     RETURNS
     float
         The next higher official DGC scale based on the current scale and zoom factor.
     """
-
-    scale = scale * zoom
-    bases = [100,125,150,200,250,300,400,500,750]
-    mult = 1
+    scale = scale * zoomIn
+    bases = [100,150,200,250,300,400,500,750]
     while True:
         for base in bases:
-            if scale <= base*mult:
-                return base * mult
-        mult = mult*10
+            if scale < base:
+                return base
+        bases = [base*10 for base in bases]
 
 def PATH_GetDefaultSaveFolder():
     path = os.path.join(Path.home(), 'Documents','BORRAR')
@@ -1127,8 +1168,6 @@ def PATH_GetFileFromWeb(githubFilePath,
             localRepo = localRepo + sub + "/"
         githubFilePath = githubFilePath[-1]
     try:
-        fileName = os.path.basename(githubFilePath)
-
         #Lo busco en el L
         localCandidate = os.path.join(localRepo, githubFilePath)
         if os.path.exists(localCandidate):
@@ -1138,21 +1177,36 @@ def PATH_GetFileFromWeb(githubFilePath,
             if fileAge > maxCacheAge:
                 os.remove(localCandidate)
             else:
-                print(f"Usando copia local: {githubFilePath}")
+                print("Usando copia local: " + githubFilePath)
                 return localCandidate
         else:
-            print(f"Usando copia local: {fileName}")
+            print("Usando copia local: " + githubFilePath)
             return localCandidate
         
         #Si no esta, lo descargo
         url = urlRoot + urllib.parse.quote(githubFilePath.replace('\\', '/'))
-        print(f"Descargando desde GitHub: {fileName}")
+        print("Descargando desde GitHub: " + githubFilePath)
         urllib.request.urlretrieve(url, localCandidate)
         return localCandidate
 
     except Exception as e:
-        print(f"Error al obtener {githubFilePath}: {e}")
+        print("Error al obtener " + githubFilePath + ": " + e)
         return False
+
+#comment on this are pending
+def PROJ_CreateThemeWithCurrentState(name, overwrite=True):
+    mapThemesCollection = QgsProject.instance().mapThemeCollection()
+    mapThemeRecord = QgsMapThemeCollection.createThemeFromCurrentState(
+        QgsProject.instance().layerTreeRoot(),
+        iface.layerTreeView().layerTreeModel()
+    )
+    if name in mapThemesCollection.mapThemes():
+        if overwrite:
+            mapThemesCollection.removeMapTheme(name)
+        else:
+            print(f'Map theme {name} already exists in the current project.')
+            return False
+    return mapThemesCollection.insert(name, mapThemeRecord)
 
 def PROJ_ImportGPL(path_gpl: str):
     """
@@ -1543,5 +1597,3 @@ def SyncFieldsFromDict(layer, features, data, keyField, fields=False, ignoreMult
                 if not layer.updateFeature(feature):
                     print(f"Error al actualizar la entidad con clave {key}. Revertiendo cambios.")
                     layer.rollBack()
-
-
